@@ -20,5 +20,4 @@ images:
     alt: "Square framed assemblage of broken amber glass shards arranged around the neck, shoulder, and base sections of a Don Julio 1942 bottle on a white ground"
 featured: true
 sortOrder: 1
-placeholder: false
 ---

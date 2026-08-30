@@ -21,5 +21,4 @@ images:
     alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
 featured: true
 sortOrder: 0
-placeholder: false
 ---

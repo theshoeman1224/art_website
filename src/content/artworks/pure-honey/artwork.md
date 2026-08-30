@@ -21,5 +21,4 @@ images:
     alt: "Framed assemblage of a clear ribbed SirDavis bottle mounted vertically among broken glass shards and scattered gold leaf flakes on a white ground"
 featured: false
 sortOrder: 2
-placeholder: false
 ---

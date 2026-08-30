@@ -2,23 +2,20 @@
 
 A static-first portfolio for a mixed-media artist. The site uses Astro, TypeScript, repository-native artwork records, and a small framework-free lightbox.
 
-Artwork records and images are being replaced with artist-provided content one piece at a time. Remaining sample records, artist copy, and contact details are visibly marked as placeholders.
+Artist-provided copy, artwork records, and photography are in place. Contact details in `src/config.ts` are still provisional until launch.
 
 ## Repository structure
 
 ```text
 src/
   assets/
-    artworks/<slug>/       Legacy sample photography during migration
-    artist-placeholder.jpg
+    artist-portrait.jpg
   components/              Shared image, navigation, and lightbox components
   content/artworks/<slug>/ Portable artwork package: metadata and images
   layouts/BaseLayout.astro
   pages/                   Astro routes
   styles/global.css        Design tokens and global rules
   config.ts                Email, Instagram, and site-level content
-scripts/
-  generate-placeholders.mjs
 astro.config.mjs
 ```
 
@@ -61,7 +58,7 @@ The production output is written to `dist/`.
 2. Add `artwork.md` using `src/content/artworks/after-the-break/artwork.md` as the model.
 3. Put the hero and any detail, angled, environment, or process photographs in the same folder.
 4. Reference each photograph with a relative path such as `./hero.png` and assign its role.
-5. Set `placeholder: false` and run `npm run check`.
+5. Run `npm run check`.
 
 The artwork will appear on `/work` and Astro will create `/work/<slug>`. Set `featured: true` to make the record eligible for featured placements. The homepage displays the first six records; `/work` displays the complete portfolio.
 
@@ -69,7 +66,7 @@ Do not manually resize source photographs for layout slots. Keep their original 
 
 ## Artwork schema
 
-The validated schema lives in `src/content.config.ts`. Real artworks use the portable package format below. The schema temporarily accepts the split format used by remaining sample records and normalizes both formats for the site.
+The validated schema lives in `src/content.config.ts`. Real artworks use the portable package format.
 
 | Field | Type | Purpose |
 | --- | --- | --- |
@@ -87,7 +84,6 @@ The validated schema lives in `src/content.config.ts`. Real artworks use the por
 | `featured` | boolean | Eligible for featured placement |
 | `instagramUrl` | optional URL | Link to a post about this work |
 | `sortOrder` | integer | Portfolio display order |
-| `placeholder` | boolean | Enables visible sample-content notices |
 
 Allowed `status` values:
 
@@ -123,10 +119,6 @@ images:
 ```
 
 Alt text should describe what is visible and what the photograph contributes. Avoid repeating only the artwork title. An angled view should mention depth or projection when that is the reason for the image.
-
-## Placeholder media
-
-`npm run generate:placeholders` regenerates the current sample artwork and portrait files. It is only a preview aid. Remove the generator and sample records after real photography replaces them.
 
 ## Contact configuration
 

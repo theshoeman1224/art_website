@@ -56,7 +56,7 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
         <ArtworkImage
           src={processImage.src}
           alt={processImage.alt}
-          caption={`Process photograph${processArtwork?.data.placeholder ? ' · Sample image' : ''}`}
+          caption="Process photograph"
           sizes="(min-width: 768px) 62vw, 100vw"
           lightbox
           gallery="artist-process"
@@ -68,7 +68,6 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
       <span class="draft-note">Draft for artist review</span>
       <h3>Collect. Test. Break. Reassemble.</h3>
       <p>Materials may suggest the initial direction, but the outcome is not fixed in advance. Construction, removal, and revision continue until the surface and structure feel resolved.</p>
-      {processArtwork?.data.placeholder && <p class="quiet">Replace this sample image with real studio or process photography.</p>}
     </div>
   </section>
 </BaseLayout>

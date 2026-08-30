@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import artistPortrait from '../assets/artist-portrait.jpg';
 import ArtworkCard from '../components/ArtworkCard.astro';
 import ArtworkImage from '../components/ArtworkImage.astro';
-import PlaceholderNotice from '../components/PlaceholderNotice.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const artworks = (await getCollection('artworks')).sort((a, b) =>
@@ -17,12 +16,9 @@ const textureArtwork = featuredArtworks.find((artwork) => artwork.data.images.so
 const textureImage = textureArtwork.data.images.find((image) => image.type === 'detail');
 const featureDetail = feature.data.images.find((image) => image.type === 'detail');
 const featureAngle = feature.data.images.find((image) => image.type === 'angled');
-const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholder);
 ---
 
 <BaseLayout>
-  {hasPlaceholderArtwork && <PlaceholderNotice />}
-
   <section class="home-hero page-shell">
     <div class="hero-title">
       <h1><span>Endeavor</span><span>Art Studio</span></h1>
@@ -32,13 +28,13 @@ const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholde
       <ArtworkImage
         src={hero.data.hero.src}
         alt={hero.data.hero.alt}
-        caption={`${hero.data.title}, ${hero.data.year}${hero.data.placeholder ? ' · Sample artwork record' : ''}`}
+        caption={`${hero.data.title}, ${hero.data.year}`}
         sizes="(min-width: 768px) 58vw, 100vw"
         loading="eager"
         lightbox
         gallery="home-hero"
       />
-      <p><span>{hero.data.title}</span><span>{hero.data.year}{hero.data.placeholder ? ' · Sample artwork' : ''}</span></p>
+      <p><span>{hero.data.title}</span><span>{hero.data.year}</span></p>
     </div>
   </section>
 
@@ -75,7 +71,7 @@ const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholde
       <ArtworkImage
         src={textureImage.src}
         alt={textureImage.alt}
-        caption={`${textureArtwork.data.title} · Macro detail${textureArtwork.data.placeholder ? ' · Sample image' : ''}`}
+        caption={`${textureArtwork.data.title} · Macro detail`}
         sizes="100vw"
         lightbox
         gallery="texture-feature"
@@ -86,7 +82,7 @@ const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholde
   <section class="featured section page-shell" aria-labelledby="featured-title">
     <div class="featured-intro">
       <h2 id="featured-title" class="section-label">Featured work</h2>
-      <p class="eyebrow">{feature.data.placeholder ? 'Sample artwork record' : 'Featured artwork'}</p>
+      <p class="eyebrow">Featured artwork</p>
       <h3>{feature.data.title}</h3>
       <p class="featured-description">{feature.data.description}</p>
       <dl>
@@ -101,7 +97,7 @@ const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholde
       <ArtworkImage
         src={feature.data.hero.src}
         alt={feature.data.hero.alt}
-        caption={`${feature.data.title} · Full view${feature.data.placeholder ? ' · Sample image' : ''}`}
+        caption={`${feature.data.title} · Full view`}
         sizes="(min-width: 768px) 52vw, 100vw"
         lightbox
         gallery="featured-work"
@@ -110,7 +106,7 @@ const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholde
         <ArtworkImage
           src={featureDetail.src}
           alt={featureDetail.alt}
-          caption={`${feature.data.title} · Macro detail${feature.data.placeholder ? ' · Sample image' : ''}`}
+          caption={`${feature.data.title} · Macro detail`}
           sizes="(min-width: 768px) 25vw, 48vw"
           lightbox
           gallery="featured-work"
@@ -120,7 +116,7 @@ const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholde
         <ArtworkImage
           src={featureAngle.src}
           alt={featureAngle.alt}
-          caption={`${feature.data.title} · Angled view${feature.data.placeholder ? ' · Sample image' : ''}`}
+          caption={`${feature.data.title} · Angled view`}
           sizes="(min-width: 768px) 25vw, 48vw"
           lightbox
           gallery="featured-work"

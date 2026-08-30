@@ -15,7 +15,7 @@ const {
   sizes = '(min-width: 768px) 50vw, 100vw',
   headingLevel = 'h2',
 } = Astro.props;
-const { title, slug, year, medium, hero, placeholder } = artwork.data;
+const { title, slug, year, medium, hero } = artwork.data;
 const Heading = headingLevel;
 ---
 
@@ -33,7 +33,6 @@ const Heading = headingLevel;
       <Heading><a href={`/work/${slug}`}>{title}</a></Heading>
       <p>{year} · {medium}</p>
     </div>
-    {placeholder && <span>Sample record</span>}
   </div>
 </article>
 
@@ -76,8 +75,7 @@ const Heading = headingLevel;
     text-decoration: none;
   }
 
-  p,
-  span {
+  p {
     margin: 0;
     color: var(--paper-muted);
     font-size: 0.72rem;
@@ -85,19 +83,9 @@ const Heading = headingLevel;
     text-transform: uppercase;
   }
 
-  span {
-    flex: 0 0 auto;
-    padding-top: 0.3rem;
-  }
-
   @media (max-width: 35rem) {
     .artwork-caption {
       display: block;
-    }
-
-    span {
-      display: inline-block;
-      margin-top: 0.5rem;
     }
   }
 </style>

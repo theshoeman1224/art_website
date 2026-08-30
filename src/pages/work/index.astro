@@ -1,17 +1,14 @@
 ---
 import { getCollection } from 'astro:content';
 import ArtworkCard from '../../components/ArtworkCard.astro';
-import PlaceholderNotice from '../../components/PlaceholderNotice.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const artworks = (await getCollection('artworks')).sort((a, b) =>
   a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
 );
-const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholder);
 ---
 
 <BaseLayout title="Work" description="The complete artwork portfolio of Endeavor Art Studio.">
-  {hasPlaceholderArtwork && <PlaceholderNotice />}
   <header class="work-header page-shell">
     <p class="eyebrow">Portfolio / {artworks.length} works</p>
     <h1>Work</h1>

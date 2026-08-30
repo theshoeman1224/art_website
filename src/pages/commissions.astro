@@ -10,7 +10,7 @@ const commissionArtworks = artworks.filter((item) => item.data.commission);
 const slides = (commissionArtworks.length > 0 ? commissionArtworks : artworks.slice(0, 1)).map((item) => ({
   src: item.data.hero.src,
   alt: item.data.hero.alt,
-  caption: `${item.data.title}, ${item.data.year}${item.data.placeholder ? ' · Sample artwork' : ''}`,
+  caption: `${item.data.title}, ${item.data.year}`,
 }));
 
 const steps = [

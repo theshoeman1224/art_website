@@ -27,13 +27,6 @@ const statusLabels = {
 ---
 
 <BaseLayout title={data.title} description={data.description}>
-  {data.placeholder && (
-    <aside class="record-notice page-shell">
-      <strong>Sample artwork record</strong>
-      <span>All artwork information and images on this page are placeholders for layout review.</span>
-    </aside>
-  )}
-
   <article>
     <header class="artwork-header page-shell">
       <a class="back-link" href="/work">← All work</a>
@@ -47,7 +40,7 @@ const statusLabels = {
       <ArtworkImage
         src={data.hero.src}
         alt={data.hero.alt}
-        caption={`${data.title} · Full view${data.placeholder ? ' · Sample image' : ''}`}
+        caption={`${data.title} · Full view`}
         sizes="100vw"
         loading="eager"
         lightbox
@@ -67,7 +60,6 @@ const statusLabels = {
         </dl>
       </div>
       <div>
-        {data.placeholder && <span class="draft-note">Placeholder description</span>}
         <p class="large-copy">{data.description}</p>
         {data.instagramUrl && (
           <a class="text-link" href={data.instagramUrl} rel="noreferrer">View on Instagram</a>
@@ -83,7 +75,7 @@ const statusLabels = {
             <ArtworkImage
               src={image.src}
               alt={image.alt}
-              caption={`${data.title} · ${image.type} view${data.placeholder ? ' · Sample image' : ''}`}
+              caption={`${data.title} · ${image.type} view`}
               sizes={index === 0 ? '100vw' : '(min-width: 768px) 65vw, 100vw'}
               lightbox
               gallery={data.slug}
@@ -102,22 +94,6 @@ const statusLabels = {
 </BaseLayout>
 
 <style>
-  .record-notice {
-    display: flex;
-    gap: 1rem;
-    padding-block: 0.8rem;
-    color: var(--paper-muted);
-    font-size: 0.72rem;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .record-notice strong {
-    color: var(--clay);
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
   .artwork-header {
     display: grid;
     grid-template-columns: 1fr 3fr;
@@ -233,14 +209,6 @@ const statusLabels = {
   }
 
   @media (max-width: 47.99rem) {
-    .record-notice {
-      display: block;
-    }
-
-    .record-notice strong {
-      display: block;
-    }
-
     .artwork-header,
     .artwork-info {
       grid-template-columns: 1fr;

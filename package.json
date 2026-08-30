@@ -7,8 +7,7 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "check": "astro check",
-    "generate:placeholders": "node scripts/generate-placeholders.mjs"
+    "check": "astro check"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

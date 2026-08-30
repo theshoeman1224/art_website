@@ -26,25 +26,9 @@ const artworks = defineCollection({
     };
     const secondaryImageRole = z.enum(['detail', 'angled', 'environment', 'process']);
 
-    const legacyArtwork = z.object({
-      ...sharedFields,
-      placeholder: z.literal(true),
-      dimensions: z.string(),
-      hero: z.object({
-        src: image(),
-        alt: z.string().min(1),
-      }),
-      images: z.array(z.object({
-        src: image(),
-        alt: z.string().min(1),
-        type: secondaryImageRole,
-      })).default([]),
-    });
-
-    const portableArtwork = z.object({
+    return z.object({
       ...sharedFields,
       schemaVersion: z.literal(1),
-      placeholder: z.literal(false).default(false),
       dimensions: z.object({
         height: z.number().positive(),
         width: z.number().positive(),
@@ -54,24 +38,20 @@ const artworks = defineCollection({
       images: z.array(z.object({
         src: image(),
         alt: z.string().min(1),
-        role: z.enum(['hero', 'detail', 'angled', 'environment', 'process']),
+        role: z.enum(['hero', ...secondaryImageRole.options]),
       })).min(1),
     }).superRefine((artwork, context) => {
       const heroCount = artwork.images.filter((item) => item.role === 'hero').length;
       if (heroCount !== 1) {
         context.addIssue({
           code: 'custom',
-          message: 'Portable artwork packages must contain exactly one hero image.',
+          message: 'Artwork packages must contain exactly one hero image.',
           path: ['images'],
         });
       }
-    });
-
-    return z.union([legacyArtwork, portableArtwork]).transform((artwork) => {
-      if ('hero' in artwork) return artwork;
-
+    }).transform((artwork) => {
       const heroImage = artwork.images.find((item) => item.role === 'hero');
-      if (!heroImage) throw new Error('Portable artwork package is missing its hero image.');
+      if (!heroImage) throw new Error('Artwork package is missing its hero image.');
 
       const { height, width, depth, unit } = artwork.dimensions;
       const measurements = [height, width, ...(depth ? [depth] : [])].join(' × ');
