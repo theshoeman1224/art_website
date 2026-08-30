@@ -23,6 +23,6 @@ images:
     alt: "Sample angled view of a wide relief assemblage"
     type: angled
 featured: true
-sortOrder: 3
+sortOrder: 4
 placeholder: true
 ---

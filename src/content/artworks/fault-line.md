@@ -29,6 +29,6 @@ images:
     alt: "Sample process view with loose fragments positioned around the work"
     type: process
 featured: true
-sortOrder: 2
+sortOrder: 3
 placeholder: true
 ---
