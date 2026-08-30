@@ -78,15 +78,6 @@ for (const study of studies) {
   }
 }
 
-const portrait = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1800">
-    <defs><filter id="g"><feTurbulence baseFrequency=".018" numOctaves="4"/><feBlend mode="soft-light" in="SourceGraphic"/></filter></defs>
-    <rect width="100%" height="100%" fill="#292824"/>
-    <g filter="url(#g)"><circle cx="700" cy="625" r="255" fill="#a7947a"/><path d="M220 1800 Q270 950 700 940 T1180 1800" fill="#151514"/><rect x="110" y="120" width="1180" height="1520" fill="none" stroke="#eee9df" opacity=".2" stroke-width="3"/></g>
-    <text x="70" y="1725" fill="#eee9df" opacity=".7" font-family="Arial" font-size="26" letter-spacing="7">ARTIST PORTRAIT PLACEHOLDER</text>
-  </svg>`;
-
 await mkdir(path.resolve('src/assets'), { recursive: true });
-await sharp(Buffer.from(portrait)).jpeg({ quality: 90 }).toFile(path.resolve('src/assets/artist-placeholder.jpg'));
 
 console.log(`Generated sample artwork photography in ${root}`);
