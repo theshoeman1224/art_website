@@ -5,15 +5,14 @@ slug: worth-the-break
 year: 2024
 medium: Mixed media, framed assemblage
 materials:
-  - Repurposed amber glass
-  - Bottle components
+  - Don Julio 1942 bottle components
   - Epoxy
 dimensions:
   height: 36
   width: 24
   unit: in
 description: "Worth the Break transforms a Don Julio 1942 bottle into a carefully composed study of fracture, balance, and reconstruction. Broken amber glass is reassembled with epoxy around the recognizable remains of the bottle, preserving its identity while giving it an entirely new form."
-status: private_collection
+status: commission
 commission: true
 images:
   - src: ./hero.png
