@@ -2,17 +2,17 @@
 
 A static-first portfolio for a mixed-media artist. The site uses Astro, TypeScript, repository-native artwork records, and a small framework-free lightbox.
 
-All artwork records, artwork images, artist copy, and contact details currently in the repository are placeholders. The site marks them visibly so they cannot be mistaken for artist-provided information.
+Artwork records and images are being replaced with artist-provided content one piece at a time. Remaining sample records, artist copy, and contact details are visibly marked as placeholders.
 
 ## Repository structure
 
 ```text
 src/
   assets/
-    artworks/<slug>/       Artwork photography, grouped by artwork
+    artworks/<slug>/       Legacy sample photography during migration
     artist-placeholder.jpg
   components/              Shared image, navigation, and lightbox components
-  content/artworks/        One Markdown metadata record per artwork
+  content/artworks/<slug>/ Portable artwork package: metadata and images
   layouts/BaseLayout.astro
   pages/                   Astro routes
   styles/global.css        Design tokens and global rules
@@ -57,34 +57,33 @@ The production output is written to `dist/`.
 
 ## Add an artwork
 
-1. Create `src/assets/artworks/<slug>/`.
-2. Add the full artwork photograph as `hero.jpg`, `hero.png`, or another format Astro supports.
-3. Add any detail, angled, environment, and process photographs in the same directory.
-4. Copy one record in `src/content/artworks/` to `<slug>.md`.
-5. Replace every field, set `placeholder: false`, and run `npm run check`.
+1. Create `src/content/artworks/<slug>/`.
+2. Add `artwork.md` using `src/content/artworks/after-the-break/artwork.md` as the model.
+3. Put the hero and any detail, angled, environment, or process photographs in the same folder.
+4. Reference each photograph with a relative path such as `./hero.png` and assign its role.
+5. Set `placeholder: false` and run `npm run check`.
 
-The artwork will appear on `/work` and Astro will create `/work/<slug>`. Set `featured: true` to make the record eligible for featured placements. The current homepage selection uses all six records because the MVP contains six samples.
+The artwork will appear on `/work` and Astro will create `/work/<slug>`. Set `featured: true` to make the record eligible for featured placements. The homepage displays the first six records; `/work` displays the complete portfolio.
 
 Do not manually resize source photographs for layout slots. Keep their original aspect ratios and enough resolution to show material texture. Astro creates responsive AVIF, WebP, and fallback files at build time. A practical source target is 2000 to 3000 pixels on the long edge. Avoid uploading camera-original files that are much larger unless fine detail requires them.
 
 ## Artwork schema
 
-The validated schema lives in `src/content.config.ts`.
+The validated schema lives in `src/content.config.ts`. Real artworks use the portable package format below. The schema temporarily accepts the split format used by remaining sample records and normalizes both formats for the site.
 
 | Field | Type | Purpose |
 | --- | --- | --- |
+| `schemaVersion` | `1` | Version of the portable package format |
 | `title` | string | Display title |
 | `slug` | string | Lowercase URL segment with hyphens |
 | `year` | integer | Completion year |
 | `medium` | string | Primary medium label |
 | `materials` | string array | Physical materials used |
-| `dimensions` | string | Display-ready dimensions including units |
+| `dimensions` | object | Numeric height, width, optional depth, and unit |
 | `description` | string | Artwork description |
 | `status` | enum | Collection or availability state |
 | `commission` | boolean | Whether the work originated as a commission |
-| `hero.src` | local image | Primary full artwork view |
-| `hero.alt` | string | Meaningful description of the image |
-| `images` | image array | Additional photographs and their roles |
+| `images` | image array | All photographs, relative paths, alt text, and roles |
 | `featured` | boolean | Eligible for featured placement |
 | `instagramUrl` | optional URL | Link to a post about this work |
 | `sortOrder` | integer | Portfolio display order |
@@ -100,22 +99,27 @@ available
 not_for_sale
 ```
 
-Allowed additional image roles:
+Allowed image roles:
 
 ```text
+hero
 detail
 angled
 environment
 process
 ```
 
-Example image entry:
+Each package must contain exactly one `hero` image. Example:
 
 ```yaml
+dimensions:
+  height: 36
+  width: 24
+  unit: in
 images:
-  - src: ../../assets/artworks/example/detail.jpg
-    alt: "Close view of translucent glass held in textured resin"
-    type: detail
+  - src: ./hero.png
+    role: hero
+    alt: "Vertical black textured artwork crossed by reflective gold leaf"
 ```
 
 Alt text should describe what is visible and what the photograph contributes. Avoid repeating only the artwork title. An angled view should mention depth or projection when that is the reason for the image.

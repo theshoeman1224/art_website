@@ -4,7 +4,9 @@ import artistPortrait from '../assets/artist-placeholder.jpg';
 import ArtworkImage from '../components/ArtworkImage.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const artworks = await getCollection('artworks');
+const artworks = (await getCollection('artworks')).sort((a, b) =>
+  a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
+);
 const processArtwork = artworks.find((artwork) => artwork.data.images.some((image) => image.type === 'process'));
 const processImage = processArtwork?.data.images.find((image) => image.type === 'process');
 ---

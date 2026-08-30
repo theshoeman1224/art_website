@@ -3,8 +3,12 @@ import { getCollection } from 'astro:content';
 import ArtworkImage from '../components/ArtworkImage.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const artworks = await getCollection('artworks');
-const artwork = artworks.find((item) => item.data.slug === 'small-constellation') ?? artworks[0];
+const artworks = (await getCollection('artworks')).sort((a, b) =>
+  a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
+);
+const artwork = artworks.find((item) => item.data.commission)
+  ?? artworks.find((item) => item.data.featured)
+  ?? artworks[0];
 const detail = artwork.data.images.find((image) => image.type === 'detail') ?? artwork.data.hero;
 
 const steps = [

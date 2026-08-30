@@ -10,7 +10,6 @@ const studies = [
   { slug: 'after-vessel', width: 1600, height: 2100, colors: ['#9a5d45', '#d5c5a7', '#273331'], form: 'ceramic' },
   { slug: 'remainder-no-3', width: 2300, height: 1500, colors: ['#b6a27b', '#4f5d60', '#261f1d'], form: 'assemblage' },
   { slug: 'weathered-signal', width: 1700, height: 1700, colors: ['#b84e39', '#d7c5a2', '#243235'], form: 'abstract' },
-  { slug: 'small-constellation', width: 1500, height: 2000, colors: ['#d1ba8a', '#68716c', '#322828'], form: 'fragments' },
 ];
 
 const escapeXml = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');

@@ -4,7 +4,9 @@ import ArtworkCard from '../../components/ArtworkCard.astro';
 import PlaceholderNotice from '../../components/PlaceholderNotice.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const artworks = (await getCollection('artworks')).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const artworks = (await getCollection('artworks')).sort((a, b) =>
+  a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
+);
 const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholder);
 ---
 
