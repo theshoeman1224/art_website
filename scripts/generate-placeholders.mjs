@@ -8,7 +8,6 @@ const studies = [
   { slug: 'fault-line', width: 1800, height: 2300, colors: ['#c9875e', '#20292c', '#d8c9af'], form: 'glass' },
   { slug: 'held-light', width: 2200, height: 1500, colors: ['#92a7a2', '#dbb66e', '#312d29'], form: 'bottle' },
   { slug: 'after-vessel', width: 1600, height: 2100, colors: ['#9a5d45', '#d5c5a7', '#273331'], form: 'ceramic' },
-  { slug: 'remainder-no-3', width: 2300, height: 1500, colors: ['#b6a27b', '#4f5d60', '#261f1d'], form: 'assemblage' },
   { slug: 'weathered-signal', width: 1700, height: 1700, colors: ['#b84e39', '#d7c5a2', '#243235'], form: 'abstract' },
 ];
 

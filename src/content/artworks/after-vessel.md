@@ -23,6 +23,6 @@ images:
     alt: "Sample side view suggesting the projection of ceramic fragments"
     type: angled
 featured: false
-sortOrder: 3
+sortOrder: 4
 placeholder: true
 ---
