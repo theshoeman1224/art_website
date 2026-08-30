@@ -141,12 +141,21 @@
   }
 
   .lightbox figure {
+    grid-column: 2;
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
     width: 100%;
     height: 100%;
     margin: 0;
     overflow: hidden;
+  }
+
+  .lightbox-prev {
+    grid-column: 1;
+  }
+
+  .lightbox-next {
+    grid-column: 3;
   }
 
   .lightbox img {
