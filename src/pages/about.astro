@@ -1,0 +1,174 @@
+---
+import { getCollection } from 'astro:content';
+import artistPortrait from '../assets/artist-placeholder.jpg';
+import ArtworkImage from '../components/ArtworkImage.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const artworks = await getCollection('artworks');
+const processArtwork = artworks.find((artwork) => artwork.data.images.some((image) => image.type === 'process'));
+const processImage = processArtwork?.data.images.find((image) => image.type === 'process');
+---
+
+<BaseLayout title="About" description="About the artist and material practice behind Endeavor Art Studio.">
+  <header class="page-heading page-shell">
+    <p class="eyebrow">About / Artist and practice</p>
+    <h1>Material leads.<br />The work follows.</h1>
+  </header>
+
+  <section class="bio page-shell" aria-labelledby="bio-title">
+    <figure>
+      <ArtworkImage
+        src={artistPortrait}
+        alt="Placeholder for a portrait of the artist in her working space"
+        sizes="(min-width: 768px) 42vw, 100vw"
+        loading="eager"
+      />
+      <figcaption>Artist portrait placeholder</figcaption>
+    </figure>
+    <div>
+      <h2 id="bio-title" class="section-label">Biography</h2>
+      <span class="draft-note">Artist biography needed</span>
+      <p class="large-copy">This section is reserved for a concise, factual introduction to the artist.</p>
+      <p>No birthplace, education, exhibition history, awards, or other biographical information has been invented for this preview.</p>
+    </div>
+  </section>
+
+  <section class="statement section page-shell" aria-labelledby="statement-title">
+    <div>
+      <h2 id="statement-title" class="section-label">Artist statement</h2>
+      <span class="draft-note">Draft for artist review</span>
+    </div>
+    <div>
+      <p class="large-copy">I am drawn to materials that already carry evidence of use, breakage, pressure, and change.</p>
+      <div class="statement-columns">
+        <p>Temporary first-person copy: The work develops through handling. Glass, ceramic, resin, found objects, and built-up surfaces are tested against one another until their familiar purpose gives way to a new relationship.</p>
+        <p>Temporary first-person copy: Fragments are not treated as damage to hide. Their edges, gaps, and points of contact become part of the composition. Experimentation remains visible in the finished piece.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="process" aria-labelledby="process-title">
+    {processImage && (
+      <div class="process-image">
+        <ArtworkImage
+          src={processImage.src}
+          alt={processImage.alt}
+          caption={`Process photograph${processArtwork?.data.placeholder ? ' · Sample image' : ''}`}
+          sizes="(min-width: 768px) 62vw, 100vw"
+          lightbox
+          gallery="artist-process"
+        />
+      </div>
+    )}
+    <div class="process-copy">
+      <h2 id="process-title" class="section-label">Artistic process</h2>
+      <span class="draft-note">Draft for artist review</span>
+      <h3>Collect. Test. Break. Reassemble.</h3>
+      <p>Materials may suggest the initial direction, but the outcome is not fixed in advance. Construction, removal, and revision continue until the surface and structure feel resolved.</p>
+      {processArtwork?.data.placeholder && <p class="quiet">Replace this sample image with real studio or process photography.</p>}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-heading {
+    padding-block: clamp(5rem, 12vw, 12rem);
+  }
+
+  .page-heading h1 {
+    max-width: 85rem;
+    margin: 2rem 0 0 auto;
+    font-size: clamp(4rem, 10vw, 10rem);
+  }
+
+  .bio {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(20rem, 1.15fr);
+    gap: clamp(3rem, 8vw, 10rem);
+    align-items: center;
+    padding-bottom: var(--section-space);
+  }
+
+  .bio figure {
+    margin: 0;
+  }
+
+  .bio figcaption {
+    padding-top: 0.5rem;
+    color: var(--paper-muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .bio > div > p:last-child {
+    max-width: 38rem;
+    color: var(--paper-muted);
+  }
+
+  .statement {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .statement-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(2rem, 5vw, 6rem);
+    margin-top: 4rem;
+    color: var(--paper-muted);
+  }
+
+  .process {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 0.8fr);
+    align-items: center;
+    background: var(--charcoal);
+  }
+
+  .process-image :global(img) {
+    width: 100%;
+    max-height: 90svh;
+    object-fit: cover;
+  }
+
+  .process-copy {
+    padding: clamp(3rem, 7vw, 8rem) var(--page-pad);
+  }
+
+  .process-copy h3 {
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 47.99rem) {
+    .page-heading h1 {
+      margin-left: 0;
+    }
+
+    .bio,
+    .statement,
+    .process {
+      grid-template-columns: 1fr;
+    }
+
+    .bio figure {
+      width: calc(100% + var(--page-pad) * 2);
+      margin-left: calc(var(--page-pad) * -1);
+    }
+
+    .bio figcaption {
+      padding-left: var(--page-pad);
+    }
+
+    .statement-columns {
+      grid-template-columns: 1fr;
+      margin-top: 2rem;
+    }
+
+    .process-copy {
+      padding-block: 5rem;
+    }
+  }
+</style>

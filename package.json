@@ -1,0 +1,21 @@
+{
+  "name": "endeavor-art-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "generate:placeholders": "node scripts/generate-placeholders.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@fontsource/cormorant-garamond": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.7",
+    "astro": "^7.2.9",
+    "sharp": "^0.35.4",
+    "typescript": "^5.9.2"
+  }
+}

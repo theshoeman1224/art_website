@@ -1,0 +1,198 @@
+<dialog class="lightbox" aria-label="Large artwork image viewer">
+  <div class="lightbox-bar">
+    <p class="lightbox-count" aria-live="polite"></p>
+    <button class="lightbox-close" type="button" aria-label="Close image viewer">Close</button>
+  </div>
+  <div class="lightbox-stage">
+    <button class="lightbox-prev" type="button" aria-label="View previous image">←</button>
+    <figure>
+      <img class="lightbox-image" src="" alt="" />
+      <figcaption></figcaption>
+    </figure>
+    <button class="lightbox-next" type="button" aria-label="View next image">→</button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
+
+  if (dialog) {
+    const image = dialog.querySelector<HTMLImageElement>('.lightbox-image');
+    const caption = dialog.querySelector<HTMLElement>('figcaption');
+    const count = dialog.querySelector<HTMLElement>('.lightbox-count');
+    const previous = dialog.querySelector<HTMLButtonElement>('.lightbox-prev');
+    const next = dialog.querySelector<HTMLButtonElement>('.lightbox-next');
+    const close = dialog.querySelector<HTMLButtonElement>('.lightbox-close');
+    let items: HTMLElement[] = [];
+    let activeIndex = 0;
+    let pointerStart = 0;
+
+    const showImage = (index: number) => {
+      if (!image || !caption || !count || items.length === 0) return;
+      activeIndex = (index + items.length) % items.length;
+      const item = items[activeIndex];
+      image.src = item.dataset.lightboxSrc ?? '';
+      image.alt = item.dataset.lightboxAlt ?? '';
+      const captionText = item.dataset.lightboxCaption ?? '';
+      caption.textContent = captionText;
+      count.textContent = `${activeIndex + 1} / ${items.length} · ${captionText || image.alt}`;
+      const hasMultiple = items.length > 1;
+      if (previous) previous.hidden = !hasMultiple;
+      if (next) next.hidden = !hasMultiple;
+    };
+
+    document.addEventListener('click', (event) => {
+      const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-lightbox-src]');
+      if (!trigger) return;
+      const group = trigger.dataset.lightboxGroup;
+      items = Array.from(document.querySelectorAll<HTMLElement>(`[data-lightbox-group="${CSS.escape(group ?? 'page')}"]`));
+      activeIndex = items.indexOf(trigger);
+      showImage(activeIndex);
+      dialog.showModal();
+    });
+
+    previous?.addEventListener('click', () => showImage(activeIndex - 1));
+    next?.addEventListener('click', () => showImage(activeIndex + 1));
+    close?.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') showImage(activeIndex - 1);
+      if (event.key === 'ArrowRight') showImage(activeIndex + 1);
+    });
+
+    dialog.addEventListener('pointerdown', (event) => {
+      pointerStart = event.clientX;
+    });
+
+    dialog.addEventListener('pointerup', (event) => {
+      const distance = event.clientX - pointerStart;
+      if (Math.abs(distance) < 60) return;
+      showImage(activeIndex + (distance < 0 ? 1 : -1));
+    });
+  }
+</script>
+
+<style>
+  .lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    color: var(--paper);
+    background: rgb(5 5 5 / 97%);
+    border: 0;
+  }
+
+  .lightbox::backdrop {
+    background: rgb(0 0 0 / 90%);
+  }
+
+  .lightbox-bar {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 4rem;
+    padding-inline: var(--page-pad);
+  }
+
+  .lightbox-count {
+    margin: 0;
+    color: var(--paper-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+  }
+
+  .lightbox button {
+    min-width: 3rem;
+    min-height: 3rem;
+    padding: 0.5rem;
+    color: var(--paper);
+    background: rgb(11 11 10 / 75%);
+    border: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .lightbox-close {
+    width: auto;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .lightbox-stage {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) 4rem;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 5rem var(--page-pad) 1.5rem;
+  }
+
+  .lightbox figure {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .lightbox img {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
+    background: transparent;
+  }
+
+  .lightbox figcaption {
+    min-height: 2.6rem;
+    padding-top: 0.75rem;
+    color: var(--paper-muted);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  @media (max-width: 42rem) {
+    .lightbox-stage {
+      position: relative;
+      display: block;
+      padding: 5rem 0 4.5rem;
+    }
+
+    .lightbox figure {
+      height: 100%;
+    }
+
+    .lightbox figcaption {
+      padding-inline: 1rem;
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+      position: absolute;
+      z-index: 3;
+      bottom: 0.75rem;
+    }
+
+    .lightbox-prev {
+      left: 1rem;
+    }
+
+    .lightbox-next {
+      right: 1rem;
+    }
+  }
+</style>

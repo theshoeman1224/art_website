@@ -1,0 +1,494 @@
+---
+import { getCollection } from 'astro:content';
+import artistPortrait from '../assets/artist-placeholder.jpg';
+import ArtworkCard from '../components/ArtworkCard.astro';
+import ArtworkImage from '../components/ArtworkImage.astro';
+import PlaceholderNotice from '../components/PlaceholderNotice.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const artworks = (await getCollection('artworks')).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const featuredArtworks = artworks.filter((artwork) => artwork.data.featured);
+const hero = featuredArtworks[0] ?? artworks[0];
+const feature = featuredArtworks.find((artwork) => artwork.id !== hero.id && artwork.data.images.some((image) => image.type === 'detail') && artwork.data.images.some((image) => image.type === 'angled')) ?? featuredArtworks[1] ?? hero;
+const textureArtwork = featuredArtworks.find((artwork) => artwork.data.images.some((image) => image.type === 'detail')) ?? hero;
+const textureImage = textureArtwork.data.images.find((image) => image.type === 'detail');
+const featureDetail = feature.data.images.find((image) => image.type === 'detail');
+const featureAngle = feature.data.images.find((image) => image.type === 'angled');
+const hasPlaceholderArtwork = artworks.some((artwork) => artwork.data.placeholder);
+---
+
+<BaseLayout>
+  {hasPlaceholderArtwork && <PlaceholderNotice />}
+
+  <section class="home-hero page-shell">
+    <div class="hero-title">
+      <h1><span>Endeavor</span><span>Art Studio</span></h1>
+      <p>Mixed-media art exploring texture, material, and transformation.</p>
+    </div>
+    <div class="hero-image">
+      <ArtworkImage
+        src={hero.data.hero.src}
+        alt={hero.data.hero.alt}
+        caption={`${hero.data.title}, ${hero.data.year}${hero.data.placeholder ? ' · Sample artwork record' : ''}`}
+        sizes="(min-width: 768px) 58vw, 100vw"
+        loading="eager"
+        lightbox
+        gallery="home-hero"
+      />
+      <p><span>{hero.data.title}</span><span>{hero.data.year}{hero.data.placeholder ? ' · Sample artwork' : ''}</span></p>
+    </div>
+  </section>
+
+  <section class="selected section page-shell" aria-labelledby="selected-title">
+    <h2 id="selected-title" class="section-label">Selected work</h2>
+    <div class="selected-grid">
+      {artworks.map((artwork) => (
+        <ArtworkCard artwork={artwork} headingLevel="h3" sizes="(min-width: 768px) 55vw, 100vw" />
+      ))}
+    </div>
+    <div class="section-action"><a class="text-link" href="/work">View complete portfolio</a></div>
+  </section>
+
+  <section class="practice section page-shell" aria-labelledby="practice-title">
+    <div>
+      <h2 id="practice-title" class="section-label">Artistic practice</h2>
+      <span class="draft-note">Draft for artist review</span>
+    </div>
+    <div class="practice-copy">
+      <p class="large-copy">Familiar materials are broken apart, layered, and made strange again.</p>
+      <div class="practice-columns">
+        <p>The work begins with material curiosity: the weight of a ceramic fragment, light passing through glass, or a surface that records how it was handled.</p>
+        <p>Assemblage and experimentation guide each piece. Texture is not an effect added at the end. It is often where the work starts.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="texture-feature" aria-labelledby="texture-title">
+    <div class="texture-heading page-shell">
+      <h2 id="texture-title" class="section-label">Surface / detail</h2>
+      <p>Material at close range</p>
+    </div>
+    {textureImage && (
+      <ArtworkImage
+        src={textureImage.src}
+        alt={textureImage.alt}
+        caption={`${textureArtwork.data.title} · Macro detail${textureArtwork.data.placeholder ? ' · Sample image' : ''}`}
+        sizes="100vw"
+        lightbox
+        gallery="texture-feature"
+      />
+    )}
+  </section>
+
+  <section class="featured section page-shell" aria-labelledby="featured-title">
+    <div class="featured-intro">
+      <h2 id="featured-title" class="section-label">Featured work</h2>
+      <p class="eyebrow">{feature.data.placeholder ? 'Sample artwork record' : 'Featured artwork'}</p>
+      <h3>{feature.data.title}</h3>
+      <p class="featured-description">{feature.data.description}</p>
+      <dl>
+        <div><dt>Year</dt><dd>{feature.data.year}</dd></div>
+        <div><dt>Medium</dt><dd>{feature.data.medium}</dd></div>
+        <div><dt>Materials</dt><dd>{feature.data.materials.join(', ')}</dd></div>
+        <div><dt>Dimensions</dt><dd>{feature.data.dimensions}</dd></div>
+      </dl>
+      <a class="text-link" href={`/work/${feature.data.slug}`}>View artwork</a>
+    </div>
+    <div class="featured-images">
+      <ArtworkImage
+        src={feature.data.hero.src}
+        alt={feature.data.hero.alt}
+        caption={`${feature.data.title} · Full view${feature.data.placeholder ? ' · Sample image' : ''}`}
+        sizes="(min-width: 768px) 52vw, 100vw"
+        lightbox
+        gallery="featured-work"
+      />
+      {featureDetail && (
+        <ArtworkImage
+          src={featureDetail.src}
+          alt={featureDetail.alt}
+          caption={`${feature.data.title} · Macro detail${feature.data.placeholder ? ' · Sample image' : ''}`}
+          sizes="(min-width: 768px) 25vw, 48vw"
+          lightbox
+          gallery="featured-work"
+        />
+      )}
+      {featureAngle && (
+        <ArtworkImage
+          src={featureAngle.src}
+          alt={featureAngle.alt}
+          caption={`${feature.data.title} · Angled view${feature.data.placeholder ? ' · Sample image' : ''}`}
+          sizes="(min-width: 768px) 25vw, 48vw"
+          lightbox
+          gallery="featured-work"
+        />
+      )}
+    </div>
+  </section>
+
+  <section class="commission-teaser section page-shell" aria-labelledby="commission-title">
+    <p class="section-label">Commissions</p>
+    <div>
+      <h2 id="commission-title">Commissions begin with an idea, not a blueprint.</h2>
+      <div>
+        <span class="draft-note">Draft for artist review</span>
+        <p>You establish a meaningful object, memory, subject, palette, or general direction. The artist carries that starting point through her own material choices and process.</p>
+        <a class="text-link" href="/commissions">How commissions work</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-teaser section page-shell" aria-labelledby="about-title">
+    <div class="portrait">
+      <ArtworkImage
+        src={artistPortrait}
+        alt="Placeholder for the artist's portrait"
+        sizes="(min-width: 768px) 38vw, 100vw"
+      />
+      <span>Artist portrait placeholder</span>
+    </div>
+    <div>
+      <p class="section-label">About</p>
+      <h2 id="about-title">An open-ended practice shaped by materials.</h2>
+      <span class="draft-note">Biography needed</span>
+      <p>This space will hold a short introduction written with the artist. No biographical details have been invented for this preview.</p>
+      <a class="text-link" href="/about">About the artist</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.75fr) minmax(0, 1.25fr);
+    gap: clamp(2rem, 5vw, 7rem);
+    align-items: end;
+    min-height: calc(100svh - 8.5rem);
+    padding-block: clamp(3rem, 7vw, 7rem) var(--section-space);
+  }
+
+  .hero-title {
+    position: relative;
+    z-index: 1;
+    padding-bottom: clamp(1rem, 7vw, 8rem);
+  }
+
+  .hero-title h1 {
+    width: max-content;
+    margin: 0 0 2rem;
+    font-size: clamp(4.7rem, 10vw, 11rem);
+    letter-spacing: -0.055em;
+    line-height: 0.68;
+    text-transform: uppercase;
+  }
+
+  .hero-title h1 span {
+    display: block;
+  }
+
+  .hero-title h1 span:last-child {
+    margin-left: clamp(2rem, 8vw, 8rem);
+    font-size: 0.55em;
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+  }
+
+  .hero-title > p {
+    max-width: 26rem;
+    margin: 0 0 0 clamp(0rem, 5vw, 6rem);
+    color: var(--paper-muted);
+  }
+
+  .hero-image {
+    width: min(100%, 58rem);
+    justify-self: end;
+  }
+
+  .hero-image :global(img) {
+    width: 100%;
+    height: 72svh;
+    object-fit: contain;
+    object-position: right bottom;
+  }
+
+  .hero-image > p {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    color: var(--paper-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .selected-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(3rem, 8vw, 9rem) clamp(1rem, 3vw, 3rem);
+  }
+
+  .selected-grid > :global(:nth-child(1)) { grid-column: 1 / span 7; }
+  .selected-grid > :global(:nth-child(2)) { grid-column: 9 / -1; align-self: end; }
+  .selected-grid > :global(:nth-child(3)) { grid-column: 3 / span 4; }
+  .selected-grid > :global(:nth-child(4)) { grid-column: 8 / -1; margin-top: 10vw; }
+  .selected-grid > :global(:nth-child(5)) { grid-column: 1 / span 5; }
+  .selected-grid > :global(:nth-child(6)) { grid-column: 7 / span 4; margin-top: 5vw; }
+
+  .section-action {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: clamp(4rem, 8vw, 8rem);
+  }
+
+  .practice {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .practice-copy > .large-copy {
+    max-width: 62rem;
+  }
+
+  .practice-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(2rem, 5vw, 6rem);
+    max-width: 50rem;
+    margin: 4rem 0 0 auto;
+    color: var(--paper-muted);
+  }
+
+  .texture-feature {
+    overflow: hidden;
+    background: var(--charcoal);
+  }
+
+  .texture-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding-block: 2rem;
+  }
+
+  .texture-heading .section-label,
+  .texture-heading p {
+    margin: 0;
+  }
+
+  .texture-heading p {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3vw, 3rem);
+  }
+
+  .texture-feature :global(.image-button) {
+    max-height: 82svh;
+  }
+
+  .texture-feature :global(img) {
+    width: 100%;
+    max-height: 82svh;
+    object-fit: cover;
+  }
+
+  .featured {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.7fr) minmax(0, 1.3fr);
+    gap: clamp(3rem, 7vw, 9rem);
+    align-items: start;
+  }
+
+  .featured-intro {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .featured-intro h3 {
+    margin: 0.35rem 0 1.5rem;
+    font-size: clamp(3rem, 6vw, 6rem);
+  }
+
+  .featured-description {
+    color: var(--paper-muted);
+  }
+
+  .featured dl {
+    margin: 3rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .featured dl div {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .featured dt {
+    color: var(--paper-muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .featured dd {
+    margin: 0;
+  }
+
+  .featured-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--page-pad);
+  }
+
+  .featured-images > :global(:first-child) {
+    grid-column: 1 / -1;
+  }
+
+  .commission-teaser {
+    border-block: 1px solid var(--line);
+  }
+
+  .commission-teaser > div {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: clamp(3rem, 10vw, 12rem);
+    align-items: end;
+  }
+
+  .commission-teaser h2 {
+    max-width: 70rem;
+    margin: 0;
+  }
+
+  .commission-teaser > div > div p {
+    color: var(--paper-muted);
+  }
+
+  .about-teaser {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
+    gap: clamp(3rem, 8vw, 10rem);
+    align-items: center;
+  }
+
+  .portrait {
+    max-width: 36rem;
+  }
+
+  .portrait span {
+    display: block;
+    padding-top: 0.5rem;
+    color: var(--paper-muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .about-teaser h2 {
+    margin-bottom: 2rem;
+  }
+
+  .about-teaser > div:last-child > p:last-of-type {
+    max-width: 40rem;
+    color: var(--paper-muted);
+  }
+
+  @media (max-width: 47.99rem) {
+    .home-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      min-height: 0;
+      padding-top: 4rem;
+    }
+
+    .hero-title {
+      width: 100%;
+      padding: 0;
+    }
+
+    .hero-title h1 {
+      width: auto;
+      font-size: clamp(3.8rem, 18.5vw, 6.5rem);
+      line-height: 0.72;
+    }
+
+    .hero-title h1 span:last-child {
+      margin-left: 1rem;
+    }
+
+    .hero-title > p {
+      margin-left: 0;
+    }
+
+    .hero-image {
+      width: calc(100% + var(--page-pad) * 2);
+      margin-left: calc(var(--page-pad) * -1);
+    }
+
+    .hero-image :global(img) {
+      height: auto;
+      object-fit: initial;
+    }
+
+    .hero-image > p {
+      padding-inline: var(--page-pad);
+    }
+
+    .selected-grid {
+      display: block;
+    }
+
+    .selected-grid > :global(*) {
+      margin: 0 0 4.5rem !important;
+    }
+
+    .selected-grid > :global(:nth-child(even)) {
+      width: 84%;
+      margin-left: auto !important;
+    }
+
+    .practice,
+    .featured,
+    .commission-teaser > div,
+    .about-teaser {
+      grid-template-columns: 1fr;
+    }
+
+    .practice-columns {
+      grid-template-columns: 1fr;
+      margin-top: 2rem;
+    }
+
+    .texture-heading {
+      display: block;
+    }
+
+    .texture-heading p {
+      margin-top: 1rem;
+    }
+
+    .texture-feature :global(.image-button),
+    .texture-feature :global(img) {
+      min-height: 70svh;
+      object-fit: cover;
+    }
+
+    .featured-intro {
+      position: static;
+    }
+
+    .commission-teaser > div {
+      gap: 2.5rem;
+    }
+
+    .about-teaser .portrait {
+      width: calc(100% + var(--page-pad));
+      margin-left: calc(var(--page-pad) * -1);
+    }
+  }
+</style>

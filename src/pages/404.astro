@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found">
+  <section class="not-found page-shell">
+    <p class="eyebrow">404 / Page not found</p>
+    <h1>This space is empty.</h1>
+    <p>The page may have moved or the address may be incorrect.</p>
+    <a class="text-link" href="/work">Return to the work</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    place-content: center;
+    min-height: 70svh;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 2rem 0;
+  }
+
+  .not-found > p:not(.eyebrow) {
+    color: var(--paper-muted);
+  }
+
+  .text-link {
+    justify-self: center;
+    margin-top: 2rem;
+  }
+</style>

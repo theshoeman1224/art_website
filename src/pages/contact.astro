@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config';
+---
+
+<BaseLayout title="Contact" description="Contact Endeavor Art Studio by email or Instagram.">
+  <section class="contact page-shell" aria-labelledby="contact-title">
+    <div>
+      <p class="eyebrow">Contact / Studio inquiries</p>
+      <h1 id="contact-title">Start a<br />conversation.</h1>
+    </div>
+    <div class="contact-options">
+      <p>For artwork, commission, or studio inquiries, contact the artist directly using one of the links below.</p>
+      <span class="draft-note">Replace before launch</span>
+      <a href={`mailto:${siteConfig.email}`}>
+        <span>Email</span>
+        <strong>{siteConfig.email}</strong>
+        <span aria-hidden="true">↗</span>
+      </a>
+      <a href={siteConfig.instagram} rel="me">
+        <span>Instagram</span>
+        <strong>Endeavor Art Studio</strong>
+        <span aria-hidden="true">↗</span>
+      </a>
+      <p class="quiet">The email address and Instagram destination are configuration placeholders. Update them in <code>src/config.ts</code>.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(20rem, 0.7fr);
+    gap: clamp(4rem, 10vw, 12rem);
+    align-items: end;
+    min-height: calc(100svh - 8rem);
+    padding-block: clamp(5rem, 10vw, 10rem);
+  }
+
+  h1 {
+    margin: 2rem 0 0;
+  }
+
+  .contact-options > p:first-child {
+    max-width: 34rem;
+    margin-bottom: 2rem;
+    color: var(--paper-muted);
+  }
+
+  .contact-options > a {
+    display: grid;
+    grid-template-columns: 7rem 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    min-height: 5rem;
+    text-decoration: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .contact-options > a:last-of-type {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contact-options > a > span {
+    color: var(--paper-muted);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .contact-options strong {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2vw, 2rem);
+    font-weight: 400;
+  }
+
+  .contact-options .quiet {
+    margin-top: 1.5rem;
+    font-size: 0.78rem;
+  }
+
+  code {
+    color: var(--paper);
+  }
+
+  @media (max-width: 47.99rem) {
+    .contact {
+      grid-template-columns: 1fr;
+      align-items: start;
+      min-height: 0;
+    }
+
+    .contact-options > a {
+      grid-template-columns: 1fr auto;
+      gap: 0.25rem 1rem;
+      padding-block: 0.75rem;
+    }
+
+    .contact-options strong {
+      grid-column: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .contact-options > a > span:last-child {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+</style>
