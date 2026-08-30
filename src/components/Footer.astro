@@ -1,9 +1,13 @@
 ---
+import emblem from '../assets/endeavor-emblem.png';
 import { siteConfig } from '../config';
 ---
 
 <footer class="site-footer page-shell">
-  <p class="footer-mark">Endeavor<br />Art Studio</p>
+  <div class="footer-identity">
+    <img src={emblem.src} alt="" width="112" height="112" />
+    <p class="footer-mark">Endeavor<br />Art Studio</p>
+  </div>
   <div>
     <p>Mixed-media art exploring texture, material, and transformation.</p>
     <div class="footer-links">
@@ -11,14 +15,14 @@ import { siteConfig } from '../config';
       <a href={siteConfig.instagram} rel="me">Instagram</a>
     </div>
   </div>
-  <p class="copyright">© {new Date().getFullYear()} Endeavor Art Studio</p>
+  <p class="copyright">© {new Date().getFullYear()} {siteConfig.legalName}</p>
 </footer>
 
 <style>
   .site-footer {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr;
-    gap: 3rem;
+    grid-template-columns: minmax(30rem, 1fr) minmax(20rem, 1fr) max-content;
+    gap: clamp(2rem, 3vw, 3rem);
     align-items: end;
     padding-block: clamp(4rem, 8vw, 7rem) 2rem;
     color: var(--paper-muted);
@@ -32,6 +36,19 @@ import { siteConfig } from '../config';
     font-size: clamp(2.3rem, 4vw, 4rem);
     line-height: 0.78;
     text-transform: uppercase;
+  }
+
+  .footer-identity {
+    display: flex;
+    gap: clamp(1rem, 2vw, 1.75rem);
+    align-items: center;
+  }
+
+  .footer-identity img {
+    width: clamp(4.5rem, 7vw, 7rem);
+    height: auto;
+    flex: 0 0 auto;
+    background: transparent;
   }
 
   .site-footer > div p {
@@ -53,6 +70,16 @@ import { siteConfig } from '../config';
     text-align: right;
   }
 
+  @media (max-width: 67.99rem) {
+    .site-footer {
+      grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+    }
+
+    .copyright {
+      grid-column: 1 / -1;
+    }
+  }
+
   @media (max-width: 47.99rem) {
     .site-footer {
       grid-template-columns: 1fr;
@@ -60,6 +87,7 @@ import { siteConfig } from '../config';
     }
 
     .copyright {
+      grid-column: auto;
       text-align: left;
     }
   }

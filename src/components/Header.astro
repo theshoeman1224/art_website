@@ -1,4 +1,6 @@
 ---
+import emblem from '../assets/endeavor-emblem.png';
+
 const pathname = Astro.url.pathname;
 const nav = [
   { href: '/work', label: 'Work' },
@@ -10,8 +12,11 @@ const nav = [
 
 <header class="site-header page-shell">
   <a class="wordmark" href="/" aria-label="Endeavor Art Studio home">
-    <span>Endeavor</span>
-    <span>Art Studio</span>
+    <img src={emblem.src} alt="" width="52" height="52" />
+    <span class="wordmark-text">
+      <span>Endeavor</span>
+      <span>Art Studio</span>
+    </span>
   </a>
   <nav aria-label="Main navigation">
     <ul>
@@ -40,8 +45,9 @@ const nav = [
 
   .wordmark {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     flex: 0 0 auto;
+    gap: 0.8rem;
     color: var(--paper);
     font-family: var(--serif);
     font-size: 1.2rem;
@@ -49,6 +55,17 @@ const nav = [
     line-height: 0.88;
     text-decoration: none;
     text-transform: uppercase;
+  }
+
+  .wordmark img {
+    width: 3.25rem;
+    height: 3.25rem;
+    background: transparent;
+  }
+
+  .wordmark-text {
+    display: flex;
+    flex-direction: column;
   }
 
   nav ul {

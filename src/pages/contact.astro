@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteConfig } from '../config';
 ---
 
-<BaseLayout title="Contact" description="Contact Endeavor Art Studio by email or Instagram.">
+<BaseLayout title="Contact" description={`Contact ${siteConfig.legalName} by email or Instagram.`}>
   <section class="contact page-shell" aria-labelledby="contact-title">
     <div>
       <p class="eyebrow">Contact / Studio inquiries</p>
@@ -11,7 +11,7 @@ import { siteConfig } from '../config';
     </div>
     <div class="contact-options">
       <p>For artwork, commission, or studio inquiries, contact the artist directly using one of the links below.</p>
-      <span class="draft-note">Replace before launch</span>
+      <span class="draft-note">Email pending</span>
       <a href={`mailto:${siteConfig.email}`}>
         <span>Email</span>
         <strong>{siteConfig.email}</strong>
@@ -19,10 +19,11 @@ import { siteConfig } from '../config';
       </a>
       <a href={siteConfig.instagram} rel="me">
         <span>Instagram</span>
-        <strong>Endeavor Art Studio</strong>
+        <strong>{siteConfig.instagramHandle}</strong>
         <span aria-hidden="true">↗</span>
       </a>
-      <p class="quiet">The email address and Instagram destination are configuration placeholders. Update them in <code>src/config.ts</code>.</p>
+      <p class="legal-name">{siteConfig.legalName}</p>
+      <p class="quiet">The email address is a configuration placeholder. Update it in <code>src/config.ts</code> before launch.</p>
     </div>
   </section>
 </BaseLayout>
@@ -78,6 +79,19 @@ import { siteConfig } from '../config';
   .contact-options .quiet {
     margin-top: 1.5rem;
     font-size: 0.78rem;
+  }
+
+  .legal-name {
+    margin: 1.25rem 0 0;
+    color: var(--paper-muted);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .legal-name + .quiet {
+    margin-top: 0.6rem;
   }
 
   code {

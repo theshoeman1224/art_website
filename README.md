@@ -131,9 +131,11 @@ Update `src/config.ts` before sharing the site with real visitors:
 ```ts
 export const siteConfig = {
   title: 'Endeavor Art Studio',
+  legalName: 'Endeavor Art Studio, LLC',
   description: 'Mixed-media art exploring texture, material, and transformation.',
   email: 'artist@example.com',
-  instagram: 'https://www.instagram.com/account/',
+  instagram: 'https://www.instagram.com/endeavor.artstudio/',
+  instagramHandle: '@endeavor.artstudio',
 };
 ```
 
