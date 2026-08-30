@@ -6,10 +6,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 const artworks = (await getCollection('artworks')).sort((a, b) =>
   a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
 );
-const artwork = artworks.find((item) => item.data.commission)
-  ?? artworks.find((item) => item.data.featured)
-  ?? artworks[0];
-const detail = artwork.data.images.find((image) => image.type === 'detail') ?? artwork.data.hero;
+const commissionArtworks = artworks.filter((item) => item.data.commission);
+const slides = (commissionArtworks.length > 0 ? commissionArtworks : artworks.slice(0, 1)).map((item) => ({
+  src: item.data.hero.src,
+  alt: item.data.hero.alt,
+  caption: `${item.data.title}, ${item.data.year}${item.data.placeholder ? ' · Sample artwork' : ''}`,
+}));
 
 const steps = [
   {
@@ -45,17 +47,71 @@ const steps = [
     </div>
   </header>
 
-  <div class="commission-image">
-    <ArtworkImage
-      src={detail.src}
-      alt={detail.alt}
-      caption={`Material detail${artwork.data.placeholder ? ' · Sample image' : ''}`}
-      sizes="100vw"
-      loading="eager"
-      lightbox
-      gallery="commission-detail"
-    />
+  <div class="commission-image" data-commission-rotator>
+    {slides.map((slide, index) => (
+      <div class:list={['commission-slide', { 'is-active': index === 0 }]} data-commission-slide inert={index !== 0}>
+        <ArtworkImage
+          src={slide.src}
+          alt={slide.alt}
+          caption={slide.caption}
+          sizes="100vw"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          lightbox
+          gallery="commission-hero"
+        />
+      </div>
+    ))}
+    {slides.length > 1 && (
+      <p class="slide-label" data-commission-label aria-hidden="true">{slides[0].caption}</p>
+    )}
   </div>
+
+  <script>
+    const rotator = document.querySelector<HTMLElement>('[data-commission-rotator]');
+    const label = document.querySelector<HTMLElement>('[data-commission-label]');
+
+    if (rotator && label) {
+      const slides = Array.from(rotator.querySelectorAll<HTMLElement>('[data-commission-slide]'));
+
+      if (slides.length > 1) {
+        const captions = slides.map(
+          (slide) => slide.querySelector<HTMLElement>('[data-lightbox-caption]')?.dataset.lightboxCaption ?? '',
+        );
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let index = 0;
+        let timer: number | undefined;
+
+        const show = (next: number) => {
+          index = (next + slides.length) % slides.length;
+          slides.forEach((slide, slideIndex) => {
+            slide.classList.toggle('is-active', slideIndex === index);
+            slide.inert = slideIndex !== index;
+          });
+          label.textContent = captions[index];
+        };
+
+        const stop = () => {
+          if (timer === undefined) return;
+          window.clearInterval(timer);
+          timer = undefined;
+        };
+
+        const start = () => {
+          stop();
+          if (reducedMotion.matches || document.hidden) return;
+          timer = window.setInterval(() => show(index + 1), 5000);
+        };
+
+        rotator.addEventListener('pointerenter', stop);
+        rotator.addEventListener('pointerleave', start);
+        rotator.addEventListener('focusin', stop);
+        rotator.addEventListener('focusout', start);
+        document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+        reducedMotion.addEventListener('change', () => (reducedMotion.matches ? stop() : start()));
+        start();
+      }
+    }
+  </script>
 
   <section class="process section page-shell" aria-labelledby="process-title">
     <h2 id="process-title" class="section-label">The process</h2>
@@ -112,15 +168,50 @@ const steps = [
   }
 
   .commission-image {
-    max-height: 78svh;
+    position: relative;
+    height: min(78svh, 56rem);
     overflow: hidden;
   }
 
-  .commission-image :global(img) {
+  .commission-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 900ms ease;
+  }
+
+  .commission-slide.is-active {
+    opacity: 1;
+  }
+
+  .commission-slide :global(.image-button) {
+    height: 100%;
+  }
+
+  .commission-slide :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .commission-slide :global(img) {
     width: 100%;
-    min-height: 60svh;
-    max-height: 78svh;
+    height: 100%;
     object-fit: cover;
+  }
+
+  .slide-label {
+    position: absolute;
+    z-index: 1;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    margin: 0;
+    padding: 0.45rem 0.6rem;
+    color: var(--paper-muted);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgb(11 11 10 / 78%);
   }
 
   .process ol {
