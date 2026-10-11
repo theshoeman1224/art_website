@@ -13,8 +13,10 @@ src/
   content/artworks/<slug>/ Portable artwork package: metadata and images
   layouts/BaseLayout.astro
   pages/                   Astro routes
+  lib/artworks.ts          Shared artwork sorting and section filtering
   styles/global.css        Design tokens and global rules
   config.ts                Email, Instagram, and site-level content
+  sections.ts              Portfolio sections: ids, labels, and descriptions
   content.config.ts        Artwork schema and validation
 public/
   _headers                 Temporary noindex response header
@@ -28,7 +30,11 @@ Astro generates these routes from the files above:
 ```text
 /
 /work
+/work/bottles
+/work/commissions
+/work/paintings
 /work/<artwork-slug>
+/artwork
 /about
 /commissions
 /contact
@@ -61,7 +67,7 @@ The production output is written to `dist/`.
 
 `npm test` builds the site and then runs the Vitest suite in `tests/` against the generated HTML in `dist/`. The tests check that:
 
-- the top-level pages exist, and every artwork record has exactly one `/work/<slug>` page that the portfolio links to
+- the top-level and section pages exist, `/work` links to every section, and every artwork record has exactly one `/work/<slug>` page that at least one section page links to
 - every page has a language, title, description, a single `h1`, and a canonical URL matching its route
 - every image has an `alt` attribute, and every artwork photograph has a non-empty description
 - every internal link, image, stylesheet, and in-page anchor points at something that exists in the build
@@ -74,9 +80,10 @@ To re-run the tests against an existing build without rebuilding, use `npx vites
 2. Add `artwork.md` using `src/content/artworks/after-the-break/artwork.md` as the model.
 3. Put the hero and any detail, angled, environment, or process photographs in the same folder.
 4. Reference each photograph with a relative path such as `./hero.png` and assign its role.
-5. Run `npm run check`.
+5. List the portfolio sections the work belongs to under `sections`.
+6. Run `npm run check`.
 
-The artwork will appear on `/work` and Astro will create `/work/<slug>`. Set `featured: true` to make the record eligible for featured placements. The homepage displays the first six records; `/work` displays the complete portfolio.
+The artwork will appear on `/artwork`, on the page of every section it lists, and Astro will create `/work/<slug>`. Set `featured: true` to make the record eligible for featured placements. The homepage displays the first six records; `/work` links to each section.
 
 Do not manually resize source photographs for layout slots. Keep their original aspect ratios and enough resolution to show material texture. Astro creates responsive AVIF, WebP, and fallback files at build time. A practical source target is 2000 to 3000 pixels on the long edge. Avoid uploading camera-original files that are much larger unless fine detail requires them.
 
@@ -95,7 +102,7 @@ The validated schema lives in `src/content.config.ts`. Real artworks use the por
 | `dimensions` | object | Numeric height, width, optional depth, and unit |
 | `description` | string | Artwork description |
 | `status` | enum | Collection or availability state |
-| `commission` | boolean | Whether the work originated as a commission |
+| `sections` | enum array | Portfolio sections the work is listed in, at least one |
 | `images` | image array | All photographs, relative paths, alt text, and roles |
 | `featured` | boolean | Eligible for featured placement |
 | `instagramUrl` | optional URL | Link to a post about this work |
@@ -110,6 +117,18 @@ commission
 available
 not_for_sale
 ```
+
+`status` describes ownership or availability and is shown on the artwork page. It does not decide where the work is listed; `sections` does.
+
+Allowed `sections` values:
+
+```text
+bottles
+commissions
+paintings
+```
+
+A work can list more than one section, for example a commissioned bottle piece. A section id cannot be used as an artwork `slug`, because both live under `/work/`.
 
 Allowed image roles:
 
@@ -128,6 +147,9 @@ dimensions:
   height: 36
   width: 24
   unit: in
+sections:
+  - bottles
+  - commissions
 images:
   - src: ./hero.png
     role: hero
@@ -135,6 +157,18 @@ images:
 ```
 
 Alt text should describe what is visible and what the photograph contributes. Avoid repeating only the artwork title. An angled view should mention depth or projection when that is the reason for the image.
+
+## Add a portfolio section
+
+1. Add an entry to the list in `src/sections.ts`. Its `id` becomes the URL segment and the value used in artwork records; the list order is the display order.
+2. Create `src/pages/work/<id>.astro`, copying `src/pages/work/bottles.astro` and changing the `section` value.
+3. Run `npm test`.
+
+The new section then appears on `/work`, in the section navigation, as a filter on `/artwork`, and as an allowed `sections` value.
+
+## Artwork filters
+
+`/artwork` lists every work with filter buttons: one per portfolio section, plus Available, which matches works with `status: available`. Nothing is filtered until a button is pressed, and Clear resets them all. Section filters widen each other (Bottles and Paintings shows both); Available narrows whatever is showing to works that are for sale.
 
 ## Contact configuration
 

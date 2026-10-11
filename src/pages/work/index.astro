@@ -1,11 +1,20 @@
 ---
-import { getCollection } from 'astro:content';
-import ArtworkCard from '../../components/ArtworkCard.astro';
+import ArtworkImage from '../../components/ArtworkImage.astro';
+import SectionNav from '../../components/SectionNav.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSortedArtworks, inSection } from '../../lib/artworks';
+import { sectionPath, sections } from '../../sections';
 
-const artworks = (await getCollection('artworks')).sort((a, b) =>
-  a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
-);
+const artworks = await getSortedArtworks();
+
+// A work can sit in several sections, so skip leads an earlier tile already shows.
+const usedLeads = new Set<string>();
+const tiles = sections.map((section) => {
+  const works = inSection(artworks, section.id);
+  const lead = works.find((work) => !usedLeads.has(work.id)) ?? works[0];
+  if (lead) usedLeads.add(lead.id);
+  return { section, lead, count: works.length };
+});
 ---
 
 <BaseLayout title="Work" description="The complete artwork portfolio of Endeavor Art Studio.">
@@ -15,16 +24,31 @@ const artworks = (await getCollection('artworks')).sort((a, b) =>
     <p>Mixed-media assemblage, textured surfaces, and material studies. Each work retains the proportions in which it was photographed.</p>
   </header>
 
-  <section class="portfolio page-shell" aria-label="Artwork portfolio">
-    {artworks.map((artwork) => (
-      <ArtworkCard artwork={artwork} sizes="(min-width: 900px) 58vw, (min-width: 600px) 50vw, 100vw" />
-    ))}
-  </section>
+  <SectionNav />
 
-  <aside class="future-note page-shell">
-    <p class="eyebrow">Collection structure</p>
-    <p>Future bodies of work or material categories can be introduced here without changing individual artwork records.</p>
-  </aside>
+  <section class="section-tiles page-shell" aria-label="Portfolio sections">
+    <span class="draft-note">Section descriptions are a draft for artist review</span>
+    <div class="artwork-grid">
+      {tiles.map(({ section, lead, count }) => (
+        <article class="section-tile">
+          {lead && (
+            <a class="tile-image artwork-frame" href={sectionPath(section.id)} aria-label={`View ${section.label}`}>
+              <ArtworkImage
+                src={lead.data.hero.src}
+                alt={lead.data.hero.alt}
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+              />
+            </a>
+          )}
+          <div class="tile-caption">
+            <h2><a href={sectionPath(section.id)}>{section.label}</a></h2>
+            <p class="eyebrow">{count} {count === 1 ? 'work' : 'works'}</p>
+            <p>{section.description}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -33,7 +57,7 @@ const artworks = (await getCollection('artworks')).sort((a, b) =>
     grid-template-columns: 1fr 2fr;
     gap: 2rem;
     align-items: end;
-    padding-block: clamp(5rem, 10vw, 10rem);
+    padding-block: clamp(5rem, 10vw, 10rem) clamp(3rem, 6vw, 6rem);
   }
 
   .work-header .eyebrow {
@@ -52,55 +76,52 @@ const artworks = (await getCollection('artworks')).sort((a, b) =>
     color: var(--paper-muted);
   }
 
-  .portfolio {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: clamp(5rem, 10vw, 11rem) clamp(1rem, 3vw, 3rem);
-    padding-bottom: var(--section-space);
+  .tile-image {
+    display: block;
+    overflow: hidden;
   }
 
-  .portfolio > :global(:nth-child(6n + 1)) { grid-column: 1 / span 7; }
-  .portfolio > :global(:nth-child(6n + 2)) { grid-column: 9 / -1; margin-top: 13vw; }
-  .portfolio > :global(:nth-child(6n + 3)) { grid-column: 2 / span 4; }
-  .portfolio > :global(:nth-child(6n + 4)) { grid-column: 7 / -1; }
-  .portfolio > :global(:nth-child(6n + 5)) { grid-column: 1 / span 5; margin-top: 7vw; }
-  .portfolio > :global(:nth-child(6n + 6)) { grid-column: 7 / span 4; }
+  .tile-image :global(img) {
+    width: 100%;
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 
-  .future-note {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    padding-block: 2rem var(--section-space);
-    color: var(--paper-muted);
+  .tile-image:hover :global(img) {
+    transform: scale(1.012);
+  }
+
+  .tile-caption {
+    padding-top: 1rem;
     border-top: 1px solid var(--line);
   }
 
-  .future-note p:last-child {
-    max-width: 40rem;
+  .tile-caption h2 {
+    margin-bottom: 0.5rem;
+    font-size: clamp(2.4rem, 4vw, 4rem);
+  }
+
+  .tile-caption h2 a {
+    text-decoration: none;
+  }
+
+  .tile-caption .eyebrow {
+    margin-bottom: 0.75rem;
+  }
+
+  .tile-caption p:last-child {
+    max-width: 26rem;
+    margin: 0;
+    color: var(--paper-muted);
   }
 
   @media (max-width: 47.99rem) {
-    .work-header,
-    .future-note {
+    .work-header {
       grid-template-columns: 1fr;
     }
 
     .work-header h1,
     .work-header > p:last-child {
       grid-column: 1;
-    }
-
-    .portfolio {
-      display: block;
-    }
-
-    .portfolio > :global(*) {
-      margin: 0 0 5rem !important;
-    }
-
-    .portfolio > :global(:nth-child(3n + 2)) {
-      width: 84%;
-      margin-left: auto !important;
     }
   }
 </style>

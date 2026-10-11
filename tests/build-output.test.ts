@@ -1,30 +1,55 @@
 import { describe, expect, it } from 'vitest';
-import { artworkSlugs, existsInBuild, loadPages, references, withTrailingSlash } from './site';
+import { sectionIds } from '../src/sections';
+import { artworkSlugs, existsInBuild, loadPages, references, withTrailingSlash, type Page } from './site';
 
 const pages = loadPages();
 const routes = pages.map((page) => page.route);
+const sectionRoutes = sectionIds.map((id) => `/work/${id}/`);
+
+function linkedRoutes(page: Page | undefined) {
+  return (page?.html.querySelectorAll('a[href]') ?? []).map((link) =>
+    withTrailingSlash(link.getAttribute('href') ?? ''),
+  );
+}
 
 describe('built site', () => {
   it('includes the top-level pages', () => {
     expect(routes).toEqual(
-      expect.arrayContaining(['/', '/work/', '/about/', '/commissions/', '/contact/', '/404/']),
+      expect.arrayContaining(['/', '/work/', '/artwork/', '/about/', '/commissions/', '/contact/', '/404/', ...sectionRoutes]),
     );
   });
 
   it('has exactly one page per artwork record', () => {
-    const artworkRoutes = routes.filter((route) => /^\/work\/[^/]+\/$/.test(route));
+    const artworkRoutes = routes.filter(
+      (route) => /^\/work\/[^/]+\/$/.test(route) && !sectionRoutes.includes(route),
+    );
     const expected = artworkSlugs().map((slug) => `/work/${slug}/`);
 
     expect(artworkRoutes.sort()).toEqual(expected.sort());
   });
 
-  it('links every artwork from the portfolio page', () => {
+  it('links every section from the portfolio page', () => {
     const portfolio = pages.find((page) => page.route === '/work/');
-    const linked = portfolio?.html
-      .querySelectorAll('a[href]')
-      .map((link) => withTrailingSlash(link.getAttribute('href') ?? ''));
+
+    expect(linkedRoutes(portfolio)).toEqual(expect.arrayContaining(sectionRoutes));
+  });
+
+  it('links every artwork from a section page', () => {
+    const linked = pages.filter((page) => sectionRoutes.includes(page.route)).flatMap(linkedRoutes);
 
     expect(linked).toEqual(expect.arrayContaining(artworkSlugs().map((slug) => `/work/${slug}/`)));
+  });
+
+  it('lists every artwork on the artwork page, tagged only with filters it offers', () => {
+    const artwork = pages.find((page) => page.route === '/artwork/');
+    const items = artwork?.html.querySelectorAll('[data-artwork]') ?? [];
+    const offered = artwork?.html.querySelectorAll('[data-filter]').map((button) => button.getAttribute('data-filter'));
+    const tags = items.flatMap((item) => (item.getAttribute('data-filters') ?? '').split(' '));
+
+    expect(items).toHaveLength(artworkSlugs().length);
+    expect(linkedRoutes(artwork)).toEqual(expect.arrayContaining(artworkSlugs().map((slug) => `/work/${slug}/`)));
+    expect(offered).toEqual(expect.arrayContaining([...sectionIds, 'available']));
+    expect(offered).toEqual(expect.arrayContaining([...new Set(tags)]));
   });
 });
 

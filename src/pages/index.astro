@@ -1,13 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
 import artistPortrait from '../assets/artist-portrait.jpg';
 import ArtworkCard from '../components/ArtworkCard.astro';
 import ArtworkImage from '../components/ArtworkImage.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSortedArtworks } from '../lib/artworks';
 
-const artworks = (await getCollection('artworks')).sort((a, b) =>
-  a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
-);
+const artworks = await getSortedArtworks();
 const selectedArtworks = artworks.slice(0, 6);
 const featuredArtworks = artworks.filter((artwork) => artwork.data.featured);
 const hero = featuredArtworks[0] ?? artworks[0];
@@ -40,9 +38,9 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
 
   <section class="selected section page-shell" aria-labelledby="selected-title">
     <h2 id="selected-title" class="section-label">Selected work</h2>
-    <div class="selected-grid">
+    <div class="selected-grid artwork-grid">
       {selectedArtworks.map((artwork) => (
-        <ArtworkCard artwork={artwork} headingLevel="h3" sizes="(min-width: 768px) 55vw, 100vw" />
+        <ArtworkCard artwork={artwork} headingLevel="h3" sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
       ))}
     </div>
     <div class="section-action"><a class="text-link" href="/work">View complete portfolio</a></div>
@@ -221,17 +219,8 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
   }
 
   .selected-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: clamp(3rem, 8vw, 9rem) clamp(1rem, 3vw, 3rem);
+    padding-bottom: 0;
   }
-
-  .selected-grid > :global(:nth-child(1)) { grid-column: 1 / span 7; }
-  .selected-grid > :global(:nth-child(2)) { grid-column: 9 / -1; align-self: end; }
-  .selected-grid > :global(:nth-child(3)) { grid-column: 3 / span 4; }
-  .selected-grid > :global(:nth-child(4)) { grid-column: 8 / -1; margin-top: 10vw; }
-  .selected-grid > :global(:nth-child(5)) { grid-column: 1 / span 5; }
-  .selected-grid > :global(:nth-child(6)) { grid-column: 7 / span 4; margin-top: 5vw; }
 
   .section-action {
     display: flex;
@@ -435,19 +424,6 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
 
     .hero-image > p {
       padding-inline: var(--page-pad);
-    }
-
-    .selected-grid {
-      display: block;
-    }
-
-    .selected-grid > :global(*) {
-      margin: 0 0 4.5rem !important;
-    }
-
-    .selected-grid > :global(:nth-child(even)) {
-      width: 84%;
-      margin-left: auto !important;
     }
 
     .practice,
