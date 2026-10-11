@@ -30,13 +30,13 @@ npx vitest run                        # Run against the existing dist/ without r
 npx vitest run -t "page /about/"      # Run the tests for one page
 ```
 
-Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format.
+Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to tell section pages apart from artwork pages under `/work/`.
 
 ## Architecture
 
 ### Artwork content collection
 
-Each artwork is a self-contained folder, `src/content/artworks/<slug>/`, holding `artwork.md` (frontmatter only) and its photographs. Adding a folder is all it takes to publish a work: it appears on `/work` and gets a `/work/<slug>` page.
+Each artwork is a self-contained folder, `src/content/artworks/<slug>/`, holding `artwork.md` (frontmatter only) and its photographs. Adding a folder is all it takes to publish a work: it appears on the page of every section it lists and gets a `/work/<slug>` page.
 
 The schema in `src/content.config.ts` validates the frontmatter and then **transforms** it, so the shape pages read from `artwork.data` differs from what is written in `artwork.md`:
 
@@ -50,16 +50,29 @@ Exactly one `hero` image is required (enforced by `superRefine`). Change the sch
 
 The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/work/[slug].astro`), not from the folder name. Keep the two identical.
 
+### Portfolio sections
+
+`src/sections.ts` is the registry of portfolio sections (currently `bottles`, `commissions`, `paintings`): id, label, description, and an optional call-to-action link. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
+
+An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (including `status: commission`) is only the ownership label on the artwork page and does not affect listing.
+
+Each section has a page at `/work/<id>`. These are static stubs (`src/pages/work/bottles.astro` and so on) that render `src/components/SectionPage.astro`, because a second dynamic route would collide with `[slug].astro`. Section ids and artwork slugs therefore share one URL space, and the schema rejects an artwork whose `slug` equals a section id. Adding a section means a registry entry plus a stub. `/work` itself is a landing page with one tile per section.
+
+`/artwork` (`src/pages/artwork.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus Available (`status: available`). Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
+
+Every list of artworks (the homepage "Selected work", the `/work` section tiles, the section pages, and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard` and in the `/work` tiles) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, commissions rotator, the artwork page itself) are not in the grid.
+
 ### How pages select artworks
 
-Every page that lists artworks repeats the same sort inline: `sortOrder` ascending, then `title`. There is no shared helper, so a change to ordering has to be made in `index.astro`, `work/index.astro`, `about.astro`, and `commissions.astro`.
+Every page that lists artworks gets them from `getSortedArtworks()` in `src/lib/artworks.ts` (`sortOrder` ascending, then `title`) and narrows to a section with `inSection()` from the same file. Change ordering there, not in the pages.
 
 Several sections are driven by image roles and flags rather than hardcoded slugs, and they silently disappear when nothing qualifies:
 
 - Homepage hero: first `featured` artwork. "Selected work": first six by sort order.
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
-- Commissions hero rotator: all artworks with `commission: true`.
+- Commissions hero rotator: all artworks in the `commissions` section.
+- `/work` section tiles: each uses the first artwork in its section as the lead image, skipping one an earlier tile already shows. A section with no artworks keeps its tile and page but has no image.
 
 The current three artworks only have hero images, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 
@@ -75,12 +88,13 @@ Source photographs live next to their `artwork.md` (or in `src/assets/` for site
 
 `BaseLayout.astro` owns `<head>` (canonical URL, Open Graph, Organization JSON-LD built from `Astro.site`), the header, footer, and the lightbox. Site-wide strings such as the studio name, email, and Instagram come from `src/config.ts`.
 
-Styling is plain CSS: design tokens and a few shared utility classes (`.page-shell`, `.section`, `.section-label`, `.eyebrow`, `.large-copy`, `.text-link`) in `src/styles/global.css`, and everything else in scoped `<style>` blocks inside each page or component. Because `<Picture>` output belongs to a child component, scoped rules that target its `<img>` need `:global(img)`. The site is dark-only, and the main layout breakpoint is `47.99rem`.
+Styling is plain CSS: design tokens and a few shared utility classes (`.page-shell`, `.section`, `.section-label`, `.eyebrow`, `.large-copy`, `.text-link`, `.artwork-grid`) in `src/styles/global.css`, and everything else in scoped `<style>` blocks inside each page or component. Because `<Picture>` output belongs to a child component, scoped rules that target its `<img>` need `:global(img)`. The site is dark-only, and the main layout breakpoint is `47.99rem`.
 
-Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, and the commissions hero rotator). Do not add a UI framework for this.
+Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, the commissions hero rotator, and the `/artwork` filters). Do not add a UI framework for this.
 
 ## Content conventions
 
+- `TODO.md` tracks open questions for the artist and for the build. Add new ones there instead of only raising them in conversation, and tick or remove them once answered.
 - `.draft-note` spans mark copy that still needs the artist's review. Leave them in place unless the copy has been approved.
 - The email in `src/config.ts` is a placeholder (`@example.com`), and the contact page says so. Both get updated together at launch.
 - Alt text describes what is visible and what the photograph adds, rather than repeating the artwork title. An angled view should mention depth or projection.

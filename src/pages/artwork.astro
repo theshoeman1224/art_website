@@ -1,0 +1,212 @@
+---
+import ArtworkCard from '../components/ArtworkCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSortedArtworks, type Artwork } from '../lib/artworks';
+import { sections } from '../sections';
+
+const artworks = await getSortedArtworks();
+
+// Filters in the same group widen the result; different groups narrow it.
+const filters = [
+  ...sections.map((section) => ({ id: section.id, label: section.label, group: 'section' })),
+  { id: 'available', label: 'Available', group: 'status' },
+];
+
+function filterIds(artwork: Artwork) {
+  return [...artwork.data.sections, ...(artwork.data.status === 'available' ? ['available'] : [])];
+}
+
+const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work' : 'works'}`;
+---
+
+<BaseLayout title="Artwork" description="Every artwork by Endeavor Art Studio, with filters for type and availability.">
+  <header class="artwork-header page-shell">
+    <p class="eyebrow">Artwork / {artworks.length} {artworks.length === 1 ? 'work' : 'works'}</p>
+    <h1>Artwork</h1>
+  </header>
+
+  <div class="filters page-shell" data-artwork-filters>
+    <p class="eyebrow" id="filter-label">Filter</p>
+    <div class="filter-buttons" role="group" aria-labelledby="filter-label">
+      {filters.map((filter) => (
+        <button
+          class="filter-button"
+          type="button"
+          aria-pressed="false"
+          data-filter={filter.id}
+          data-filter-group={filter.group}
+        >
+          {filter.label}
+        </button>
+      ))}
+      <button class="filter-clear" type="button" data-filter-clear disabled>Clear</button>
+    </div>
+    <p class="filter-status" data-filter-status aria-live="polite">{allWorks}</p>
+  </div>
+
+  <section class="artwork-grid page-shell" aria-label="All artwork">
+    {artworks.map((artwork) => (
+      <div data-artwork data-filters={filterIds(artwork).join(' ')}>
+        <ArtworkCard artwork={artwork} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
+      </div>
+    ))}
+  </section>
+  <p class="empty page-shell" data-filter-empty hidden>No works match these filters.</p>
+
+  <script>
+    const root = document.querySelector<HTMLElement>('[data-artwork-filters]');
+
+    if (root) {
+      const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+      const clear = root.querySelector<HTMLButtonElement>('[data-filter-clear]');
+      const status = root.querySelector<HTMLElement>('[data-filter-status]');
+      const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+      const items = Array.from(document.querySelectorAll<HTMLElement>('[data-artwork]'));
+      const count = (total: number) => `${total} ${total === 1 ? 'work' : 'works'}`;
+
+      const apply = () => {
+        const active = buttons.filter((button) => button.getAttribute('aria-pressed') === 'true');
+        const groups = new Map<string, string[]>();
+        for (const button of active) {
+          const group = button.dataset.filterGroup ?? '';
+          groups.set(group, [...(groups.get(group) ?? []), button.dataset.filter ?? '']);
+        }
+
+        let shown = 0;
+        for (const item of items) {
+          const tags = (item.dataset.filters ?? '').split(' ');
+          const matches = [...groups.values()].every((ids) => ids.some((id) => tags.includes(id)));
+          item.hidden = !matches;
+          if (matches) shown += 1;
+        }
+
+        if (clear) clear.disabled = active.length === 0;
+        if (empty) empty.hidden = shown > 0;
+        if (status) {
+          status.textContent = active.length === 0
+            ? `Showing all ${count(items.length)}`
+            : `Showing ${shown} of ${count(items.length)}`;
+        }
+      };
+
+      for (const button of buttons) {
+        button.addEventListener('click', () => {
+          button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
+          apply();
+        });
+      }
+
+      clear?.addEventListener('click', () => {
+        for (const button of buttons) button.setAttribute('aria-pressed', 'false');
+        apply();
+      });
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .artwork-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    padding-block: clamp(5rem, 10vw, 10rem) clamp(3rem, 6vw, 6rem);
+  }
+
+  .artwork-header h1 {
+    grid-column: 2;
+    margin: 0;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    padding-bottom: clamp(3rem, 6vw, 6rem);
+  }
+
+  .filters::before {
+    flex: 0 0 100%;
+    height: 1px;
+    margin-bottom: 0.5rem;
+    content: '';
+    background: var(--line);
+  }
+
+  .filters .eyebrow,
+  .filter-status {
+    margin: 0;
+  }
+
+  .filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .filter-button,
+  .filter-clear {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    color: var(--paper-muted);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .filter-button:hover,
+  .filter-clear:not(:disabled):hover {
+    color: var(--paper);
+    border-color: var(--clay);
+  }
+
+  .filter-button[aria-pressed='true'] {
+    color: var(--carbon);
+    background: var(--paper);
+    border-color: var(--paper);
+  }
+
+  .filter-clear {
+    border-color: transparent;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+
+  .filter-clear:disabled {
+    opacity: 0.4;
+    cursor: default;
+    text-decoration: none;
+  }
+
+  .filter-status {
+    margin-left: auto;
+    color: var(--paper-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .empty {
+    padding-bottom: var(--section-space);
+    color: var(--paper-muted);
+  }
+
+  @media (max-width: 47.99rem) {
+    .artwork-header {
+      grid-template-columns: 1fr;
+    }
+
+    .artwork-header h1 {
+      grid-column: 1;
+    }
+
+    .filter-status {
+      flex: 0 0 100%;
+      margin-left: 0;
+    }
+  }
+</style>

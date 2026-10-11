@@ -14,7 +14,9 @@ dimensions:
   unit: in
 description: "Pure Honey transforms a SirDavis bottle into a layered study of fracture, rhythm, and reconstruction. Clear glass is reassembled around the recognizable remains of the bottle and accented with gold, offering a subtle nod to Beyoncé’s PURE/HONEY while giving the original form a new sculptural presence"
 status: commission
-commission: true
+sections:
+  - bottles
+  - commissions
 images:
   - src: ./hero.png
     role: hero

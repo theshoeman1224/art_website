@@ -1,12 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
 import artistPortrait from '../assets/artist-portrait.jpg';
 import ArtworkImage from '../components/ArtworkImage.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSortedArtworks } from '../lib/artworks';
 
-const artworks = (await getCollection('artworks')).sort((a, b) =>
-  a.data.sortOrder - b.data.sortOrder || a.data.title.localeCompare(b.data.title)
-);
+const artworks = await getSortedArtworks();
 const processArtwork = artworks.find((artwork) => artwork.data.images.some((image) => image.type === 'process'));
 const processImage = processArtwork?.data.images.find((image) => image.type === 'process');
 ---
