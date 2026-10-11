@@ -74,7 +74,7 @@ Several sections are driven by image roles and flags rather than hardcoded slugs
 - Commissions hero rotator: all artworks in the `commissions` section.
 - `/work` section tiles: each uses the first artwork in its section as the lead image, skipping one an earlier tile already shows. A section with no artworks keeps its tile and page but has no image.
 
-The current three artworks only have hero images, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
+No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Worth the Break) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 
 ### Images and the lightbox
 

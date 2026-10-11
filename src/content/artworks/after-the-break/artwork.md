@@ -17,8 +17,11 @@ status: not_for_sale
 sections:
   - paintings
 images:
-  - src: ./hero.png
+  - src: ./hero.jpeg
     role: hero
+    alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
+  - src: ./angled.jpeg
+    role: angled
     alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
 featured: true
 sortOrder: 0
