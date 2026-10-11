@@ -8,15 +8,19 @@ Artist-provided copy, artwork records, and photography are in place. Contact det
 
 ```text
 src/
-  assets/
-    artist-portrait.jpg
+  assets/                  Site-level images: artist portrait and studio emblem
   components/              Shared image, navigation, and lightbox components
   content/artworks/<slug>/ Portable artwork package: metadata and images
   layouts/BaseLayout.astro
   pages/                   Astro routes
   styles/global.css        Design tokens and global rules
   config.ts                Email, Instagram, and site-level content
-astro.config.mjs
+  content.config.ts        Artwork schema and validation
+public/
+  _headers                 Temporary noindex response header
+  robots.txt               Temporary crawler block
+astro.config.mjs           Canonical site URL and image settings
+wrangler.jsonc             Cloudflare Workers static-assets deployment
 ```
 
 Astro generates these routes from the files above:
@@ -48,9 +52,21 @@ Useful commands:
 npm run check       # TypeScript, Astro, and content validation
 npm run build       # Validation followed by the production build
 npm run preview     # Serve the production build locally
+npm test            # Build, then run the build output tests
 ```
 
 The production output is written to `dist/`.
+
+## Tests
+
+`npm test` builds the site and then runs the Vitest suite in `tests/` against the generated HTML in `dist/`. The tests check that:
+
+- the top-level pages exist, and every artwork record has exactly one `/work/<slug>` page that the portfolio links to
+- every page has a language, title, description, a single `h1`, and a canonical URL matching its route
+- every image has an `alt` attribute, and every artwork photograph has a non-empty description
+- every internal link, image, stylesheet, and in-page anchor points at something that exists in the build
+
+To re-run the tests against an existing build without rebuilding, use `npx vitest run`.
 
 ## Add an artwork
 
@@ -136,6 +152,36 @@ export const siteConfig = {
 ```
 
 Also replace the provisional `site` URL in `astro.config.mjs` with the final canonical domain.
+
+## Current deployment: Cloudflare Workers (temporary)
+
+The site is currently deployed for testing as a Cloudflare Worker that serves static assets. `wrangler.jsonc` defines the Worker (`glizzy-enjoyer`) and points its asset directory at `./dist`. The `site` value in `astro.config.mjs` is set to the matching `https://glizzy-enjoyer.workers.dev` address so canonical URLs and structured data resolve correctly.
+
+Wrangler is not a project dependency. To deploy from a local checkout:
+
+```bash
+npm run build
+npx wrangler deploy
+```
+
+If the Worker is connected to the repository through Workers Builds, use `npm run build` as the build command and `npx wrangler deploy` as the deploy command.
+
+No Astro adapter is needed. The output is static HTML, CSS, JavaScript, fonts, and optimized images.
+
+While the deployment is temporary, two files in `public/` keep it out of search results:
+
+- `robots.txt` disallows all crawlers.
+- `_headers` adds `X-Robots-Tag: noindex, nofollow, noarchive` to every response.
+
+These only discourage indexing. The `workers.dev` address is still reachable by anyone who has the link.
+
+Before the public launch:
+
+1. Delete `public/robots.txt` and `public/_headers`, or replace them with production rules.
+2. Set `site` in `astro.config.mjs` to the final canonical domain.
+3. Replace the placeholder email in `src/config.ts`.
+
+The two sections below describe the Cloudflare Pages setup with Access-protected staging. They do not apply to the temporary Workers deployment.
 
 ## Cloudflare Pages deployment
 
