@@ -8,11 +8,7 @@ const artworks = defineCollection({
   schema: ({ image }) => {
     const sharedFields = {
       title: z.string(),
-      // Section pages live at /work/<section>, the same URL space as /work/<slug>.
-      slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).refine(
-        (slug) => !(sectionIds as string[]).includes(slug),
-        { message: 'Artwork slug is reserved for a portfolio section page.' },
-      ),
+      slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
       year: z.number().int(),
       medium: z.string(),
       materials: z.array(z.string()).min(1),

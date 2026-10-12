@@ -1,8 +1,8 @@
 ---
-import ArtworkCard from '../components/ArtworkCard.astro';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getSortedArtworks, type Artwork } from '../lib/artworks';
-import { sections } from '../sections';
+import ArtworkCard from '../../components/ArtworkCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSortedArtworks, type Artwork } from '../../lib/artworks';
+import { sections } from '../../sections';
 
 const artworks = await getSortedArtworks();
 
