@@ -16,7 +16,7 @@ src/
   lib/artworks.ts          Shared artwork sorting and section filtering
   styles/global.css        Design tokens and global rules
   config.ts                Email, Instagram, and site-level content
-  sections.ts              Portfolio sections: ids, labels, and descriptions
+  sections.ts              Portfolio sections: ids and labels
   content.config.ts        Artwork schema and validation
 public/
   _headers                 Temporary noindex response header
@@ -29,12 +29,8 @@ Astro generates these routes from the files above:
 
 ```text
 /
-/work
-/work/bottles
-/work/commissions
-/work/paintings
-/work/<artwork-slug>
 /artwork
+/artwork/<artwork-slug>
 /about
 /commissions
 /contact
@@ -67,7 +63,7 @@ The production output is written to `dist/`.
 
 `npm test` builds the site and then runs the Vitest suite in `tests/` against the generated HTML in `dist/`. The tests check that:
 
-- the top-level and section pages exist, `/work` links to every section, and every artwork record has exactly one `/work/<slug>` page that at least one section page links to
+- the top-level pages exist, and every artwork record has exactly one `/artwork/<slug>` page that `/artwork` lists and links to
 - every page has a language, title, description, a single `h1`, and a canonical URL matching its route
 - every image has an `alt` attribute, and every artwork photograph has a non-empty description
 - every internal link, image, stylesheet, and in-page anchor points at something that exists in the build
@@ -83,7 +79,7 @@ To re-run the tests against an existing build without rebuilding, use `npx vites
 5. List the portfolio sections the work belongs to under `sections`.
 6. Run `npm run check`.
 
-The artwork will appear on `/artwork`, on the page of every section it lists, and Astro will create `/work/<slug>`. Set `featured: true` to make the record eligible for featured placements. The homepage displays the first six records; `/work` links to each section.
+The artwork will appear on `/artwork`, under the filter of every section it lists, and Astro will create `/artwork/<slug>`. Set `featured: true` to make the record eligible for featured placements. The homepage displays the first six records.
 
 Do not manually resize source photographs for layout slots. Keep their original aspect ratios and enough resolution to show material texture. Astro creates responsive AVIF, WebP, and fallback files at build time. A practical source target is 2000 to 3000 pixels on the long edge. Avoid uploading camera-original files that are much larger unless fine detail requires them.
 
@@ -128,7 +124,7 @@ commissions
 paintings
 ```
 
-A work can list more than one section, for example a commissioned bottle piece. A section id cannot be used as an artwork `slug`, because both live under `/work/`.
+A work can list more than one section, for example a commissioned bottle piece.
 
 Allowed image roles:
 
@@ -160,11 +156,10 @@ Alt text should describe what is visible and what the photograph contributes. Av
 
 ## Add a portfolio section
 
-1. Add an entry to the list in `src/sections.ts`. Its `id` becomes the URL segment and the value used in artwork records; the list order is the display order.
-2. Create `src/pages/work/<id>.astro`, copying `src/pages/work/bottles.astro` and changing the `section` value.
-3. Run `npm test`.
+1. Add an entry to the list in `src/sections.ts`. Its `id` is the value used in artwork records, and the list order is the display order.
+2. Run `npm test`.
 
-The new section then appears on `/work`, in the section navigation, as a filter on `/artwork`, and as an allowed `sections` value.
+The new section then appears as a filter on `/artwork` and as an allowed `sections` value.
 
 ## Artwork filters
 
@@ -225,7 +220,7 @@ The two sections below describe the Cloudflare Pages setup with Access-protected
 4. Set the build command to `npm run build`.
 5. Set the output directory to `dist`.
 6. Set `NODE_VERSION` to `22` or newer if the build environment does not select it automatically.
-7. Deploy and verify the generated `/work/<slug>` pages directly, not only through client navigation.
+7. Deploy and verify the generated `/artwork/<slug>` pages directly, not only through client navigation.
 
 No Astro adapter is needed. The output is static HTML, CSS, JavaScript, fonts, and optimized images.
 

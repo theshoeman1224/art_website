@@ -30,13 +30,13 @@ npx vitest run                        # Run against the existing dist/ without r
 npx vitest run -t "page /about/"      # Run the tests for one page
 ```
 
-Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to tell section pages apart from artwork pages under `/work/`.
+Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to check that `/artwork` offers a filter for every section.
 
 ## Architecture
 
 ### Artwork content collection
 
-Each artwork is a self-contained folder, `src/content/artworks/<slug>/`, holding `artwork.md` (frontmatter only) and its photographs. Adding a folder is all it takes to publish a work: it appears on the page of every section it lists and gets a `/work/<slug>` page.
+Each artwork is a self-contained folder, `src/content/artworks/<slug>/`, holding `artwork.md` (frontmatter only) and its photographs. Adding a folder is all it takes to publish a work: it appears on `/artwork`, under the filter of every section it lists, and gets an `/artwork/<slug>` page.
 
 The schema in `src/content.config.ts` validates the frontmatter and then **transforms** it, so the shape pages read from `artwork.data` differs from what is written in `artwork.md`:
 
@@ -48,21 +48,21 @@ The schema in `src/content.config.ts` validates the frontmatter and then **trans
 
 Exactly one `hero` image is required (enforced by `superRefine`). Change the schema and the transform together, then check every consumer of `data.hero`, `data.images[].type`, and `data.dimensions`.
 
-The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/work/[slug].astro`), not from the folder name. Keep the two identical.
+The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/artwork/[slug].astro`), not from the folder name. Keep the two identical.
 
 `placeholder: true` marks a stub record whose details are still `TODO`. It only keeps the work out of the homepage's "Selected work"; the work is still listed everywhere else and still gets its page. Remove the flag when the record is filled in. A test fails if `TODO` text reaches the homepage, so do not set `featured` on a placeholder.
 
 ### Portfolio sections
 
-`src/sections.ts` is the registry of portfolio sections (currently `bottles`, `commissions`, `paintings`): id, label, description, and an optional call-to-action link. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
+`src/sections.ts` is the registry of portfolio sections (currently `bottles`, `commissions`, `paintings`): an id and a label each. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
 
 An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (including `status: commission`) is only the ownership label on the artwork page and does not affect listing.
 
-Each section has a page at `/work/<id>`. These are static stubs (`src/pages/work/bottles.astro` and so on) that render `src/components/SectionPage.astro`, because a second dynamic route would collide with `[slug].astro`. Section ids and artwork slugs therefore share one URL space, and the schema rejects an artwork whose `slug` equals a section id. Adding a section means a registry entry plus a stub. `/work` itself is a landing page with one tile per section.
+Sections have no pages of their own. A section is a filter on `/artwork`, a label in the artwork page's details, and (for `commissions`) the source of the commissions hero rotator. Adding a section is one registry entry.
 
-`/artwork` (`src/pages/artwork.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus Available (`status: available`). Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
+`/artwork` (`src/pages/artwork/index.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus Available (`status: available`). Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
 
-Every list of artworks (the homepage "Selected work", the `/work` section tiles, the section pages, and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard` and in the `/work` tiles) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, commissions rotator, the artwork page itself) are not in the grid.
+Every list of artworks (the homepage "Selected work" and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard`) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, commissions rotator, the artwork page itself) are not in the grid.
 
 ### How pages select artworks
 
@@ -74,7 +74,6 @@ Several sections are driven by image roles and flags rather than hardcoded slugs
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
 - Commissions hero rotator: all artworks in the `commissions` section.
-- `/work` section tiles: each uses the first artwork in its section as the lead image, skipping one an earlier tile already shows. A section with no artworks keeps its tile and page but has no image.
 
 No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Worth the Break) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 

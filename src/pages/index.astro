@@ -43,7 +43,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
         <ArtworkCard artwork={artwork} headingLevel="h3" sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
       ))}
     </div>
-    <div class="section-action"><a class="text-link" href="/work">View complete portfolio</a></div>
+    <div class="section-action"><a class="text-link" href="/artwork">View all artwork</a></div>
   </section>
 
   <section class="practice section page-shell" aria-labelledby="practice-title">
@@ -89,7 +89,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
         <div><dt>Materials</dt><dd>{feature.data.materials.join(', ')}</dd></div>
         <div><dt>Dimensions</dt><dd>{feature.data.dimensions}</dd></div>
       </dl>
-      <a class="text-link" href={`/work/${feature.data.slug}`}>View artwork</a>
+      <a class="text-link" href={`/artwork/${feature.data.slug}`}>View artwork</a>
     </div>
     <div class="featured-images">
       <ArtworkImage

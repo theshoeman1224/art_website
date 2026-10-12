@@ -4,7 +4,6 @@ import { artworkSlugs, existsInBuild, loadPages, references, withTrailingSlash, 
 
 const pages = loadPages();
 const routes = pages.map((page) => page.route);
-const sectionRoutes = sectionIds.map((id) => `/work/${id}/`);
 
 function linkedRoutes(page: Page | undefined) {
   return (page?.html.querySelectorAll('a[href]') ?? []).map((link) =>
@@ -15,29 +14,15 @@ function linkedRoutes(page: Page | undefined) {
 describe('built site', () => {
   it('includes the top-level pages', () => {
     expect(routes).toEqual(
-      expect.arrayContaining(['/', '/work/', '/artwork/', '/about/', '/commissions/', '/contact/', '/404/', ...sectionRoutes]),
+      expect.arrayContaining(['/', '/artwork/', '/about/', '/commissions/', '/contact/', '/404/']),
     );
   });
 
   it('has exactly one page per artwork record', () => {
-    const artworkRoutes = routes.filter(
-      (route) => /^\/work\/[^/]+\/$/.test(route) && !sectionRoutes.includes(route),
-    );
-    const expected = artworkSlugs().map((slug) => `/work/${slug}/`);
+    const artworkRoutes = routes.filter((route) => /^\/artwork\/[^/]+\/$/.test(route));
+    const expected = artworkSlugs().map((slug) => `/artwork/${slug}/`);
 
     expect(artworkRoutes.sort()).toEqual(expected.sort());
-  });
-
-  it('links every section from the portfolio page', () => {
-    const portfolio = pages.find((page) => page.route === '/work/');
-
-    expect(linkedRoutes(portfolio)).toEqual(expect.arrayContaining(sectionRoutes));
-  });
-
-  it('links every artwork from a section page', () => {
-    const linked = pages.filter((page) => sectionRoutes.includes(page.route)).flatMap(linkedRoutes);
-
-    expect(linked).toEqual(expect.arrayContaining(artworkSlugs().map((slug) => `/work/${slug}/`)));
   });
 
   it('lists every artwork on the artwork page, tagged only with filters it offers', () => {
@@ -47,7 +32,7 @@ describe('built site', () => {
     const tags = items.flatMap((item) => (item.getAttribute('data-filters') ?? '').split(' '));
 
     expect(items).toHaveLength(artworkSlugs().length);
-    expect(linkedRoutes(artwork)).toEqual(expect.arrayContaining(artworkSlugs().map((slug) => `/work/${slug}/`)));
+    expect(linkedRoutes(artwork)).toEqual(expect.arrayContaining(artworkSlugs().map((slug) => `/artwork/${slug}/`)));
     expect(offered).toEqual(expect.arrayContaining([...sectionIds, 'available']));
     expect(offered).toEqual(expect.arrayContaining([...new Set(tags)]));
   });
