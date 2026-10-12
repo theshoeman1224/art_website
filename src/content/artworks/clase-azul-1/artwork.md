@@ -1,0 +1,25 @@
+---
+schemaVersion: 1
+# TODO: "Clase Azul 1" is a working title. The slug and folder name follow it.
+title: Clase Azul 1
+slug: clase-azul-1
+# TODO: placeholder year. The schema needs an integer; the photograph is dated 2024-03-28.
+year: 2024
+medium: TODO
+materials:
+  - TODO
+# TODO: placeholder dimensions. The schema needs positive numbers.
+dimensions:
+  height: 1
+  width: 1
+  unit: TODO
+description: TODO
+# TODO: placeholder status. The schema needs one of its fixed values.
+status: not_for_sale
+sections:
+  - bottles
+images:
+  - src: ./hero.jpeg
+    role: hero
+    alt: TODO
+---

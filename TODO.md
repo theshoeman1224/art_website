@@ -5,8 +5,9 @@ Open questions that need an answer from the artist or a decision from us. Tick o
 ## For the artist
 
 - [ ] **Section descriptions.** The one-line descriptions for Bottles, Commissions, and Paintings are placeholder copy (in `src/sections.ts`, shown with a "Draft for artist review" marker on `/work` and each section page). Approve or rewrite them.
-- [ ] **Which pieces are available?** No artwork currently has `status: available`, so the Available filter on `/artwork` shows nothing. Worth the Break and Pure Honey are `commission`; After the Break is `not_for_sale`.
-- [ ] **Is "Paintings" the right name for the third section?** It was "Other work" until the filter list named it. After the Break (canvas, plaster, gold leaf) is the only piece in it.
+- [ ] **Which pieces are available?** No artwork currently has `status: available`, so the Available filter on `/artwork` shows nothing. Worth the Break, Pure Honey, Blue 1, Deep Wave, and This Seemed Easier in My Head are `commission`; After the Break is `not_for_sale`, and so are Jack Daniel's 1, Don Julio 1, Clase Azul 1, Moxie 1, and Death Isn’t Black and White, as a placeholder.
+- [ ] **Is "Paintings" the right name for the third section?** It was "Other work" until the filter list named it. After the Break (canvas, plaster, gold leaf), Blue 1, Deep Wave, and This Seemed Easier in My Head are the pieces in it.
+- [ ] **Details for the stub pieces.** Blue 1, Deep Wave, This Seemed Easier in My Head, Jack Daniel's 1, Don Julio 1, Clase Azul 1, Moxie 1, and Death Isn’t Black and White (`blue-1`, `deep-wave`, `this-seemed-easier-in-my-head`, `jack-daniels-1`, `don-julio-1`, `clase-azul-1`, `moxie-1`, and `death-isnt-black-and-white` under `src/content/artworks/`) are stubs and the site currently shows their placeholders. Needed for each: the real title (the current ones are working titles; the slug and folder name follow it), year (2024 is a placeholder taken from the photo date), medium, materials, dimensions (shown as "1 × 1 TODO"), description, alt text for every photograph, and the right status (`commission` on the first three is taken from their section; `not_for_sale` on the five bottle pieces is a placeholder).
 - [ ] **Is there work that is neither a bottle, a painting, nor a commission?** If so it needs its own section; every piece must list at least one.
 
 ## For us
