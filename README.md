@@ -97,7 +97,7 @@ The validated schema lives in `src/content.config.ts`. Real artworks use the por
 | `materials` | string array | Physical materials used |
 | `dimensions` | object | Numeric height, width, optional depth, and unit |
 | `description` | string | Artwork description |
-| `status` | enum | Collection or availability state |
+| `status` | enum | Availability: available, unavailable, or sold |
 | `sections` | enum array | Portfolio sections the work is listed in, at least one |
 | `images` | image array | All photographs, relative paths, alt text, and roles |
 | `featured` | boolean | Eligible for featured placement |
@@ -107,14 +107,12 @@ The validated schema lives in `src/content.config.ts`. Real artworks use the por
 Allowed `status` values:
 
 ```text
-artist_collection
-private_collection
-commission
 available
-not_for_sale
+unavailable
+sold
 ```
 
-`status` describes ownership or availability and is shown on the artwork page. It does not decide where the work is listed; `sections` does.
+`status` is the work's availability. It is shown on the artwork page, and wherever artworks are listed, hovering a photograph (or focusing it with the keyboard) shows the work's dimensions over it, followed by "Sold" or "Unavailable"; an available work shows its dimensions alone. On touch screens the same line sits under the photograph. `status` does not decide where the work is listed; `sections` does.
 
 Allowed `sections` values:
 
@@ -163,7 +161,7 @@ The new section then appears as a filter on `/artwork` and as an allowed `sectio
 
 ## Artwork filters
 
-`/artwork` lists every work with filter buttons: one per portfolio section, plus Available, which matches works with `status: available`. Nothing is filtered until a button is pressed, and Clear resets them all. Section filters widen each other (Bottles and Paintings shows both); Available narrows whatever is showing to works that are for sale.
+`/artwork` lists every work with filter buttons: one per portfolio section, plus one per `status` (Available, Unavailable, Sold). Nothing is filtered until a button is pressed, and Clear resets them all. Filters of the same kind widen each other (Bottles and Paintings shows both, Available and Sold shows both); a section filter and a status filter together narrow the result to works that match both, such as available bottles.
 
 ## Contact configuration
 

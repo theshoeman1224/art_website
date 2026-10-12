@@ -33,8 +33,23 @@ describe('built site', () => {
 
     expect(items).toHaveLength(artworkSlugs().length);
     expect(linkedRoutes(artwork)).toEqual(expect.arrayContaining(artworkSlugs().map((slug) => `/artwork/${slug}/`)));
-    expect(offered).toEqual(expect.arrayContaining([...sectionIds, 'available']));
+    expect(offered).toEqual(expect.arrayContaining([...sectionIds, 'available', 'unavailable', 'sold']));
     expect(offered).toEqual(expect.arrayContaining([...new Set(tags)]));
+  });
+
+  it('gives every artwork card an overlay with its size, and a status label unless it is available', () => {
+    const artwork = pages.find((page) => page.route === '/artwork/');
+    const overlays = artwork?.html.querySelectorAll('[data-artwork] .artwork-overlay') ?? [];
+    const labels: Record<string, string | undefined> = { available: undefined, unavailable: 'Unavailable', sold: 'Sold' };
+
+    expect(overlays).toHaveLength(artworkSlugs().length);
+    for (const overlay of overlays) {
+      const status = overlay.getAttribute('data-artwork-status') ?? '';
+
+      expect(Object.keys(labels)).toContain(status);
+      expect(overlay.querySelector('.artwork-size')?.text.trim()).toBeTruthy();
+      expect(overlay.querySelector('.artwork-status')?.text.trim()).toBe(labels[status]);
+    }
   });
 
   it('keeps placeholder artwork copy off the homepage', () => {
