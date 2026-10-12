@@ -50,6 +50,8 @@ Exactly one `hero` image is required (enforced by `superRefine`). Change the sch
 
 The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/work/[slug].astro`), not from the folder name. Keep the two identical.
 
+`placeholder: true` marks a stub record whose details are still `TODO`. It only keeps the work out of the homepage's "Selected work"; the work is still listed everywhere else and still gets its page. Remove the flag when the record is filled in. A test fails if `TODO` text reaches the homepage, so do not set `featured` on a placeholder.
+
 ### Portfolio sections
 
 `src/sections.ts` is the registry of portfolio sections (currently `bottles`, `commissions`, `paintings`): id, label, description, and an optional call-to-action link. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
@@ -68,7 +70,7 @@ Every page that lists artworks gets them from `getSortedArtworks()` in `src/lib/
 
 Several sections are driven by image roles and flags rather than hardcoded slugs, and they silently disappear when nothing qualifies:
 
-- Homepage hero: first `featured` artwork. "Selected work": first six by sort order.
+- Homepage hero: first `featured` artwork. "Selected work": first six by sort order, skipping records flagged `placeholder: true`.
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
 - Commissions hero rotator: all artworks in the `commissions` section.
@@ -101,7 +103,7 @@ Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, 
 
 ## Deployment state
 
-The site is currently on a temporary Cloudflare Workers static-assets deployment for testing: `wrangler.jsonc` serves `./dist`, and `site` in `astro.config.mjs` points at the matching `workers.dev` URL. `wrangler` is not a dependency in `package.json`, so deploying is `npm run build` followed by `npx wrangler deploy`.
+The site is currently on a temporary Cloudflare Workers static-assets deployment for testing: `wrangler.jsonc` serves `./dist` and returns `404.html` for unknown paths (`not_found_handling`), and `site` in `astro.config.mjs` points at the matching `workers.dev` URL. `wrangler` is not a dependency in `package.json`, so deploying is `npm run build` followed by `npx wrangler deploy`.
 
 Indexing is deliberately blocked while this is temporary, through `public/robots.txt` (`Disallow: /`) and `public/_headers` (`X-Robots-Tag: noindex`). Launching publicly means removing both and setting `site` to the final canonical domain.
 

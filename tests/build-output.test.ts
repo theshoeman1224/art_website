@@ -51,6 +51,17 @@ describe('built site', () => {
     expect(offered).toEqual(expect.arrayContaining([...sectionIds, 'available']));
     expect(offered).toEqual(expect.arrayContaining([...new Set(tags)]));
   });
+
+  it('keeps placeholder artwork copy off the homepage', () => {
+    const body = pages.find((page) => page.route === '/')?.html.querySelector('body');
+    const descriptions = (body?.querySelectorAll('[alt], [aria-label], [data-lightbox-caption]') ?? []).flatMap(
+      (element) => ['alt', 'aria-label', 'data-lightbox-caption'].map((name) => element.getAttribute(name) ?? ''),
+    );
+
+    expect(body).toBeTruthy();
+    expect(body?.text.includes('TODO')).toBe(false);
+    expect(descriptions.filter((description) => description.includes('TODO'))).toEqual([]);
+  });
 });
 
 describe.each(pages)('page $route', ({ route, html }) => {
