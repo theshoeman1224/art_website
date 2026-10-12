@@ -16,7 +16,7 @@ dimensions:
   width: 1
   unit: TODO
 description: TODO
-status: commission
+status: available
 sections:
   - commissions
   - paintings

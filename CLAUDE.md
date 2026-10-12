@@ -56,13 +56,15 @@ The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/
 
 `src/sections.ts` is the registry of portfolio sections (currently `bottles`, `commissions`, `paintings`): an id and a label each. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
 
-An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (including `status: commission`) is only the ownership label on the artwork page and does not affect listing.
+An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (`available`, `unavailable`, or `sold`) is the work's availability. It is shown on the artwork page and in the card overlay described below, feeds the status filters on `/artwork`, and does not affect which sections a work is listed in. Its display labels are `statusLabels` in `src/lib/artworks.ts`.
 
 Sections have no pages of their own. A section is a filter on `/artwork`, a label in the artwork page's details, and (for `commissions`) the source of the commissions hero rotator. Adding a section is one registry entry.
 
-`/artwork` (`src/pages/artwork/index.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus Available (`status: available`). Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
+`/artwork` (`src/pages/artwork/index.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus one per status from `statusLabels`. Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
 
 Every list of artworks (the homepage "Selected work" and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard`) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, commissions rotator, the artwork page itself) are not in the grid.
+
+`ArtworkCard` lays a dark overlay over the photograph on hover and on keyboard focus, showing the work's dimensions and, for `sold` and `unavailable` works, the status label; an available work shows its dimensions alone. The overlay is a sibling of the image link with `pointer-events: none`, so the link stays clickable. Under `@media (hover: none)` the same element becomes a static line under the photograph, because touch screens have nothing to hover with.
 
 ### How pages select artworks
 

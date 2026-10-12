@@ -13,13 +13,7 @@ const artworks = defineCollection({
       medium: z.string(),
       materials: z.array(z.string()).min(1),
       description: z.string(),
-      status: z.enum([
-        'artist_collection',
-        'private_collection',
-        'commission',
-        'available',
-        'not_for_sale',
-      ]),
+      status: z.enum(['available', 'unavailable', 'sold']),
       sections: z.array(z.enum(sectionIds)).min(1),
       featured: z.boolean().default(false),
       // Marks a record whose details are still TODO, so the homepage showcase can leave it out.

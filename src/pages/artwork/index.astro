@@ -1,7 +1,7 @@
 ---
 import ArtworkCard from '../../components/ArtworkCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getSortedArtworks, type Artwork } from '../../lib/artworks';
+import { getSortedArtworks, statusLabels, type Artwork } from '../../lib/artworks';
 import { sections } from '../../sections';
 
 const artworks = await getSortedArtworks();
@@ -9,11 +9,11 @@ const artworks = await getSortedArtworks();
 // Filters in the same group widen the result; different groups narrow it.
 const filters = [
   ...sections.map((section) => ({ id: section.id, label: section.label, group: 'section' })),
-  { id: 'available', label: 'Available', group: 'status' },
+  ...Object.entries(statusLabels).map(([id, label]) => ({ id, label, group: 'status' })),
 ];
 
 function filterIds(artwork: Artwork) {
-  return [...artwork.data.sections, ...(artwork.data.status === 'available' ? ['available'] : [])];
+  return [...artwork.data.sections, artwork.data.status];
 }
 
 const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work' : 'works'}`;

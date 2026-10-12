@@ -2,6 +2,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import ArtworkImage from '../../components/ArtworkImage.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { statusLabels } from '../../lib/artworks';
 import { sections } from '../../sections';
 
 export async function getStaticPaths() {
@@ -19,13 +20,6 @@ interface Props {
 const { artwork } = Astro.props;
 const { data } = artwork;
 const sectionLabels = sections.filter((section) => data.sections.includes(section.id)).map((section) => section.label);
-const statusLabels = {
-  artist_collection: 'Artist collection',
-  private_collection: 'Private collection',
-  commission: 'Commission',
-  available: 'Available',
-  not_for_sale: 'Not for sale',
-};
 ---
 
 <BaseLayout title={data.title} description={data.description}>

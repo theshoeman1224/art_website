@@ -16,8 +16,7 @@ dimensions:
   width: 1
   unit: TODO
 description: TODO
-# TODO: placeholder status. The schema needs one of its fixed values.
-status: not_for_sale
+status: sold
 sections:
   - bottles
 images:

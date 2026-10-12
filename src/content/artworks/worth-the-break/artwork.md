@@ -12,7 +12,7 @@ dimensions:
   width: 24
   unit: in
 description: "Worth the Break transforms a Don Julio 1942 bottle into a carefully composed study of fracture, balance, and reconstruction. Broken amber glass is reassembled with epoxy around the recognizable remains of the bottle, preserving its identity while giving it an entirely new form."
-status: commission
+status: sold
 sections:
   - bottles
   - commissions
