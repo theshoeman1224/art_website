@@ -26,6 +26,8 @@ const artworks = defineCollection({
       ]),
       sections: z.array(z.enum(sectionIds)).min(1),
       featured: z.boolean().default(false),
+      // Marks a record whose details are still TODO, so the homepage showcase can leave it out.
+      placeholder: z.boolean().default(false),
       instagramUrl: z.url().optional(),
       sortOrder: z.number().int().default(99),
     };

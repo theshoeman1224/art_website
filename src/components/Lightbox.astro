@@ -25,7 +25,8 @@
     const close = dialog.querySelector<HTMLButtonElement>('.lightbox-close');
     let items: HTMLElement[] = [];
     let activeIndex = 0;
-    let pointerStart = 0;
+    let pointerStart: { x: number; y: number } | undefined;
+    const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01;
 
     const showImage = (index: number) => {
       if (!image || !caption || !count || items.length === 0) return;
@@ -65,13 +66,25 @@
     });
 
     dialog.addEventListener('pointerdown', (event) => {
-      pointerStart = event.clientX;
+      pointerStart = event.isPrimary ? { x: event.clientX, y: event.clientY } : undefined;
     });
 
     dialog.addEventListener('pointerup', (event) => {
-      const distance = event.clientX - pointerStart;
-      if (Math.abs(distance) < 60) return;
-      showImage(activeIndex + (distance < 0 ? 1 : -1));
+      if (!pointerStart || !event.isPrimary) return;
+      const distanceX = event.clientX - pointerStart.x;
+      const distanceY = event.clientY - pointerStart.y;
+      pointerStart = undefined;
+      // A drag on a pinch-zoomed image pans it; only an unzoomed, mostly horizontal drag changes the image.
+      if (isZoomed() || Math.abs(distanceX) < 60 || Math.abs(distanceX) < Math.abs(distanceY)) return;
+      showImage(activeIndex + (distanceX < 0 ? 1 : -1));
+    });
+
+    dialog.addEventListener('pointercancel', () => {
+      pointerStart = undefined;
+    });
+
+    window.visualViewport?.addEventListener('resize', () => {
+      dialog.classList.toggle('is-zoomed', isZoomed());
     });
   }
 </script>
@@ -87,6 +100,12 @@
     color: var(--paper);
     background: rgb(5 5 5 / 97%);
     border: 0;
+    /* Without this the browser claims a horizontal drag and the swipe handler never sees it end. */
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .lightbox.is-zoomed {
+    touch-action: auto;
   }
 
   .lightbox::backdrop {
