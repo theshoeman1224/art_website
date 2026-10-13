@@ -15,11 +15,10 @@ description: "Worth the Break transforms a Don Julio 1942 bottle into a carefull
 status: sold
 sections:
   - bottles
-  - commissions
 images:
-  - src: ./hero.png
+  - src: ./hero.jpeg
     role: hero
-    alt: "Square framed assemblage of broken amber glass shards arranged around the neck, shoulder, and base sections of a Don Julio 1942 bottle on a white ground"
+    alt: "Upright black-framed assemblage of broken amber glass shards arranged around the neck, middle, and base sections of a Don Julio 1942 bottle on a white ground"
 featured: true
 sortOrder: 1
 ---

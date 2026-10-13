@@ -118,11 +118,11 @@ Allowed `sections` values:
 
 ```text
 bottles
-commissions
+statement
 paintings
 ```
 
-A work can list more than one section, for example a commissioned bottle piece.
+A work can list more than one section, for example a bottle piece that is also a statement piece.
 
 Allowed image roles:
 
@@ -143,7 +143,7 @@ dimensions:
   unit: in
 sections:
   - bottles
-  - commissions
+  - statement
 images:
   - src: ./hero.png
     role: hero

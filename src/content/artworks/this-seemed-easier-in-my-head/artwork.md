@@ -18,8 +18,7 @@ dimensions:
 description: TODO
 status: sold
 sections:
-  - commissions
-  - paintings
+  - statement
 images:
   - src: ./hero.jpeg
     role: hero
