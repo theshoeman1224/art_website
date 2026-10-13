@@ -37,10 +37,10 @@ describe('built site', () => {
     expect(offered).toEqual(expect.arrayContaining([...new Set(tags)]));
   });
 
-  it('gives every artwork card an overlay with its size, and a status label unless it is available', () => {
+  it('gives every artwork card an overlay with its size, and a status label unless it is available or has no status', () => {
     const artwork = pages.find((page) => page.route === '/artwork/');
     const overlays = artwork?.html.querySelectorAll('[data-artwork] .artwork-overlay') ?? [];
-    const labels: Record<string, string | undefined> = { available: undefined, unavailable: 'Unavailable', sold: 'Sold' };
+    const labels: Record<string, string | undefined> = { '': undefined, available: undefined, unavailable: 'Unavailable', sold: 'Sold' };
 
     expect(overlays).toHaveLength(artworkSlugs().length);
     for (const overlay of overlays) {

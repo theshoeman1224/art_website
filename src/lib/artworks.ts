@@ -3,7 +3,7 @@ import type { SectionId } from '../sections';
 
 export type Artwork = CollectionEntry<'artworks'>;
 
-export const statusLabels: Record<Artwork['data']['status'], string> = {
+export const statusLabels: Record<NonNullable<Artwork['data']['status']>, string> = {
   available: 'Available',
   unavailable: 'Unavailable',
   sold: 'Sold',

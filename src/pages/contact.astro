@@ -11,7 +11,6 @@ import { siteConfig } from '../config';
     </div>
     <div class="contact-options">
       <p>For artwork, commission, or studio inquiries, contact the artist directly using one of the links below.</p>
-      <span class="draft-note">Email pending</span>
       <a href={`mailto:${siteConfig.email}`}>
         <span>Email</span>
         <strong>{siteConfig.email}</strong>
@@ -23,7 +22,6 @@ import { siteConfig } from '../config';
         <span aria-hidden="true">↗</span>
       </a>
       <p class="legal-name">{siteConfig.legalName}</p>
-      <p class="quiet">The email address is a configuration placeholder. Update it in <code>src/config.ts</code> before launch.</p>
     </div>
   </section>
 </BaseLayout>
@@ -54,10 +52,11 @@ import { siteConfig } from '../config';
 
   .contact-options > a {
     display: grid;
-    grid-template-columns: 7rem 1fr auto;
-    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 1rem;
     align-items: center;
     min-height: 5rem;
+    padding-block: 0.75rem;
     text-decoration: none;
     border-top: 1px solid var(--line);
   }
@@ -75,14 +74,16 @@ import { siteConfig } from '../config';
   }
 
   .contact-options strong {
+    grid-column: 1;
     font-family: var(--serif);
     font-size: clamp(1.3rem, 2vw, 2rem);
     font-weight: 400;
+    overflow-wrap: anywhere;
   }
 
-  .contact-options .quiet {
-    margin-top: 1.5rem;
-    font-size: 0.78rem;
+  .contact-options > a > span:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
 
   .legal-name {
@@ -94,35 +95,11 @@ import { siteConfig } from '../config';
     text-transform: uppercase;
   }
 
-  .legal-name + .quiet {
-    margin-top: 0.6rem;
-  }
-
-  code {
-    color: var(--paper);
-  }
-
   @media (max-width: 47.99rem) {
     .contact {
       grid-template-columns: 1fr;
       align-items: start;
       min-height: 0;
-    }
-
-    .contact-options > a {
-      grid-template-columns: 1fr auto;
-      gap: 0.25rem 1rem;
-      padding-block: 0.75rem;
-    }
-
-    .contact-options strong {
-      grid-column: 1;
-      overflow-wrap: anywhere;
-    }
-
-    .contact-options > a > span:last-child {
-      grid-column: 2;
-      grid-row: 1 / span 2;
     }
   }
 </style>

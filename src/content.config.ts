@@ -13,7 +13,7 @@ const artworks = defineCollection({
       medium: z.string(),
       materials: z.array(z.string()).min(1),
       description: z.string(),
-      status: z.enum(['available', 'unavailable', 'sold']),
+      status: z.enum(['available', 'unavailable', 'sold']).optional(),
       sections: z.array(z.enum(sectionIds)).min(1),
       featured: z.boolean().default(false),
       // Marks a record whose details are still TODO, so the homepage showcase can leave it out.
@@ -31,6 +31,8 @@ const artworks = defineCollection({
         width: z.number().positive(),
         depth: z.number().positive().optional(),
         unit: z.string().min(1),
+        // For a work made of several same-sized parts: the measurements are per part.
+        each: z.boolean().optional(),
       }),
       images: z.array(z.object({
         src: image(),
@@ -57,8 +59,10 @@ const artworks = defineCollection({
       const heroImage = artwork.images.find((item) => item.role === 'hero');
       if (!heroImage) throw new Error('Artwork package is missing its hero image.');
 
-      const { height, width, depth, unit } = artwork.dimensions;
-      const measurements = [height, width, ...(depth ? [depth] : [])].join(' × ');
+      const { height, width, depth, unit, each } = artwork.dimensions;
+      // The artist lists the smaller of height and width first, whichever way the work hangs.
+      const face = [height, width].sort((a, b) => a - b);
+      const measurements = [...face, ...(depth ? [depth] : [])].join(' × ');
       const images = artwork.images.flatMap((item) => {
         if (item.role === 'hero') return [];
         return [{ src: item.src, alt: item.alt, type: item.role }];
@@ -66,7 +70,7 @@ const artworks = defineCollection({
 
       return {
         ...artwork,
-        dimensions: `${measurements} ${unit}`,
+        dimensions: `${measurements} ${unit}${each ? ' each' : ''}`,
         hero: { src: heroImage.src, alt: heroImage.alt },
         images,
       };

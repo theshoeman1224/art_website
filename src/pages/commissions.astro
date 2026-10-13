@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getSortedArtworks } from '../lib/artworks';
 
 // The hero rotates through the whole portfolio in sort order, so the work with
-// the lowest `sortOrder` (After the Break) is the slide the page opens on.
+// the lowest `sortOrder` (Endeavor) is the slide the page opens on.
 const artworks = await getSortedArtworks();
 const slides = artworks.map((item) => ({
   src: item.data.hero.src,

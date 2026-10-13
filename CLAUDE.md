@@ -42,9 +42,11 @@ The schema in `src/content.config.ts` validates the frontmatter and then **trans
 
 | Frontmatter | `artwork.data` |
 | --- | --- |
-| `dimensions: { height, width, depth?, unit }` | `dimensions` is a display string such as `36 × 24 in` |
+| `dimensions: { height, width, depth?, unit, each? }` | `dimensions` is a display string such as `24 × 36 in`: the smaller of height and width comes first, then depth, and `each: true` appends `each` for a work made of same-sized parts |
 | `images[]` entry with `role: hero` | pulled out into `hero: { src, alt }` |
 | remaining `images[]` entries, each with `role` | `images[]` without the hero, and `role` renamed to `type` |
+
+`medium` and `materials` are required by the schema but no page displays them, so `TODO` in those two fields never reaches the site.
 
 Exactly one `hero` image is required (enforced by `superRefine`). Change the schema and the transform together, then check every consumer of `data.hero`, `data.images[].type`, and `data.dimensions`.
 
@@ -56,15 +58,15 @@ The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/
 
 `src/sections.ts` is the registry of portfolio sections (currently `bottles`, `statement`, `paintings`): an id and a label each. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
 
-An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (`available`, `unavailable`, or `sold`) is the work's availability. It is shown on the artwork page and in the card overlay described below, feeds the status filters on `/artwork`, and does not affect which sections a work is listed in. Its display labels are `statusLabels` in `src/lib/artworks.ts`.
+An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (`available`, `unavailable`, or `sold`) is the work's availability, and it is optional. It is shown on the artwork page and in the card overlay described below, feeds the status filters on `/artwork`, and does not affect which sections a work is listed in. A work with no `status` (currently only Endeavor) shows no status anywhere and is hidden whenever a status filter is active. Its display labels are `statusLabels` in `src/lib/artworks.ts`.
 
-Sections have no pages of their own. A section is a filter on `/artwork` and a label in the artwork page's details. The `/commissions` page is about how to commission work and has no section of its own. Adding a section is one registry entry.
+Sections have no pages of their own. A section is a filter on `/artwork` and nothing else: no page shows which sections a work is in. The `/commissions` page is about how to commission work and has no section of its own. Adding a section is one registry entry.
 
 `/artwork` (`src/pages/artwork/index.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus one per status from `statusLabels`. Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
 
 Every list of artworks (the homepage "Selected work" and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard`) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, commissions rotator, the artwork page itself) are not in the grid.
 
-`ArtworkCard` lays a dark overlay over the photograph on hover and on keyboard focus, showing the work's dimensions and, for `sold` and `unavailable` works, the status label; an available work shows its dimensions alone. The overlay is a sibling of the image link with `pointer-events: none`, so the link stays clickable. Under `@media (hover: none)` the same element becomes a static line under the photograph, because touch screens have nothing to hover with.
+`ArtworkCard` lays a dark overlay over the photograph on hover and on keyboard focus, showing the work's dimensions and, for `sold` and `unavailable` works, the status label; an available work, or one with no status, shows its dimensions alone. The overlay is a sibling of the image link with `pointer-events: none`, so the link stays clickable. Under `@media (hover: none)` the same element becomes a static line under the photograph, because touch screens have nothing to hover with.
 
 ### How pages select artworks
 
@@ -75,9 +77,9 @@ Several sections are driven by image roles and flags rather than hardcoded slugs
 - Homepage hero: first `featured` artwork. "Selected work": first six by sort order, skipping records flagged `placeholder: true`.
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
-- Commissions hero rotator: every artwork, placeholders included, in sort order. It opens on the work with the lowest `sortOrder`, currently After the Break.
+- Commissions hero rotator: every artwork, placeholders included, in sort order. It opens on the work with the lowest `sortOrder`, currently Endeavor.
 
-No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Worth the Break) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
+No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Don Julio 1942) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 
 ### Images and the lightbox
 
@@ -101,7 +103,7 @@ Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, 
 
 - `TODO.md` tracks open questions for the artist and for the build. Add new ones there instead of only raising them in conversation, and tick or remove them once answered.
 - `.draft-note` spans mark copy that still needs the artist's review. Leave them in place unless the copy has been approved.
-- The email in `src/config.ts` is a placeholder (`@example.com`), and the contact page says so. Both get updated together at launch.
+- The contact email in `src/config.ts` is the studio's real address; the contact page and the footer both read it from there.
 - Alt text describes what is visible and what the photograph adds, rather than repeating the artwork title. An angled view should mention depth or projection.
 
 ## Deployment state
