@@ -93,6 +93,8 @@ Source photographs live next to their `artwork.md` (or in `src/assets/` for site
 
 Styling is plain CSS: design tokens and a few shared utility classes (`.page-shell`, `.section`, `.section-label`, `.eyebrow`, `.large-copy`, `.text-link`, `.artwork-grid`) in `src/styles/global.css`, and everything else in scoped `<style>` blocks inside each page or component. Because `<Picture>` output belongs to a child component, scoped rules that target its `<img>` need `:global(img)`. The site is dark-only, and the main layout breakpoint is `47.99rem`.
 
+The opening eyebrow of each nav tab (`/artwork`, `/about`, `/commissions`, `/contact`) sits at one height so it does not jump when switching tabs. Above the main breakpoint that height is the `--page-eyebrow` token; a page whose header starts with `--page-top` padding gets there by adding `.eyebrow-raised` to its eyebrow, and `/artwork` positions its eyebrow absolutely because its title is centered. Below the breakpoint the eyebrows stay in the flow at `--page-top`. A new tab page needs the same treatment.
+
 Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, the commissions hero rotator, and the `/artwork` filters). Do not add a UI framework for this.
 
 ## Content conventions

@@ -11,7 +11,7 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
 
 <BaseLayout title="About" description="About the artist and material practice behind Endeavor Art Studio.">
   <header class="page-heading page-shell">
-    <p class="eyebrow">About / Artist and practice</p>
+    <p class="eyebrow eyebrow-raised">About / Artist and practice</p>
     <h1>Material leads.<br />The work follows.</h1>
   </header>
 
@@ -72,7 +72,7 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
 
 <style>
   .page-heading {
-    padding-block: clamp(5rem, 12vw, 12rem);
+    padding-block: var(--page-top) clamp(5rem, 12vw, 12rem);
   }
 
   .page-heading h1 {
