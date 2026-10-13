@@ -2,18 +2,17 @@
 schemaVersion: 1
 # TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
 placeholder: true
-title: Golf Mirror
-slug: golf-mirror
+title: Hole in One
+slug: hole-in-one
 # TODO: placeholder year. The schema needs an integer; one photograph is dated 2025-08-24, the others carry no date.
 year: 2025
 medium: TODO
 materials:
   - TODO
-# TODO: placeholder dimensions. The schema needs positive numbers.
 dimensions:
-  height: 1
-  width: 1
-  unit: TODO
+  height: 24
+  width: 24
+  unit: in
 description: TODO
 status: sold
 sections:

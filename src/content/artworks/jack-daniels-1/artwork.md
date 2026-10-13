@@ -10,11 +10,10 @@ year: 2024
 medium: TODO
 materials:
   - TODO
-# TODO: placeholder dimensions. The schema needs positive numbers.
 dimensions:
-  height: 1
-  width: 1
-  unit: TODO
+  height: 12
+  width: 16
+  unit: in
 description: TODO
 status: sold
 sections:

@@ -16,10 +16,10 @@ const {
   sizes = '(min-width: 768px) 50vw, 100vw',
   headingLevel = 'h2',
 } = Astro.props;
-const { title, slug, year, medium, hero, dimensions, status } = artwork.data;
+const { title, slug, year, hero, dimensions, status } = artwork.data;
 const Heading = headingLevel;
-// An available work shows its size alone.
-const statusLabel = status === 'available' ? undefined : statusLabels[status];
+// An available work, and one with no status, shows its size alone.
+const statusLabel = !status || status === 'available' ? undefined : statusLabels[status];
 ---
 
 <article class="artwork-card">
@@ -40,7 +40,7 @@ const statusLabel = status === 'available' ? undefined : statusLabels[status];
   <div class="artwork-caption">
     <div>
       <Heading><a href={`/artwork/${slug}`}>{title}</a></Heading>
-      <p>{year} · {medium}</p>
+      <p>{year}</p>
     </div>
   </div>
 </article>

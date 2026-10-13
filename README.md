@@ -73,7 +73,7 @@ To re-run the tests against an existing build without rebuilding, use `npx vites
 ## Add an artwork
 
 1. Create `src/content/artworks/<slug>/`.
-2. Add `artwork.md` using `src/content/artworks/after-the-break/artwork.md` as the model.
+2. Add `artwork.md` using `src/content/artworks/endeavor/artwork.md` as the model.
 3. Put the hero and any detail, angled, environment, or process photographs in the same folder.
 4. Reference each photograph with a relative path such as `./hero.png` and assign its role.
 5. List the portfolio sections the work belongs to under `sections`.
@@ -93,11 +93,11 @@ The validated schema lives in `src/content.config.ts`. Real artworks use the por
 | `title` | string | Display title |
 | `slug` | string | Lowercase URL segment with hyphens |
 | `year` | integer | Completion year |
-| `medium` | string | Primary medium label |
-| `materials` | string array | Physical materials used |
-| `dimensions` | object | Numeric height, width, optional depth, and unit |
+| `medium` | string | Primary medium label. Required, but not shown on the site |
+| `materials` | string array | Physical materials used. Required, but not shown on the site |
+| `dimensions` | object | Numeric height, width, optional depth, and unit. Shown with the smaller of height and width first (`24 × 36 in`). Optional `each: true` adds "each" for a work made of same-sized parts |
 | `description` | string | Artwork description |
-| `status` | enum | Availability: available, unavailable, or sold |
+| `status` | optional enum | Availability: available, unavailable, or sold |
 | `sections` | enum array | Portfolio sections the work is listed in, at least one |
 | `images` | image array | All photographs, relative paths, alt text, and roles |
 | `featured` | boolean | Eligible for featured placement |
@@ -112,7 +112,7 @@ unavailable
 sold
 ```
 
-`status` is the work's availability. It is shown on the artwork page, and wherever artworks are listed, hovering a photograph (or focusing it with the keyboard) shows the work's dimensions over it, followed by "Sold" or "Unavailable"; an available work shows its dimensions alone. On touch screens the same line sits under the photograph. `status` does not decide where the work is listed; `sections` does.
+`status` is the work's availability. It is shown on the artwork page, and wherever artworks are listed, hovering a photograph (or focusing it with the keyboard) shows the work's dimensions over it, followed by "Sold" or "Unavailable"; an available work shows its dimensions alone. On touch screens the same line sits under the photograph. Leave `status` out to show no availability for a work at all; it is then hidden whenever a status filter is pressed. `status` does not decide where the work is listed; `sections` does.
 
 Allowed `sections` values:
 
@@ -165,14 +165,14 @@ The new section then appears as a filter on `/artwork` and as an allowed `sectio
 
 ## Contact configuration
 
-Update `src/config.ts` before sharing the site with real visitors:
+The contact email and Instagram links come from `src/config.ts`:
 
 ```ts
 export const siteConfig = {
   title: 'Endeavor Art Studio',
   legalName: 'Endeavor Art Studio, LLC',
   description: 'Mixed-media art exploring texture, material, and transformation.',
-  email: 'artist@example.com',
+  email: 'endeavorartstudio@gmail.com',
   instagram: 'https://www.instagram.com/endeavor.artstudio/',
   instagramHandle: '@endeavor.artstudio',
 };
@@ -206,7 +206,6 @@ Before the public launch:
 
 1. Delete `public/robots.txt` and `public/_headers`, or replace them with production rules.
 2. Set `site` in `astro.config.mjs` to the final canonical domain.
-3. Replace the placeholder email in `src/config.ts`.
 
 The two sections below describe the Cloudflare Pages setup with Access-protected staging. They do not apply to the temporary Workers deployment.
 

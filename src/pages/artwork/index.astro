@@ -13,7 +13,7 @@ const filters = [
 ];
 
 function filterIds(artwork: Artwork) {
-  return [...artwork.data.sections, artwork.data.status];
+  return [...artwork.data.sections, ...(artwork.data.status ? [artwork.data.status] : [])];
 }
 
 const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work' : 'works'}`;
