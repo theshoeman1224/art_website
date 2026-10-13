@@ -54,11 +54,11 @@ The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/
 
 ### Portfolio sections
 
-`src/sections.ts` is the registry of portfolio sections (currently `bottles`, `commissions`, `paintings`): an id and a label each. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
+`src/sections.ts` is the registry of portfolio sections (currently `bottles`, `statement`, `paintings`): an id and a label each. It is plain TypeScript with no `astro:` imports because the content schema, the pages, and the Vitest suite all import it. Array order is display order.
 
 An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (`available`, `unavailable`, or `sold`) is the work's availability. It is shown on the artwork page and in the card overlay described below, feeds the status filters on `/artwork`, and does not affect which sections a work is listed in. Its display labels are `statusLabels` in `src/lib/artworks.ts`.
 
-Sections have no pages of their own. A section is a filter on `/artwork`, a label in the artwork page's details, and (for `commissions`) the source of the commissions hero rotator. Adding a section is one registry entry.
+Sections have no pages of their own. A section is a filter on `/artwork` and a label in the artwork page's details. The `/commissions` page is about how to commission work and has no section of its own. Adding a section is one registry entry.
 
 `/artwork` (`src/pages/artwork/index.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus one per status from `statusLabels`. Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
 
@@ -75,7 +75,7 @@ Several sections are driven by image roles and flags rather than hardcoded slugs
 - Homepage hero: first `featured` artwork. "Selected work": first six by sort order, skipping records flagged `placeholder: true`.
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
-- Commissions hero rotator: all artworks in the `commissions` section.
+- Commissions hero rotator: every artwork, placeholders included, in sort order. It opens on the work with the lowest `sortOrder`, currently After the Break.
 
 No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Worth the Break) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 

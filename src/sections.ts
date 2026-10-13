@@ -7,7 +7,7 @@ interface SectionDefinition {
 // and the filter it gets on /artwork.
 const definitions = [
   { id: 'bottles', label: 'Bottles' },
-  { id: 'commissions', label: 'Commissions' },
+  { id: 'statement', label: 'Statement' },
   { id: 'paintings', label: 'Paintings' },
 ] as const satisfies readonly SectionDefinition[];
 

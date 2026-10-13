@@ -18,7 +18,6 @@ dimensions:
 description: TODO
 status: available
 sections:
-  - commissions
   - paintings
 images:
   - src: ./hero.jpeg

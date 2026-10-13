@@ -1,11 +1,12 @@
 ---
 import ArtworkImage from '../components/ArtworkImage.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getSortedArtworks, inSection } from '../lib/artworks';
+import { getSortedArtworks } from '../lib/artworks';
 
+// The hero rotates through the whole portfolio in sort order, so the work with
+// the lowest `sortOrder` (After the Break) is the slide the page opens on.
 const artworks = await getSortedArtworks();
-const commissionArtworks = inSection(artworks, 'commissions');
-const slides = (commissionArtworks.length > 0 ? commissionArtworks : artworks.slice(0, 1)).map((item) => ({
+const slides = artworks.map((item) => ({
   src: item.data.hero.src,
   alt: item.data.hero.alt,
   caption: `${item.data.title}, ${item.data.year}`,

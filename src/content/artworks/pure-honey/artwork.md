@@ -16,11 +16,13 @@ description: "Pure Honey transforms a SirDavis bottle into a layered study of fr
 status: sold
 sections:
   - bottles
-  - commissions
 images:
-  - src: ./hero.png
+  - src: ./hero.jpeg
     role: hero
-    alt: "Framed assemblage of a clear ribbed SirDavis bottle mounted vertically among broken glass shards and scattered gold leaf flakes on a white ground"
+    alt: "Black-framed assemblage of a clear ribbed SirDavis bottle mounted vertically among broken glass shards and scattered gold leaf flakes on a white ground"
+  - src: ./angled.jpeg
+    role: angled
+    alt: "The framed work seen from the left, where the ribbed bottle sections and the horse emblem stand out from the white ground and the depth of the black frame is visible"
 featured: false
 sortOrder: 2
 ---
