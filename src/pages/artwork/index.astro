@@ -106,15 +106,20 @@ const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work
 
 <style>
   .artwork-header {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    padding-block: clamp(5rem, 10vw, 10rem) clamp(3rem, 6vw, 6rem);
+    position: relative;
+    padding-block: clamp(3rem, 6vw, 6rem);
+  }
+
+  /* Out of flow so the title can be centered; --page-eyebrow is derived from this header's padding and title size. */
+  .artwork-header .eyebrow {
+    position: absolute;
+    top: calc(var(--page-eyebrow) - 0.65em);
+    left: var(--page-pad);
   }
 
   .artwork-header h1 {
-    grid-column: 2;
     margin: 0;
+    text-align: center;
   }
 
   .filters {
@@ -197,11 +202,17 @@ const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work
 
   @media (max-width: 47.99rem) {
     .artwork-header {
-      grid-template-columns: 1fr;
+      display: grid;
+      gap: 2rem;
+      padding-top: var(--page-top);
+    }
+
+    .artwork-header .eyebrow {
+      position: static;
     }
 
     .artwork-header h1 {
-      grid-column: 1;
+      text-align: start;
     }
 
     .filter-status {

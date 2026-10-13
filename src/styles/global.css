@@ -15,6 +15,10 @@
   --serif: 'Cormorant Garamond', Georgia, serif;
   --sans: 'IBM Plex Sans', Arial, sans-serif;
   --page-pad: clamp(1rem, 3vw, 3rem);
+  --page-top: clamp(5rem, 10vw, 10rem);
+  /* Center line of every tab's opening eyebrow, measured from the header rule: halfway to the capitals of the
+     /artwork title, which start 0.155em into an h1 box that sits clamp(3rem, 6vw, 6rem) below the rule. */
+  --page-eyebrow: calc((clamp(3rem, 6vw, 6rem) + 0.155 * clamp(4rem, 11vw, 10rem)) / 2);
   --section-space: clamp(5rem, 11vw, 10rem);
 }
 
@@ -140,6 +144,13 @@ h3 {
   letter-spacing: 0.17em;
   line-height: 1.3;
   text-transform: uppercase;
+}
+
+/* Lifts a tab's opening eyebrow from its place in the flow, --page-top below the header rule, so that its first
+   line (1.3em tall) is centered on --page-eyebrow. */
+.eyebrow-raised {
+  position: relative;
+  top: calc(var(--page-eyebrow) - var(--page-top) - 0.65em);
 }
 
 .section-label {
@@ -268,6 +279,10 @@ h3 {
 
   .section-label {
     margin-bottom: 2.5rem;
+  }
+
+  .eyebrow-raised {
+    top: 0;
   }
 }
 

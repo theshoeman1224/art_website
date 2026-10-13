@@ -38,7 +38,7 @@ const steps = [
 
 <BaseLayout title="Commissions" description="How artist-led commissions work at Endeavor Art Studio.">
   <header class="commission-header page-shell">
-    <p class="eyebrow">Commissions / Artist-led work</p>
+    <p class="eyebrow eyebrow-raised">Commissions / Artist-led work</p>
     <h1>An idea,<br />interpreted.</h1>
     <div>
       <span class="draft-note">All commission copy requires artist review</span>
@@ -154,7 +154,7 @@ const steps = [
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 2rem;
-    padding-block: clamp(5rem, 11vw, 11rem);
+    padding-block: var(--page-top) clamp(5rem, 11vw, 11rem);
   }
 
   .commission-header h1 {
