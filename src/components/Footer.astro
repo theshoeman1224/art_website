@@ -8,60 +8,62 @@ import { siteConfig } from '../config';
     <img src={emblem.src} alt="" width="112" height="112" />
     <p class="footer-mark">Endeavor<br />Art Studio</p>
   </div>
-  <div>
-    <p>Mixed-media art exploring texture, material, and transformation.</p>
-    <div class="footer-links">
-      <a href={`mailto:${siteConfig.email}`}>Email</a>
-      <a href={siteConfig.instagram} rel="me">Instagram</a>
-    </div>
+  <div class="footer-links">
+    <a href={`mailto:${siteConfig.email}`}>Email</a>
+    <a href={siteConfig.instagram} rel="me">Instagram</a>
   </div>
   <p class="copyright">© {new Date().getFullYear()} {siteConfig.legalName}</p>
 </footer>
 
 <style>
+  /* Equal outer columns keep the links on the page's center line. */
   .site-footer {
     display: grid;
-    grid-template-columns: minmax(30rem, 1fr) minmax(20rem, 1fr) max-content;
-    gap: clamp(2rem, 3vw, 3rem);
-    align-items: end;
-    padding-block: clamp(2.5rem, 4vw, 3.5rem) 2.5rem;
+    grid-template-columns: 1fr auto 1fr;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: center;
+    padding-block: clamp(2rem, 3vw, 2.5rem);
     color: var(--paper-muted);
     border-top: 1px solid var(--line);
+  }
+
+  .footer-identity {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .footer-identity img {
+    width: 4rem;
+    height: auto;
+    flex: 0 0 auto;
+    background: transparent;
   }
 
   .footer-mark {
     margin: 0;
     color: var(--paper);
     font-family: var(--serif);
-    font-size: clamp(2.3rem, 4vw, 4rem);
-    line-height: 0.78;
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+    letter-spacing: 0.08em;
+    line-height: 0.88;
     text-transform: uppercase;
-  }
-
-  .footer-identity {
-    display: flex;
-    gap: clamp(1rem, 2vw, 1.75rem);
-    align-items: center;
-  }
-
-  .footer-identity img {
-    width: clamp(4.5rem, 7vw, 7rem);
-    height: auto;
-    flex: 0 0 auto;
-    background: transparent;
-  }
-
-  .site-footer > div p {
-    max-width: 26rem;
   }
 
   .footer-links {
     display: flex;
-    gap: 1.5rem;
+    gap: clamp(1.5rem, 2.4vw, 2.75rem);
   }
 
   .footer-links a {
+    display: inline-flex;
+    align-items: center;
     min-height: 2.75rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    text-transform: uppercase;
   }
 
   .copyright {
@@ -70,24 +72,13 @@ import { siteConfig } from '../config';
     text-align: right;
   }
 
-  @media (max-width: 67.99rem) {
-    .site-footer {
-      grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
-    }
-
-    .copyright {
-      grid-column: 1 / -1;
-    }
-  }
-
   @media (max-width: 47.99rem) {
     .site-footer {
       grid-template-columns: 1fr;
-      gap: 2rem;
+      gap: 1rem;
     }
 
     .copyright {
-      grid-column: auto;
       text-align: left;
     }
   }
