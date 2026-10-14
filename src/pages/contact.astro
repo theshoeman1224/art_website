@@ -4,11 +4,12 @@ import { siteConfig } from '../config';
 ---
 
 <BaseLayout title="Contact" description={`Contact ${siteConfig.legalName} by email or Instagram.`}>
+  <header class="page-header page-shell">
+    <p class="eyebrow">Contact / Studio inquiries</p>
+    <h1 id="contact-title">Start a<br />conversation.</h1>
+  </header>
+
   <section class="contact page-shell" aria-labelledby="contact-title">
-    <div>
-      <p class="eyebrow eyebrow-raised">Contact / Studio inquiries</p>
-      <h1 id="contact-title">Start a<br />conversation.</h1>
-    </div>
     <div class="contact-options">
       <p>For artwork, commission, or studio inquiries, contact the artist directly using one of the links below.</p>
       <a href={`mailto:${siteConfig.email}`}>
@@ -28,26 +29,19 @@ import { siteConfig } from '../config';
 
 <style>
   .contact {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(20rem, 0.7fr);
-    gap: clamp(4rem, 10vw, 12rem);
-    align-items: end;
-    min-height: calc(100svh - 8rem);
-    padding-block: var(--page-top) clamp(5rem, 10vw, 10rem);
+    padding-block: clamp(3rem, 6vw, 6rem) clamp(5rem, 10vw, 10rem);
   }
 
-  .contact > div:first-child {
-    align-self: start;
-  }
-
-  h1 {
-    margin: 2rem 0 0;
+  .contact-options {
+    max-width: 44rem;
+    margin-inline: auto;
   }
 
   .contact-options > p:first-child {
     max-width: 34rem;
-    margin-bottom: 2rem;
+    margin: 0 auto 2rem;
     color: var(--paper-muted);
+    text-align: center;
   }
 
   .contact-options > a {
@@ -88,18 +82,11 @@ import { siteConfig } from '../config';
 
   .legal-name {
     margin: 1.25rem 0 0;
+    text-align: center;
     color: var(--paper-muted);
     font-size: 0.68rem;
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-  }
-
-  @media (max-width: 47.99rem) {
-    .contact {
-      grid-template-columns: 1fr;
-      align-items: start;
-      min-height: 0;
-    }
   }
 </style>

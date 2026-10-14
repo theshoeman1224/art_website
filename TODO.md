@@ -30,6 +30,8 @@ Open questions that need an answer from the artist or a decision from us. Tick o
 - [ ] **Even grid: fit or crop?** Everywhere artworks are listed, every tile is the same 4:5 frame with the whole photograph fitted inside, so a photograph that is not 4:5 gets dark bands beside or above it. The alternative is cropping each photo to fill the frame, which cuts off the edges of the piece.
 - [ ] **Filter label.** The button says "Statement", next to the plural "Bottles" and "Paintings". "Statement pieces" is the alternative.
 - [ ] **Title in the hover overlay?** Hovering a photograph in an artwork list shows the dimensions and "Sold" or "Unavailable". The reference site (morganbroomestudio.com/portfolio) also puts the title in its overlay because its tiles have no caption; ours keep the title under the photograph, so the overlay leaves it out.
+- [ ] **Keep the tab eyebrows?** Since About and Commissions took one-word titles, three of the four eyebrows open by repeating the title beneath them ("About / Artist and practice" over "About"). They stay for now; the alternatives are dropping the first half or removing them.
+- [ ] **Contact's title.** `/contact` kept "Start a conversation." while the other tabs use their one-word names, so its header is a line taller and its hairline sits lower. Revisit if the jump between tabs is noticeable.
 - [ ] **Should a filtered view be linkable?** The selection is not stored in the URL, so there is no way to share a link to, say, available bottles. It would also let the link at the bottom of `/commissions` open `/artwork` already filtered; with the section pages gone, it goes to the unfiltered list.
 
 ### From the October 2026 site audit
@@ -45,7 +47,7 @@ Found by reading the source and measuring the built pages in headless Chromium. 
 - [ ] **Each artwork card has two links to the same page** (image and title), which doubles the tab stops (38 on `/artwork`); the image link's `aria-label` also hides the photograph's alt text from screen readers.
 - [ ] **The ↗ arrow is on every `.text-link`, including internal ones,** while the real external links (Instagram, footer) have none.
 - [ ] **Lightbox polish.** The page behind still scrolls while it is open, single-image galleries show "1 / 1", and the caption appears both in the top counter and under the image.
-- [ ] **320px overflow.** The H1 on `/contact` is wider than a 320px screen by about 30px.
+- [ ] **Navigation at 320px.** The four links do not fit, so the row scrolls sideways and "Contact" starts out cut off at the screen edge.
 - [ ] **Endeavor alt text.** The hero and the angled photograph share one alt text; the angled one should describe depth or projection.
 - [ ] **Homepage repetition.** Endeavor is the hero and the first Selected card; Don Julio 1942 is the second Selected card and the Featured block.
 - [ ] **Verify on the live deployment.** That unknown URLs now return the styled 404 page (`not_found_handling` was added to `wrangler.jsonc`; needs a deploy), whether `/_astro/*` gets long-lived cache headers (`public/_headers` sets none), and whether links without a trailing slash (`/artwork`) cost a redirect to `/artwork/`.

@@ -37,14 +37,16 @@ const steps = [
 ---
 
 <BaseLayout title="Commissions" description="How artist-led commissions work at Endeavor Art Studio.">
-  <header class="commission-header page-shell">
-    <p class="eyebrow eyebrow-raised">Commissions / Artist-led work</p>
-    <h1>An idea,<br />interpreted.</h1>
-    <div>
-      <span class="draft-note">All commission copy requires artist review</span>
-      <p>Commissions begin with a direction rather than an exact design. The artist uses your starting point to create an original work through her own material practice.</p>
-    </div>
+  <header class="page-header page-shell">
+    <p class="eyebrow">Commissions / Artist-led work</p>
+    <h1>Commissions</h1>
   </header>
+
+  <div class="commission-intro page-shell">
+    <p class="large-copy">An idea, interpreted.</p>
+    <span class="draft-note">All commission copy requires artist review</span>
+    <p>Commissions begin with a direction rather than an exact design. The artist uses your starting point to create an original work through her own material practice.</p>
+  </div>
 
   <div class="commission-image" data-commission-rotator>
     {slides.map((slide, index) => (
@@ -150,22 +152,18 @@ const steps = [
 </BaseLayout>
 
 <style>
-  .commission-header {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    padding-block: var(--page-top) clamp(5rem, 11vw, 11rem);
+  .commission-intro {
+    padding-block: clamp(3rem, 6vw, 6rem);
+    text-align: center;
   }
 
-  .commission-header h1 {
-    grid-column: 2;
-    margin: 0;
+  .commission-intro .large-copy {
+    margin-bottom: 2rem;
   }
 
-  .commission-header > div {
-    grid-column: 2;
+  .commission-intro p:last-child {
     max-width: 40rem;
-    margin: 2rem 0 0 auto;
+    margin: 0 auto;
     color: var(--paper-muted);
   }
 
@@ -291,18 +289,8 @@ const steps = [
   }
 
   @media (max-width: 47.99rem) {
-    .commission-header,
     .expectation {
       grid-template-columns: 1fr;
-    }
-
-    .commission-header h1,
-    .commission-header > div {
-      grid-column: 1;
-    }
-
-    .commission-header > div {
-      margin-left: 0;
     }
 
     .process li {
