@@ -10,10 +10,12 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
 ---
 
 <BaseLayout title="About" description="About the artist and material practice behind Endeavor Art Studio.">
-  <header class="page-heading page-shell">
-    <p class="eyebrow eyebrow-raised">About / Artist and practice</p>
-    <h1>Material leads.<br />The work follows.</h1>
+  <header class="page-header page-shell">
+    <p class="eyebrow">About / Artist and practice</p>
+    <h1>About</h1>
   </header>
+
+  <p class="lede large-copy page-shell">Material leads. The work follows.</p>
 
   <section class="bio page-shell" aria-labelledby="bio-title">
     <figure>
@@ -71,14 +73,11 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
 </BaseLayout>
 
 <style>
-  .page-heading {
-    padding-block: var(--page-top) clamp(5rem, 12vw, 12rem);
-  }
-
-  .page-heading h1 {
-    max-width: 85rem;
-    margin: 2rem 0 0 auto;
-    font-size: clamp(4rem, 10vw, 10rem);
+  .lede {
+    margin-block: 0;
+    padding-block: clamp(3rem, 6vw, 6rem);
+    text-align: center;
+    text-wrap: balance;
   }
 
   .bio {
@@ -147,10 +146,6 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
   }
 
   @media (max-width: 47.99rem) {
-    .page-heading h1 {
-      margin-left: 0;
-    }
-
     .bio,
     .statement,
     .process {
