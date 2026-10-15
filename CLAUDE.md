@@ -22,7 +22,7 @@ There is no linter or formatter. `npm run check` is what catches a malformed art
 
 ### Tests
 
-Most of the Vitest suite in `tests/` parses the HTML that `astro build` wrote to `dist/` and checks routes, document metadata, canonical URLs, image alt text, the `/commissions` redirect, and that every internal link, asset, and anchor resolves. It therefore needs a current build. The one exception is `tests/inquiry.test.ts`, which unit-tests the form logic in `src/inquiry.ts` directly:
+Most of the Vitest suite in `tests/` parses the HTML that `astro build` wrote to `dist/` and checks routes, document metadata, canonical URLs, image alt text, the `/commissions` redirect, that every internal page link ends in a trailing slash, and that every internal link, asset, and anchor resolves. It therefore needs a current build. The one exception is `tests/inquiry.test.ts`, which unit-tests the form logic in `src/inquiry.ts` directly:
 
 ```bash
 npm test                              # Rebuild, then run everything
@@ -99,9 +99,15 @@ Every nav tab page (`/artwork`, `/about`, `/contact`) opens with the same block,
 
 Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, the `/artwork` filters, and the contact form). Do not add a UI framework for this.
 
+### URLs and trailing slashes
+
+Every page is built as `<route>/index.html`, and Cloudflare serves it at `<route>/`. A request for `<route>` without the slash gets a 307 redirect first, which browsers do not cache, so a slash-less internal link costs a round trip on every click. Write every internal page link with the trailing slash, including before a query string: `/artwork/`, `` `/artwork/${slug}/` ``, `/contact/?type=commission`. File URLs (`/_astro/…`, anything with an extension) take no slash.
+
+`trailingSlash: 'always'` in `astro.config.mjs` makes `astro dev` return 404 for a slash-less URL, so a missed slash shows up locally (typing `localhost:4321/contact` in dev 404s for the same reason). The per-page test "links to internal pages with a trailing slash" checks the built HTML, and `linkedRoutes()` in the tests compares links exactly as written. Canonical URLs already end in a slash; keep links, canonicals, and `public/_redirects` targets in the same form. In production, slash-less URLs typed by visitors or in old links still work through Cloudflare's redirect.
+
 ### Contact form
 
-`/contact` is the single inquiry form, with three types: `artwork`, `commission`, and `general`. The header has two tabs into it: Contact links to `/contact`, and Commissions links to `/contact?type=commission`. `?type=` selects a type (anything else leaves none selected, and the form stays hidden until the visitor picks one); `?piece=<slug>` preselects the artwork, and each artwork page's "Ask about the work" link uses it. The old `/commissions` URL is a 302 to `/contact/?type=commission` in `public/_redirects` (make it 301 at launch); `astro dev` and `astro preview` ignore that file, so test it with `npx wrangler dev`.
+`/contact` is the single inquiry form, with three types: `artwork`, `commission`, and `general`. The header has two tabs into it: Contact links to `/contact/`, and Commissions links to `/contact/?type=commission`. `?type=` selects a type (anything else leaves none selected, and the form stays hidden until the visitor picks one); `?piece=<slug>` preselects the artwork, and each artwork page's "Ask about the work" link uses it. The old `/commissions` URL is a 302 to `/contact/?type=commission` in `public/_redirects` (make it 301 at launch); `astro dev` and `astro preview` ignore that file, so test it with `npx wrangler dev`.
 
 `src/inquiry.ts` is plain TypeScript, like `src/sections.ts`, holding the types, the size, budget, and timing options, `validateInquiry()`, and `formatInquiry()` (the message the studio would receive). The page script validates with it, and a future endpoint should import the same functions rather than re-implement them. `budgetRanges` are placeholders until the artist sets pricing.
 

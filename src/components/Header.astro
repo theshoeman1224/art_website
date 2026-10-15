@@ -3,10 +3,10 @@ import emblem from '../assets/endeavor-emblem.png';
 
 const pathname = Astro.url.pathname;
 const nav = [
-  { href: '/artwork', label: 'Artwork' },
-  { href: '/about', label: 'About' },
-  { href: '/contact?type=commission', label: 'Commissions' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/artwork/', label: 'Artwork' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/?type=commission', label: 'Commissions' },
+  { href: '/contact/', label: 'Contact' },
 ];
 ---
 
@@ -36,7 +36,7 @@ const nav = [
     position: relative;
     z-index: 20;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 2rem;
     padding-block: 1.5rem;
@@ -86,11 +86,13 @@ const nav = [
     letter-spacing: 0.14em;
     text-decoration: none;
     text-transform: uppercase;
+    /* Every tab carries the underline's 1px, so the current one sits level with the rest. */
+    border-bottom: 1px solid transparent;
   }
 
   nav a[aria-current='page'] {
     color: var(--paper);
-    border-bottom: 1px solid var(--clay);
+    border-bottom-color: var(--clay);
   }
 
   @media (max-width: 39rem) {
