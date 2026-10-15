@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Endeavor Art Studio: a static Astro 7 portfolio site for a mixed-media artist. No UI framework, no adapter, no server code. Output is plain HTML/CSS/JS plus build-time optimized images.
+Endeavor Art Studio: a static Astro 7 portfolio site for a mixed-media artist. No UI framework, no adapter, no server code. Output is plain HTML/CSS/JS plus build-time optimized images. The `/contact` form has no submission backend yet (see "Contact form" below).
 
 ## Commands
 
@@ -22,7 +22,7 @@ There is no linter or formatter. `npm run check` is what catches a malformed art
 
 ### Tests
 
-The Vitest suite in `tests/` does not test source modules. It parses the HTML that `astro build` wrote to `dist/` and checks routes, document metadata, canonical URLs, image alt text, and that every internal link, asset, and anchor resolves. It therefore needs a current build:
+Most of the Vitest suite in `tests/` parses the HTML that `astro build` wrote to `dist/` and checks routes, document metadata, canonical URLs, image alt text, the `/commissions` redirect, and that every internal link, asset, and anchor resolves. It therefore needs a current build. The one exception is `tests/inquiry.test.ts`, which unit-tests the form logic in `src/inquiry.ts` directly:
 
 ```bash
 npm test                              # Rebuild, then run everything
@@ -30,7 +30,7 @@ npx vitest run                        # Run against the existing dist/ without r
 npx vitest run -t "page /about/"      # Run the tests for one page
 ```
 
-Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to check that `/artwork` offers a filter for every section.
+Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to check that `/artwork` offers a filter for every section, and `inquiryTypes` from `src/inquiry.ts` to check that `/contact` offers every inquiry type and every artwork.
 
 ## Architecture
 
@@ -60,11 +60,11 @@ The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/
 
 An artwork's `sections` frontmatter is a non-empty list of those ids, so one work can be listed in several sections. `status` (`available`, `unavailable`, or `sold`) is the work's availability, and it is optional. It is shown on the artwork page and in the card overlay described below, feeds the status filters on `/artwork`, and does not affect which sections a work is listed in. A work with no `status` (currently only Endeavor) shows no status anywhere and is hidden whenever a status filter is active. Its display labels are `statusLabels` in `src/lib/artworks.ts`.
 
-Sections have no pages of their own. A section is a filter on `/artwork` and nothing else: no page shows which sections a work is in. The `/commissions` page is about how to commission work and has no section of its own. Adding a section is one registry entry.
+Sections have no pages of their own. A section is a filter on `/artwork` and nothing else: no page shows which sections a work is in. Commissions are not a section either; the Commissions tab opens the contact form on the commission inquiry. Adding a section is one registry entry.
 
 `/artwork` (`src/pages/artwork/index.astro`) lists every artwork with client-side filter buttons: one per section from the registry, plus one per status from `statusLabels`. Each card wrapper carries its tags in `data-filters`, and the inline script hides non-matching wrappers with the `hidden` attribute. Filters in the same `data-filter-group` are ORed, groups are ANDed.
 
-Every list of artworks (the homepage "Selected work" and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard`) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, commissions rotator, the artwork page itself) are not in the grid.
+Every list of artworks (the homepage "Selected work" and `/artwork`) uses the `.artwork-grid` class from `global.css`: an even three-column grid (two below `63.99rem`, one below `47.99rem`) where every `.artwork-frame` (the image link in `ArtworkCard`) is the same 4:5 box and the photograph is fitted inside it with `object-fit: contain`, so nothing is cropped and non-4:5 photographs get charcoal bands. Do not reintroduce staggered `nth-child` layouts for artwork lists; on `/artwork` filtered-out items would also leave holes in one. Single showcase images (homepage hero and featured block, the artwork page itself) are not in the grid.
 
 `ArtworkCard` lays a dark overlay over the photograph on hover and on keyboard focus, showing the work's dimensions and, for `sold` and `unavailable` works, the status label; an available work, or one with no status, shows its dimensions alone. The overlay is a sibling of the image link with `pointer-events: none`, so the link stays clickable. Under `@media (hover: none)` the same element becomes a static line under the photograph, because touch screens have nothing to hover with.
 
@@ -77,7 +77,7 @@ Several sections are driven by image roles and flags rather than hardcoded slugs
 - Homepage hero: first `featured` artwork. "Selected work": first six by sort order, skipping records flagged `placeholder: true`.
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
-- Commissions hero rotator: every artwork, placeholders included, in sort order. It opens on the work with the lowest `sortOrder`, currently Endeavor.
+- Contact form artwork list: every artwork, placeholders included, alphabetically by title.
 
 No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Don Julio 1942) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 
@@ -95,9 +95,19 @@ Source photographs live next to their `artwork.md` (or in `src/assets/` for site
 
 Styling is plain CSS: design tokens and a few shared utility classes (`.page-shell`, `.page-header`, `.section`, `.section-label`, `.eyebrow`, `.large-copy`, `.text-link`, `.artwork-grid`) in `src/styles/global.css`, and everything else in scoped `<style>` blocks inside each page or component. Because `<Picture>` output belongs to a child component, scoped rules that target its `<img>` need `:global(img)`. The site is dark-only, and the main layout breakpoint is `47.99rem`.
 
-Every nav tab (`/artwork`, `/about`, `/commissions`, `/contact`) opens with the same block, `.page-header` in `global.css`: an eyebrow, a centered `h1` at the global `h1` size, and a hairline along the bottom edge, so none of them jump when switching tabs. The header holds nothing else. `/artwork`, `/about`, and `/commissions` use the tab's one-word name as the title, which keeps their hairlines at the same height; `/contact` keeps its two-line phrase, so its header is taller. The statement lines for `/about` and `/commissions` sit below the hairline as `.large-copy` paragraphs. Above the main breakpoint the eyebrow is positioned absolutely in the top-left corner, centered on the `--page-eyebrow` token, which is derived from the header's top padding and the `h1` size; change those three together. Below the breakpoint the eyebrow returns to the flow at `--page-top`, centered above the title, and the title shrinks with the viewport so that `Commissions` fits a 320px screen. A new tab page starts with `<header class="page-header page-shell">`.
+Every nav tab page (`/artwork`, `/about`, `/contact`) opens with the same block, `.page-header` in `global.css`: an eyebrow, a centered `h1` at the global `h1` size, and a hairline along the bottom edge, so none of them jump when switching tabs. The header holds nothing else. `/artwork` and `/about` use the tab's one-word name as the title, which keeps their hairlines at the same height; `/contact` keeps its two-line phrase, so its header is taller. The statement line for `/about` sits below the hairline as a `.large-copy` paragraph. Above the main breakpoint the eyebrow is positioned absolutely in the top-left corner, centered on the `--page-eyebrow` token, which is derived from the header's top padding and the `h1` size; change those three together. Below the breakpoint the eyebrow returns to the flow at `--page-top`, centered above the title, and the title shrinks with the viewport so that "conversation." fits a 320px screen. A new tab page starts with `<header class="page-header page-shell">`.
 
-Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, the commissions hero rotator, and the `/artwork` filters). Do not add a UI framework for this.
+Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, the `/artwork` filters, and the contact form). Do not add a UI framework for this.
+
+### Contact form
+
+`/contact` is the single inquiry form, with three types: `artwork`, `commission`, and `general`. The header has two tabs into it: Contact links to `/contact`, and Commissions links to `/contact?type=commission`. `?type=` selects a type (anything else leaves none selected, and the form stays hidden until the visitor picks one); `?piece=<slug>` preselects the artwork, and each artwork page's "Ask about the work" link uses it. The old `/commissions` URL is a 302 to `/contact/?type=commission` in `public/_redirects` (make it 301 at launch); `astro dev` and `astro preview` ignore that file, so test it with `npx wrangler dev`.
+
+`src/inquiry.ts` is plain TypeScript, like `src/sections.ts`, holding the types, the size, budget, and timing options, `validateInquiry()`, and `formatInquiry()` (the message the studio would receive). The page script validates with it, and a future endpoint should import the same functions rather than re-implement them. `budgetRanges` are placeholders until the artist sets pricing.
+
+Each part of the form carries `data-for="<type ids>"`. CSS `:has()` rules in `contact.astro` show only the parts for the checked type, and those rules name the three ids, so update them if a type is added. The page script disables the hidden fieldsets so their required fields neither block nor get submitted. An inline script right after the type chooser checks the `?type=` radio before the rest of the form is drawn.
+
+There is no backend. `sendInquiry()` in `contact.astro`, marked `BACKEND HOOK`, returns `'unavailable'`, and the page then tells the visitor to email the studio instead. Connecting it needs a domain on Cloudflare (for the Email Routing `send_email` binding) or a hosted form service; see TODO.md. Uploads are not supported.
 
 ## Content conventions
 

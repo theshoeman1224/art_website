@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { inquiryTypes, pieceNotListed } from '../src/inquiry';
 import { sectionIds } from '../src/sections';
-import { artworkSlugs, existsInBuild, loadPages, references, withTrailingSlash, type Page } from './site';
+import { artworkSlugs, distFile, existsInBuild, loadPages, references, withTrailingSlash, type Page } from './site';
 
 const pages = loadPages();
 const routes = pages.map((page) => page.route);
@@ -14,7 +15,7 @@ function linkedRoutes(page: Page | undefined) {
 describe('built site', () => {
   it('includes the top-level pages', () => {
     expect(routes).toEqual(
-      expect.arrayContaining(['/', '/artwork/', '/about/', '/commissions/', '/contact/', '/404/']),
+      expect.arrayContaining(['/', '/artwork/', '/about/', '/contact/', '/404/']),
     );
   });
 
@@ -50,6 +51,30 @@ describe('built site', () => {
       expect(overlay.querySelector('.artwork-size')?.text.trim()).toBeTruthy();
       expect(overlay.querySelector('.artwork-status')?.text.trim()).toBe(labels[status]);
     }
+  });
+
+  it('redirects the retired /commissions page to the commission inquiry', () => {
+    const rules = distFile('_redirects')
+      .split('\n')
+      .filter((line) => line.trim() && !line.startsWith('#'))
+      .map((line) => line.trim().split(/\s+/));
+
+    expect(routes).not.toContain('/commissions/');
+    expect(rules).toEqual(
+      expect.arrayContaining([
+        ['/commissions', '/contact/?type=commission', '302'],
+        ['/commissions/', '/contact/?type=commission', '302'],
+      ]),
+    );
+  });
+
+  it('offers every inquiry type and every artwork on the contact form', () => {
+    const contact = pages.find((page) => page.route === '/contact/');
+    const types = contact?.html.querySelectorAll('input[name="type"]').map((input) => input.getAttribute('value'));
+    const pieces = contact?.html.querySelectorAll('select[name="piece"] option').map((option) => option.getAttribute('value'));
+
+    expect(types).toEqual(inquiryTypes.map((type) => type.id));
+    expect(pieces).toEqual(expect.arrayContaining([...artworkSlugs(), pieceNotListed]));
   });
 
   it('keeps placeholder artwork copy off the homepage', () => {

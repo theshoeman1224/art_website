@@ -1,17 +1,204 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteConfig } from '../config';
+import { getSortedArtworks } from '../lib/artworks';
+import { budgetRanges, honeypotField, inquiryTypes, pieceNotListed, sizeOptions, timingOptions } from '../inquiry';
+
+// Alphabetical rather than portfolio order, because visitors look a piece up by name here.
+const pieces = (await getSortedArtworks())
+  .map((artwork) => ({ slug: artwork.data.slug, title: artwork.data.title }))
+  .sort((a, b) => a.title.localeCompare(b.title));
+
+const steps = [
+  { title: 'Share the idea', copy: 'An object, memory, subject, material, color, or general direction.' },
+  { title: 'Settle the direction', copy: 'Together you talk through approximate size, meaningful elements, and practical constraints.' },
+  { title: 'The artist interprets', copy: 'Composition, materials, texture, and treatment are hers to decide, and the piece develops through experimentation.' },
+  { title: 'An original work', copy: 'You receive a piece shaped by your idea, not reproduced from an exact reference.' },
+];
+
+const choiceGroups = [
+  { name: 'size', legend: 'Approximate size', options: sizeOptions, required: false, draft: false },
+  { name: 'budget', legend: 'Approximate budget', options: budgetRanges, required: true, draft: true },
+  { name: 'timing', legend: 'Timing', options: timingOptions, required: true, draft: false },
+];
 ---
 
-<BaseLayout title="Contact" description={`Contact ${siteConfig.legalName} by email or Instagram.`}>
+<BaseLayout title="Contact" description={`Ask about a piece, start a commission, or send ${siteConfig.title} a question.`}>
   <header class="page-header page-shell">
     <p class="eyebrow">Contact / Studio inquiries</p>
     <h1 id="contact-title">Start a<br />conversation.</h1>
   </header>
 
-  <section class="contact page-shell" aria-labelledby="contact-title">
+  <div class="inquiry page-shell">
+    <div class="inquiry-intro">
+      <span class="draft-note">Draft for artist review</span>
+      <p>Interested in a piece, thinking about a commission, or have another question? Tell us a little about it.</p>
+    </div>
+
+    <form class="inquiry-form" method="post" novalidate aria-labelledby="contact-title" data-inquiry-form>
+      <fieldset class="type-chooser">
+        <legend class="meta-label">What is this about?</legend>
+        {inquiryTypes.map((type, index) => (
+          <label class="type-option">
+            <input type="radio" name="type" value={type.id} required aria-describedby="type-error" />
+            <span class="type-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <span class="type-label">{type.label}</span>
+            <span class="type-hint">{type.hint}</span>
+          </label>
+        ))}
+        <p class="field-error" id="type-error" data-error-for="type" hidden></p>
+      </fieldset>
+
+      <script is:inline>
+        // Selects the ?type= choice before the rest of the form is drawn, so the page never shows the default
+        // state first. Everything else about the type happens in the page script below.
+        (() => {
+          const type = new URLSearchParams(location.search).get('type');
+          const inputs = document.currentScript.parentElement.querySelectorAll('[name="type"]');
+          const input = Array.from(inputs).find((item) => item.value === type);
+          if (input) input.checked = true;
+        })();
+      </script>
+
+      <section class="commission-intro" data-for="commission" aria-labelledby="commission-title">
+        <span class="draft-note">Draft for artist review</span>
+        <h2 id="commission-title">Start with an idea.</h2>
+        <p>
+          A commission can begin with a meaningful object, memory, subject, material, color, or simply a general
+          direction. You don’t need to have the finished piece figured out. Your idea is the starting point; the
+          final work is interpreted through the artist’s style and process.
+        </p>
+        <ol class="commission-steps">
+          {steps.map((step, index) => (
+            <li>
+              <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <strong>{step.title}</strong>
+              <p>{step.copy}</p>
+            </li>
+          ))}
+        </ol>
+        <p class="quiet">Before accepting a project, the artist confirms that its subject, timing, scale, and practical needs suit her practice.</p>
+      </section>
+
+      <fieldset class="form-part" data-for="artwork commission general">
+        <p class="required-note">Fields marked <span aria-hidden="true">*</span> are required.</p>
+        <div class="name-row">
+          <div class="field">
+            <label class="meta-label" for="first-name">First name <span aria-hidden="true">*</span></label>
+            <input id="first-name" name="firstName" type="text" autocomplete="given-name" required maxlength="100" aria-describedby="firstName-error" />
+            <p class="field-error" id="firstName-error" data-error-for="firstName" hidden></p>
+          </div>
+          <div class="field">
+            <label class="meta-label" for="last-name">Last name</label>
+            <input id="last-name" name="lastName" type="text" autocomplete="family-name" maxlength="100" aria-describedby="lastName-error" />
+            <p class="field-error" id="lastName-error" data-error-for="lastName" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label class="meta-label" for="email">Email <span aria-hidden="true">*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" spellcheck="false" required maxlength="254" aria-describedby="email-error" />
+          <p class="field-error" id="email-error" data-error-for="email" hidden></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-part" data-for="artwork">
+        <div class="field">
+          <label class="meta-label" for="piece">Artwork <span aria-hidden="true">*</span></label>
+          <select id="piece" name="piece" required aria-describedby="piece-error">
+            <option value="">Choose a piece</option>
+            {pieces.map((piece) => <option value={piece.slug}>{piece.title}</option>)}
+            <option value={pieceNotListed}>Not listed here</option>
+          </select>
+          <p class="field-error" id="piece-error" data-error-for="piece" hidden></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-part" data-for="commission">
+        <div class="field">
+          <label class="meta-label" for="idea">What’s the idea? <span aria-hidden="true">*</span></label>
+          <p class="field-help" id="idea-help">Tell us about the object, memory, subject, material, color, or idea you’re starting with.</p>
+          <textarea id="idea" name="idea" rows="7" required maxlength="5000" aria-describedby="idea-help idea-error"></textarea>
+          <p class="field-error" id="idea-error" data-error-for="idea" hidden></p>
+        </div>
+        <div class="field">
+          <label class="meta-label" for="elements">Anything you’d like incorporated?</label>
+          <p class="field-help" id="elements-help">Objects, bottles, colors, dates, names, materials.</p>
+          <textarea id="elements" name="elements" rows="3" maxlength="5000" aria-describedby="elements-help elements-error"></textarea>
+          <p class="field-error" id="elements-error" data-error-for="elements" hidden></p>
+        </div>
+        {choiceGroups.map((group) => (
+          <fieldset class="choice-group" aria-describedby={`${group.name}-error`}>
+            <legend class="meta-label">
+              {group.legend} {group.required && <span aria-hidden="true">*</span>}
+              {group.draft && <span class="draft-note">Placeholder ranges for artist review</span>}
+            </legend>
+            {group.options.map((option) => (
+              <label class="choice">
+                <input type="radio" name={group.name} value={option.value} required={group.required} />
+                {option.label}
+              </label>
+            ))}
+            <p class="field-error" id={`${group.name}-error`} data-error-for={group.name} hidden></p>
+          </fieldset>
+        ))}
+        <div class="field date-field">
+          <label class="meta-label" for="date">Date <span aria-hidden="true">*</span></label>
+          <input id="date" name="date" type="date" required aria-describedby="date-error" />
+          <p class="field-error" id="date-error" data-error-for="date" hidden></p>
+        </div>
+        <div class="field">
+          <p class="meta-label">Reference images</p>
+          <p class="field-help">The form can’t take uploads yet. If you have photos of the object or references, mention them below and send them by email once the studio replies.</p>
+        </div>
+        <div class="field">
+          <label class="meta-label" for="notes">Anything else?</label>
+          <textarea id="notes" name="notes" rows="4" maxlength="5000" aria-describedby="notes-error"></textarea>
+          <p class="field-error" id="notes-error" data-error-for="notes" hidden></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-part" data-for="artwork general">
+        <div class="field">
+          <label class="meta-label" for="message">Message <span aria-hidden="true">*</span></label>
+          <textarea id="message" name="message" rows="7" required maxlength="5000" aria-describedby="message-error"></textarea>
+          <p class="field-error" id="message-error" data-error-for="message" hidden></p>
+        </div>
+      </fieldset>
+
+      <div class="honeypot" aria-hidden="true">
+        <label for={honeypotField}>Leave this field empty</label>
+        <input id={honeypotField} name={honeypotField} type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="form-footer" data-for="artwork commission general">
+        <p class="form-alert" role="alert" data-form-errors></p>
+        <div class="form-status" role="status" tabindex="-1" data-form-status>
+          <p data-status="unavailable" hidden>
+            Online sending isn’t connected yet, so this message was not sent. Everything you wrote is still in the
+            form; please send it to <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a> instead.
+          </p>
+          <p data-status="failed" hidden>
+            Something went wrong and your message was not sent. Please try again, or write to
+            <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
+          </p>
+        </div>
+        <noscript>
+          <p class="form-alert">This form needs JavaScript. Please write to <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a> instead.</p>
+        </noscript>
+        <button class="submit" type="submit" data-submit>
+          {inquiryTypes.map((type) => <span data-for={type.id}>{type.submit}</span>)}
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="inquiry-sent" tabindex="-1" data-inquiry-sent hidden>
+      <p class="large-copy">Thank you.</p>
+      <p>Your message is on its way. The studio will reply to the email address you gave.</p>
+    </div>
+
     <div class="contact-options">
-      <p>For artwork, commission, or studio inquiries, contact the artist directly using one of the links below.</p>
+      <p class="meta-label">Or write directly</p>
       <a href={`mailto:${siteConfig.email}`}>
         <span>Email</span>
         <strong>{siteConfig.email}</strong>
@@ -24,23 +211,509 @@ import { siteConfig } from '../config';
       </a>
       <p class="legal-name">{siteConfig.legalName}</p>
     </div>
-  </section>
+  </div>
 </BaseLayout>
 
+<script>
+  import { parseInquiryType, validateInquiry, type InquiryErrors, type InquiryFields } from '../inquiry';
+
+  // BACKEND HOOK: no submission endpoint exists yet (see TODO.md). Replace the body with a POST of `fields`
+  // to the endpoint and return 'sent' when it accepts them; throw when the request fails. The endpoint must run
+  // validateInquiry() again, drop submissions where isLikelySpam() is true, and send formatInquiry()'s message
+  // with Reply-To set to the visitor's email.
+  async function sendInquiry(fields: InquiryFields): Promise<'sent' | 'unavailable'> {
+    void fields;
+    return 'unavailable';
+  }
+
+  // The visitor's own calendar date, which is what a date input shows.
+  function localToday() {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-inquiry-form]');
+  const sent = document.querySelector<HTMLElement>('[data-inquiry-sent]');
+
+  if (form && sent) {
+    const typeInputs = Array.from(form.querySelectorAll<HTMLInputElement>('[name="type"]'));
+    const parts = Array.from(form.querySelectorAll<HTMLFieldSetElement>('fieldset[data-for]'));
+    const piece = form.querySelector<HTMLSelectElement>('[name="piece"]');
+    const date = form.querySelector<HTMLInputElement>('[name="date"]');
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const alert = form.querySelector<HTMLElement>('[data-form-errors]');
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.site-header nav a[href^="/contact"]'));
+
+    const currentType = () => parseInquiryType(typeInputs.find((input) => input.checked)?.value);
+
+    // Hidden parts are disabled as well, so their required fields neither block the form nor get submitted.
+    // Which parts are shown is CSS, keyed to the checked type.
+    const apply = () => {
+      const type = currentType();
+      for (const part of parts) part.disabled = !type || !(part.dataset.for ?? '').split(' ').includes(type);
+      if (date) date.disabled = form.querySelector<HTMLInputElement>('[name="timing"]:checked')?.value !== 'date';
+
+      // The header marks /contact as current; arriving through the Commissions tab moves that to Commissions.
+      for (const link of navLinks) {
+        const linkType = new URL(link.href).searchParams.get('type');
+        const current = type === 'commission' ? linkType === 'commission' : linkType === null;
+        if (current) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      }
+    };
+
+    const setError = (name: string, message?: string) => {
+      const element = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (element) {
+        element.textContent = message ?? '';
+        element.hidden = !message;
+      }
+      for (const control of form.querySelectorAll(`[name="${name}"]`)) {
+        if (message) control.setAttribute('aria-invalid', 'true');
+        else control.removeAttribute('aria-invalid');
+      }
+    };
+
+    const showErrors = (errors: InquiryErrors) => {
+      for (const element of form.querySelectorAll<HTMLElement>('[data-error-for]')) {
+        const name = element.dataset.errorFor ?? '';
+        setError(name, errors[name]);
+      }
+      const count = Object.keys(errors).length;
+      if (alert) alert.textContent = count === 0 ? '' : count === 1 ? 'One field needs attention.' : `${count} fields need attention.`;
+    };
+
+    const showStatus = (name: string | null) => {
+      for (const message of status?.querySelectorAll<HTMLElement>('[data-status]') ?? []) {
+        message.hidden = message.dataset.status !== name;
+      }
+      if (name) status?.focus();
+    };
+
+    const requested = new URLSearchParams(location.search).get('piece');
+    if (piece && requested && Array.from(piece.options).some((option) => option.value === requested)) {
+      piece.value = requested;
+    }
+    if (date) date.min = localToday();
+    apply();
+
+    form.addEventListener('change', (event) => {
+      const target = event.target;
+      if (target instanceof HTMLInputElement && target.name === 'type') {
+        const url = new URL(location.href);
+        url.searchParams.set('type', target.value);
+        if (target.value !== 'artwork') url.searchParams.delete('piece');
+        history.replaceState(history.state, '', url);
+        showStatus(null);
+      }
+      if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement) setError(target.name);
+      apply();
+    });
+
+    form.addEventListener('input', (event) => {
+      const target = event.target;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) setError(target.name);
+    });
+
+    let sending = false;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (sending || !submit) return;
+
+      const fields = Object.fromEntries(Array.from(new FormData(form), ([name, value]) => [name, String(value)]));
+      const errors = validateInquiry(fields, localToday());
+      showErrors(errors);
+      showStatus(null);
+
+      if (Object.keys(errors).length > 0) {
+        const controls = form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea');
+        Array.from(controls).find((control) => errors[control.name] && !control.matches(':disabled'))?.focus();
+        return;
+      }
+
+      sending = true;
+      submit.disabled = true;
+      submit.setAttribute('aria-busy', 'true');
+      try {
+        if ((await sendInquiry(fields)) === 'sent') {
+          form.hidden = true;
+          sent.hidden = false;
+          sent.focus();
+        } else {
+          showStatus('unavailable');
+        }
+      } catch {
+        showStatus('failed');
+      } finally {
+        sending = false;
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
+      }
+    });
+  }
+</script>
+
 <style>
-  .contact {
+  .inquiry {
     padding-block: clamp(3rem, 6vw, 6rem) clamp(5rem, 10vw, 10rem);
   }
 
-  .contact-options {
-    max-width: 44rem;
+  .inquiry > * {
+    max-width: 52rem;
     margin-inline: auto;
   }
 
-  .contact-options > p:first-child {
+  .inquiry-intro {
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+    text-align: center;
+  }
+
+  .inquiry-intro p {
     max-width: 34rem;
-    margin: 0 auto 2rem;
+    margin: 0 auto;
     color: var(--paper-muted);
+  }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    padding: 0;
+  }
+
+  /* Each type part shows only while its type is checked; nothing below the chooser shows until one is.
+     The three type ids here must match `inquiryTypes` in src/inquiry.ts. */
+  .inquiry-form:not(:has([name='type']:checked)) [data-for],
+  .inquiry-form:has([name='type'][value='artwork']:checked) [data-for]:not([data-for~='artwork']),
+  .inquiry-form:has([name='type'][value='commission']:checked) [data-for]:not([data-for~='commission']),
+  .inquiry-form:has([name='type'][value='general']:checked) [data-for]:not([data-for~='general']),
+  .inquiry-form:not(:has([name='timing'][value='date']:checked)) .date-field {
+    display: none;
+  }
+
+  .type-chooser {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 clamp(1rem, 3vw, 3rem);
+  }
+
+  .type-chooser legend {
+    margin-bottom: 1.25rem;
+  }
+
+  .type-option {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    padding-block: 1.25rem 1.5rem;
+    color: var(--paper-muted);
+    border-top: 1px solid var(--line);
+    cursor: pointer;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  .type-option input,
+  .choice input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .type-option:hover {
+    color: var(--paper);
+  }
+
+  .type-option:has(:checked) {
+    color: var(--paper);
+    border-top-color: var(--clay);
+    box-shadow: inset 0 1px 0 var(--clay);
+  }
+
+  .type-option:has(:focus-visible),
+  .choice:has(:focus-visible) {
+    outline: 2px solid var(--paper);
+    outline-offset: 4px;
+  }
+
+  .type-index {
+    color: var(--clay);
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .type-label {
+    font-family: var(--serif);
+    font-size: clamp(1.7rem, 2.6vw, 2.5rem);
+    line-height: 1;
+  }
+
+  .type-hint {
+    font-size: 0.9rem;
+  }
+
+  .type-chooser .field-error {
+    grid-column: 1 / -1;
+  }
+
+  .commission-intro {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .commission-intro h2 {
+    margin-bottom: 1.5rem;
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+  }
+
+  .commission-intro > p:not(.quiet) {
+    max-width: 40rem;
+  }
+
+  .commission-steps {
+    margin: 2.5rem 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .commission-steps li {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 14rem) minmax(0, 1fr);
+    gap: 0.25rem 1.5rem;
+    align-items: baseline;
+    padding-block: 1.1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .commission-steps span {
+    color: var(--clay);
+    font-family: var(--serif);
+    font-size: 1.25rem;
+  }
+
+  .commission-steps strong {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .commission-steps p {
+    margin: 0;
+    color: var(--paper-muted);
+  }
+
+  .form-part {
+    display: grid;
+    gap: 2.25rem;
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .required-note,
+  .field-help {
+    margin: 0;
+    color: var(--paper-muted);
+    font-size: 0.9rem;
+  }
+
+  .name-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.25rem clamp(1rem, 3vw, 3rem);
+  }
+
+  .field {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .field .meta-label,
+  .choice-group legend {
+    margin: 0;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0;
+    color: var(--paper);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+
+  .field textarea {
+    padding: 0.75rem;
+    line-height: 1.5;
+    border: 1px solid var(--line);
+    resize: vertical;
+  }
+
+  .field option {
+    color: var(--paper);
+    background: var(--charcoal);
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--clay);
+  }
+
+  .field [aria-invalid='true'] {
+    border-color: var(--clay);
+  }
+
+  .date-field input {
+    max-width: 16rem;
+  }
+
+  .choice-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .choice-group legend {
+    margin-bottom: 0.9rem;
+  }
+
+  .choice-group .draft-note {
+    margin: 0 0 0 0.75rem;
+  }
+
+  .choice {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.4rem 1rem;
+    color: var(--paper-muted);
+    font-size: 0.9rem;
+    line-height: 1.3;
+    border: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .choice:hover {
+    color: var(--paper);
+    border-color: var(--clay);
+  }
+
+  .choice:has(:checked) {
+    color: var(--carbon);
+    background: var(--paper);
+    border-color: var(--paper);
+  }
+
+  .choice:has([aria-invalid='true']) {
+    border-color: var(--clay);
+  }
+
+  /* A clay rule, not a new color, sets errors apart from the muted helper text. */
+  .field-error {
+    flex: 0 0 100%;
+    margin: 0.25rem 0 0;
+    padding-left: 0.75rem;
+    color: var(--paper);
+    font-size: 0.9rem;
+    border-left: 1px solid var(--clay);
+  }
+
+  .honeypot {
+    position: absolute;
+    left: -100vw;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form-footer {
+    display: grid;
+    justify-items: start;
+    gap: 1.25rem;
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .form-alert {
+    margin: 0;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--clay);
+  }
+
+  .form-alert:empty {
+    display: none;
+  }
+
+  .form-status p {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border-left: 1px solid var(--clay);
+  }
+
+  .form-status:focus {
+    outline: none;
+  }
+
+  .submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.25rem;
+    padding: 0 1.5rem;
+    color: var(--carbon);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--paper);
+    border: 1px solid var(--paper);
+    cursor: pointer;
+  }
+
+  .submit:hover {
+    background: var(--clay);
+    border-color: var(--clay);
+  }
+
+  .submit:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .inquiry-sent {
+    padding-block: 2rem;
+    text-align: center;
+  }
+
+  .inquiry-sent:focus {
+    outline: none;
+  }
+
+  .inquiry-sent p:last-child {
+    color: var(--paper-muted);
+  }
+
+  .contact-options {
+    margin-top: clamp(4rem, 8vw, 7rem);
+  }
+
+  .contact-options > .meta-label {
+    margin: 0 0 1.25rem;
     text-align: center;
   }
 
@@ -88,5 +761,24 @@ import { siteConfig } from '../config';
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  @media (max-width: 47.99rem) {
+    .type-chooser,
+    .name-row {
+      grid-template-columns: 1fr;
+    }
+
+    .type-option {
+      padding-block: 1rem 1.1rem;
+    }
+
+    .commission-steps li {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+
+    .commission-steps p {
+      grid-column: 2;
+    }
   }
 </style>

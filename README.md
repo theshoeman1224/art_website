@@ -14,12 +14,14 @@ src/
   layouts/BaseLayout.astro
   pages/                   Astro routes
   lib/artworks.ts          Shared artwork sorting and section filtering
+  inquiry.ts               Contact form types, choices, validation, and message format
   styles/global.css        Design tokens and global rules
   config.ts                Email, Instagram, and site-level content
   sections.ts              Portfolio sections: ids and labels
   content.config.ts        Artwork schema and validation
 public/
   _headers                 Temporary noindex response header
+  _redirects               /commissions to the commission inquiry on /contact
   robots.txt               Temporary crawler block
 astro.config.mjs           Canonical site URL and image settings
 wrangler.jsonc             Cloudflare Workers static-assets deployment
@@ -32,10 +34,11 @@ Astro generates these routes from the files above:
 /artwork
 /artwork/<artwork-slug>
 /about
-/commissions
-/contact
+/contact          also /contact?type=artwork|commission|general and ?piece=<artwork-slug>
 /404
 ```
+
+`/commissions` redirects to `/contact/?type=commission` through `public/_redirects`. Cloudflare applies it; `npm run dev` and `npm run preview` do not.
 
 ## Local development
 
@@ -67,6 +70,9 @@ The production output is written to `dist/`.
 - every page has a language, title, description, a single `h1`, and a canonical URL matching its route
 - every image has an `alt` attribute, and every artwork photograph has a non-empty description
 - every internal link, image, stylesheet, and in-page anchor points at something that exists in the build
+- `/commissions` is redirected, and the contact form offers every inquiry type and every artwork
+
+`tests/inquiry.test.ts` also unit-tests the contact form's validation and message format in `src/inquiry.ts`.
 
 To re-run the tests against an existing build without rebuilding, use `npx vitest run`.
 
@@ -163,6 +169,18 @@ The new section then appears as a filter on `/artwork` and as an allowed `sectio
 
 `/artwork` lists every work with filter buttons: one per portfolio section, plus one per `status` (Available, Unavailable, Sold). Nothing is filtered until a button is pressed, and Clear resets them all. Filters of the same kind widen each other (Bottles and Paintings shows both, Available and Sold shows both); a section filter and a status filter together narrow the result to works that match both, such as available bottles.
 
+## Contact form
+
+`/contact` holds one inquiry form with three types: artwork inquiry, commission, and something else. The Commissions tab opens it at `/contact?type=commission`, and each artwork page links to it with that piece already chosen.
+
+The form validates in the browser but does not send anything yet: there is no submission backend, and submitting tells the visitor to email the studio instead. The email and Instagram links stay below the form. To connect it:
+
+1. Put a custom domain on Cloudflare and enable Email Routing, with the studio address as a verified destination. (A hosted form service is the alternative that needs no domain.)
+2. Add a Worker entry point to `wrangler.jsonc` (`main`, with `assets.run_worker_first` limited to the endpoint path) that accepts the POST, runs `validateInquiry()` again, drops submissions where `isLikelySpam()` is true, rate-limits by IP, and sends `formatInquiry()`'s message with `Reply-To` set to the visitor.
+3. Replace the body of `sendInquiry()` in `src/pages/contact.astro` (marked `BACKEND HOOK`) with a `fetch` to that endpoint.
+
+The budget ranges in `src/inquiry.ts` are placeholders. Reference image uploads are not supported; they would need storage (R2) or mail attachments with file type and size limits.
+
 ## Contact configuration
 
 The contact email and Instagram links come from `src/config.ts`:
@@ -206,6 +224,7 @@ Before the public launch:
 
 1. Delete `public/robots.txt` and `public/_headers`, or replace them with production rules.
 2. Set `site` in `astro.config.mjs` to the final canonical domain.
+3. Change the `/commissions` rules in `public/_redirects` from 302 to 301.
 
 The two sections below describe the Cloudflare Pages setup with Access-protected staging. They do not apply to the temporary Workers deployment.
 

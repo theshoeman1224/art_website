@@ -310,7 +310,7 @@ h3 {
     position: static;
   }
 
-  /* Keeps the longest one-word title, Commissions, inside a 320px screen. */
+  /* Keeps the longest title word, "conversation." on /contact, inside a 320px screen. */
   .page-header h1 {
     font-size: min(4rem, 16vw);
   }

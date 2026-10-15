@@ -48,6 +48,10 @@ export function withTrailingSlash(pathname: string) {
   return pathname.endsWith('/') ? pathname : `${pathname}/`;
 }
 
+export function distFile(path: string) {
+  return readFileSync(join(distDir, path), 'utf8');
+}
+
 export function existsInBuild(pathname: string) {
   const path = join(distDir, decodeURIComponent(pathname));
   const candidates = [path, join(path, 'index.html'), `${path.replace(/[\\/]$/, '')}.html`];
