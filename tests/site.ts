@@ -57,6 +57,26 @@ export function distFile(path: string) {
   return readFileSync(join(distDir, path), 'utf8');
 }
 
+export function distFiles(dir: string) {
+  return listFiles(join(distDir, dir), '');
+}
+
+export function rootFile(path: string) {
+  return readFileSync(join(rootDir, path), 'utf8');
+}
+
+// public/_headers as a map from each path pattern to its header lines.
+export function headerRules() {
+  const rules = new Map<string, string[]>();
+  let current: string[] = [];
+  for (const line of distFile('_headers').split('\n')) {
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+    if (/^\s/.test(line)) current.push(line.trim());
+    else rules.set(line.trim(), (current = []));
+  }
+  return rules;
+}
+
 export function existsInBuild(pathname: string) {
   const path = join(distDir, decodeURIComponent(pathname));
   const candidates = [path, join(path, 'index.html'), `${path.replace(/[\\/]$/, '')}.html`];

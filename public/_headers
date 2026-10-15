@@ -1,2 +1,9 @@
+# Temporary: keeps the test deployment out of search results. Remove this rule at the public launch.
 /*
   X-Robots-Tag: noindex, nofollow, noarchive
+
+# Permanent: every file Astro writes to /_astro/ has a hash of its contents in its name, so changed content
+# always gets a new URL and browsers can keep these files for a year without asking the server again.
+# Pages are not covered, so a new deploy shows up immediately and links to the new file names.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -124,8 +124,10 @@ There is no backend. `sendInquiry()` in `contact.astro`, marked `BACKEND HOOK`, 
 
 ## Deployment state
 
-The site is currently on a temporary Cloudflare Workers static-assets deployment for testing: `wrangler.jsonc` serves `./dist` and returns `404.html` for unknown paths (`not_found_handling`), and `site` in `astro.config.mjs` points at the matching `workers.dev` URL. `wrangler` is not a dependency in `package.json`, so deploying is `npm run build` followed by `npx wrangler deploy`.
+The site is currently on a temporary Cloudflare Workers static-assets deployment for testing: `wrangler.jsonc` serves `./dist` and returns `404.html` for unknown paths (`not_found_handling`), and `site` in `astro.config.mjs` points at the matching `workers.dev` URL, `https://glizzy-enjoyer.theshoeman1224.workers.dev`. A `workers.dev` host is `<worker name>.<account subdomain>.workers.dev`; the test "publishes canonical URLs on the deployed host" checks the Worker name against `wrangler.jsonc`, but only a deploy shows whether the account subdomain is right. `wrangler` is not a dependency in `package.json`, so deploying is `npm run build` followed by `npx wrangler deploy`.
 
-Indexing is deliberately blocked while this is temporary, through `public/robots.txt` (`Disallow: /`) and `public/_headers` (`X-Robots-Tag: noindex`). Launching publicly means removing both and setting `site` to the final canonical domain.
+Indexing is deliberately blocked while this is temporary, through `public/robots.txt` (`Disallow: /`) and `public/_headers` (`X-Robots-Tag: noindex`). Launching publicly means deleting `robots.txt`, removing the `X-Robots-Tag` rule from `_headers`, and setting `site` to the final canonical domain.
+
+`public/_headers` also sends `Cache-Control: public, max-age=31536000, immutable` for `/_astro/*`, which is permanent. It relies on every file there having a content hash in its name, which Astro's build guarantees for bundled CSS and JS and for imported images. Anything in `public/` keeps its name across changes, so never add long-lived caching for those paths, and never put a hand-named file under `/_astro/`.
 
 The README also documents a Cloudflare Pages setup (build command `npm run build`, output `dist`) with staging protected by Cloudflare Access. Authentication stays outside the app: do not add login pages, sessions, passwords, or access tokens to this repository.

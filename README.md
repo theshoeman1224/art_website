@@ -20,7 +20,7 @@ src/
   sections.ts              Portfolio sections: ids and labels
   content.config.ts        Artwork schema and validation
 public/
-  _headers                 Temporary noindex response header
+  _headers                 Temporary noindex header, and long-lived caching for /_astro/
   _redirects               /commissions to the commission inquiry on /contact
   robots.txt               Temporary crawler block
 astro.config.mjs           Canonical site URL and image settings
@@ -205,7 +205,7 @@ Also replace the provisional `site` URL in `astro.config.mjs` with the final can
 
 ## Current deployment: Cloudflare Workers (temporary)
 
-The site is currently deployed for testing as a Cloudflare Worker that serves static assets. `wrangler.jsonc` defines the Worker (`glizzy-enjoyer`) and points its asset directory at `./dist`. The `site` value in `astro.config.mjs` is set to the matching `https://glizzy-enjoyer.workers.dev` address so canonical URLs and structured data resolve correctly.
+The site is currently deployed for testing as a Cloudflare Worker that serves static assets. `wrangler.jsonc` defines the Worker (`glizzy-enjoyer`) and points its asset directory at `./dist`. The `site` value in `astro.config.mjs` is set to the matching `https://glizzy-enjoyer.theshoeman1224.workers.dev` address so canonical URLs and structured data resolve correctly. A `workers.dev` address is always `<worker name>.<account subdomain>.workers.dev`, and a test fails if `site` is a `workers.dev` address that does not start with the Worker name from `wrangler.jsonc`.
 
 Wrangler is not a project dependency. To deploy from a local checkout:
 
@@ -223,11 +223,13 @@ While the deployment is temporary, two files in `public/` keep it out of search 
 - `robots.txt` disallows all crawlers.
 - `_headers` adds `X-Robots-Tag: noindex, nofollow, noarchive` to every response.
 
+`_headers` also tells browsers to cache everything under `/_astro/` for a year without checking back (`Cache-Control: public, max-age=31536000, immutable`). This is safe because Astro puts a hash of each file's contents in its name, so a changed image, stylesheet, or script always gets a new URL. Pages are not cached this way, so a new deploy is visible immediately. Keep this rule at launch.
+
 These only discourage indexing. The `workers.dev` address is still reachable by anyone who has the link.
 
 Before the public launch:
 
-1. Delete `public/robots.txt` and `public/_headers`, or replace them with production rules.
+1. Delete `public/robots.txt`, and remove the `X-Robots-Tag` rule from `public/_headers` (keep the `/_astro/*` caching rule).
 2. Set `site` in `astro.config.mjs` to the final canonical domain.
 3. Change the `/commissions` rules in `public/_redirects` from 302 to 301.
 
