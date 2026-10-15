@@ -1,0 +1,4 @@
+# The Commissions tab now opens the contact form on the commission inquiry. Temporary (302) until the
+# public launch, then 301.
+/commissions /contact/?type=commission 302
+/commissions/ /contact/?type=commission 302
