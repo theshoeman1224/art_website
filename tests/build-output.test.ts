@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { inquiryTypes, pieceNotListed } from '../src/inquiry';
 import { sectionIds } from '../src/sections';
-import { artworkSlugs, distFile, existsInBuild, loadPages, references, withTrailingSlash, type Page } from './site';
+import { artworkSlugs, distFile, existsInBuild, internalPageLinks, loadPages, references, type Page } from './site';
 
 const pages = loadPages();
 const routes = pages.map((page) => page.route);
 
+// Taken as written, so a link missing its trailing slash does not count.
 function linkedRoutes(page: Page | undefined) {
-  return (page?.html.querySelectorAll('a[href]') ?? []).map((link) =>
-    withTrailingSlash(link.getAttribute('href') ?? ''),
-  );
+  return (page?.html.querySelectorAll('a[href]') ?? []).map((link) => link.getAttribute('href') ?? '');
 }
 
 describe('built site', () => {
@@ -114,6 +113,14 @@ describe.each(pages)('page $route', ({ route, html }) => {
 
     expect(missingAlt.map((image) => image.toString())).toEqual([]);
     expect(undescribed.map((element) => element.toString())).toEqual([]);
+  });
+
+  // Cloudflare serves each page at <route>/ and answers <route> with a redirect, so a link without the slash costs
+  // every visitor an extra round trip. `astro dev` does not redirect, which is why this is checked here.
+  it('links to internal pages with a trailing slash', () => {
+    const missingSlash = internalPageLinks(html, canonical).filter((url) => !url.pathname.endsWith('/'));
+
+    expect(missingSlash.map((url) => url.pathname + url.search)).toEqual([]);
   });
 
   it('only references pages, files, and anchors that exist', () => {

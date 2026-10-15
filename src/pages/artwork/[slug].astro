@@ -23,7 +23,7 @@ const { data } = artwork;
 <BaseLayout title={data.title} description={data.description}>
   <article>
     <header class="artwork-header page-shell">
-      <a class="back-link" href="/artwork">← All artwork</a>
+      <a class="back-link" href="/artwork/">← All artwork</a>
       <div>
         <p class="eyebrow">{data.year}</p>
         <h1>{data.title}</h1>
@@ -79,8 +79,8 @@ const { data } = artwork;
     )}
 
     <nav class="work-footer-nav page-shell" aria-label="Portfolio navigation">
-      <a class="text-link" href="/artwork">Back to all artwork</a>
-      <a class="text-link" href={`/contact?type=artwork&piece=${data.slug}`}>Ask about the work</a>
+      <a class="text-link" href="/artwork/">Back to all artwork</a>
+      <a class="text-link" href={`/contact/?type=artwork&piece=${data.slug}`}>Ask about the work</a>
     </nav>
   </article>
 </BaseLayout>

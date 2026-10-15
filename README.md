@@ -34,7 +34,7 @@ Astro generates these routes from the files above:
 /artwork
 /artwork/<artwork-slug>
 /about
-/contact          also /contact?type=artwork|commission|general and ?piece=<artwork-slug>
+/contact          also /contact/?type=artwork|commission|general and &piece=<artwork-slug>
 /404
 ```
 
@@ -71,10 +71,15 @@ The production output is written to `dist/`.
 - every image has an `alt` attribute, and every artwork photograph has a non-empty description
 - every internal link, image, stylesheet, and in-page anchor points at something that exists in the build
 - `/commissions` is redirected, and the contact form offers every inquiry type and every artwork
+- every internal page link ends in a trailing slash (see below)
 
 `tests/inquiry.test.ts` also unit-tests the contact form's validation and message format in `src/inquiry.ts`.
 
 To re-run the tests against an existing build without rebuilding, use `npx vitest run`.
+
+## Links and trailing slashes
+
+Each page is served at a URL ending in a slash (`/artwork/`, `/artwork/<slug>/`, `/contact/`). Cloudflare answers the same URL without the slash with a redirect, which adds a round trip, so internal links always include it, also before a query string (`/contact/?type=commission`). `trailingSlash: 'always'` in `astro.config.mjs` makes `npm run dev` return 404 for a URL without the slash, and `npm test` fails on any internal link without one. Visitors who type a URL without the slash are still redirected to the right page.
 
 ## Add an artwork
 
@@ -171,7 +176,7 @@ The new section then appears as a filter on `/artwork` and as an allowed `sectio
 
 ## Contact form
 
-`/contact` holds one inquiry form with three types: artwork inquiry, commission, and something else. The Commissions tab opens it at `/contact?type=commission`, and each artwork page links to it with that piece already chosen.
+`/contact` holds one inquiry form with three types: artwork inquiry, commission, and something else. The Commissions tab opens it at `/contact/?type=commission`, and each artwork page links to it with that piece already chosen.
 
 The form validates in the browser but does not send anything yet: there is no submission backend, and submitting tells the visitor to email the studio instead. The email and Instagram links stay below the form. To connect it:
 

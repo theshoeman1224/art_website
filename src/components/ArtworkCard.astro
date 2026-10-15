@@ -24,7 +24,7 @@ const statusLabel = !status || status === 'available' ? undefined : statusLabels
 
 <article class="artwork-card">
   <div class="artwork-media">
-    <a href={`/artwork/${slug}`} class="artwork-image-link artwork-frame" aria-label={`View ${title}`}>
+    <a href={`/artwork/${slug}/`} class="artwork-image-link artwork-frame" aria-label={`View ${title}`}>
       <ArtworkImage
         src={hero.src}
         alt={hero.alt}
@@ -39,7 +39,7 @@ const statusLabel = !status || status === 'available' ? undefined : statusLabels
   </div>
   <div class="artwork-caption">
     <div>
-      <Heading><a href={`/artwork/${slug}`}>{title}</a></Heading>
+      <Heading><a href={`/artwork/${slug}/`}>{title}</a></Heading>
       <p>{year}</p>
     </div>
   </div>

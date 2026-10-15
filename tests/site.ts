@@ -44,8 +44,13 @@ export function artworkSlugs() {
   });
 }
 
-export function withTrailingSlash(pathname: string) {
-  return pathname.endsWith('/') ? pathname : `${pathname}/`;
+// Same-origin `<a href>` targets that are pages rather than files (their last path segment has no extension).
+// `base` is the page's canonical URL, which also decides what counts as same-origin.
+export function internalPageLinks(html: HTMLElement, base: string) {
+  return html
+    .querySelectorAll('a[href]')
+    .map((link) => new URL(link.getAttribute('href') ?? '', base))
+    .filter((url) => url.origin === new URL(base).origin && !/\.[a-z0-9]+$/i.test(url.pathname));
 }
 
 export function distFile(path: string) {
