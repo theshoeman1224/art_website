@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { inquiryTypes, pieceNotListed } from '../src/inquiry';
 import { sectionIds } from '../src/sections';
-import { artworkSlugs, distFile, existsInBuild, internalPageLinks, loadPages, references, type Page } from './site';
+import {
+  artworkSlugs,
+  distFile,
+  distFiles,
+  existsInBuild,
+  headerRules,
+  internalPageLinks,
+  loadPages,
+  references,
+  rootFile,
+  type Page,
+} from './site';
 
 const pages = loadPages();
 const routes = pages.map((page) => page.route);
@@ -74,6 +85,28 @@ describe('built site', () => {
 
     expect(types).toEqual(inquiryTypes.map((type) => type.id));
     expect(pieces).toEqual(expect.arrayContaining([...artworkSlugs(), pieceNotListed]));
+  });
+
+  // A workers.dev address is <worker name>.<account subdomain>.workers.dev. Only a deploy shows whether the
+  // subdomain is right, but a missing one, or another Worker's name, is caught here. Custom domains are not checked.
+  it('publishes canonical URLs on the deployed host', () => {
+    const worker = rootFile('wrangler.jsonc').match(/"name":\s*"([^"]+)"/)?.[1];
+    const hosts = new Set(pages.map((page) => new URL(page.html.querySelector('link[rel="canonical"]')?.getAttribute('href') ?? '').host));
+
+    expect(hosts.size).toBe(1);
+    const [host] = hosts;
+    if (host.endsWith('.workers.dev')) expect(host).toMatch(new RegExp(`^${worker}\\.[a-z0-9-]+\\.workers\\.dev$`));
+  });
+
+  // Safe only because every file under /_astro/ has a content hash in its name: changed content gets a new URL.
+  it('caches hashed build files for a year, and nothing else', () => {
+    const rules = headerRules();
+    const otherCaching = [...rules].filter(([path, headers]) => path !== '/_astro/*' && headers.some((h) => /^cache-control:/i.test(h)));
+    const unhashed = distFiles('_astro').filter((file) => !/\.[A-Za-z0-9_-]{8}(_[A-Za-z0-9_-]+)?\.[a-z0-9]+$/.test(file));
+
+    expect(rules.get('/_astro/*')).toContain('Cache-Control: public, max-age=31536000, immutable');
+    expect(otherCaching).toEqual([]);
+    expect(unhashed).toEqual([]);
   });
 
   it('keeps placeholder artwork copy off the homepage', () => {
