@@ -3,6 +3,7 @@ import { inquiryTypes, pieceNotListed } from '../src/inquiry';
 import { sectionIds } from '../src/sections';
 import {
   artworkSlugs,
+  builtSize,
   digest,
   distFile,
   distFiles,
@@ -152,6 +153,29 @@ describe('built site', () => {
     }
   });
 
+  // A lazy image waits for layout before it is even requested, which shows as pop-in on images already on screen.
+  it('fetches the first row of cards on the artwork page without waiting for layout, and the rest lazily', () => {
+    const artwork = pages.find((page) => page.route === '/artwork/');
+    const loading = artwork?.html.querySelectorAll('[data-artwork] img').map((image) => image.getAttribute('loading')) ?? [];
+
+    expect(loading.length).toBeGreaterThan(3);
+    expect(loading.slice(0, 3)).toEqual(['eager', 'eager', 'eager']);
+    expect(loading.slice(3).every((value) => value === 'lazy')).toBe(true);
+  });
+
+  // The emblem's source is a 237 KB PNG, and the header shows it on every page at 52 px. The largest file allowed is
+  // the footer's 3× PNG fallback, for browsers with neither AVIF nor WebP.
+  it('serves the emblem in the header, footer, and browser tab as small files', () => {
+    const home = pages.find((page) => page.route === '/');
+    const emblem = home?.html.querySelectorAll('.site-header picture, .site-footer picture, link[rel="icon"]') ?? [];
+    const files = emblem.flatMap((element) => references(element)).filter((url) => url.startsWith('/_astro/'));
+    const heavy = files.filter((url) => builtSize(url) > 16 * 1024);
+
+    expect(emblem).toHaveLength(3);
+    expect(files.length).toBeGreaterThan(3);
+    expect(heavy).toEqual([]);
+  });
+
   it('serves the photographs of full-resolution works exactly as supplied, wherever they appear', () => {
     for (const work of fullResolutionWorks()) {
       const page = pages.find((candidate) => candidate.route === `/artwork/${work.slug}/`);
@@ -200,9 +224,9 @@ describe.each(pages)('page $route', ({ route, html }) => {
 
   it('gives every image alt text', () => {
     const missingAlt = html.querySelectorAll('img').filter((image) => image.getAttribute('alt') === undefined);
-    // An empty alt is valid for decorative images, but artwork photographs must be described.
+    // An empty alt is valid for decorative images such as the emblem, but artwork photographs must be described.
     const undescribed = [
-      ...html.querySelectorAll('picture img').filter((image) => !image.getAttribute('alt')?.trim()),
+      ...html.querySelectorAll('main picture img').filter((image) => !image.getAttribute('alt')?.trim()),
       ...html.querySelectorAll('[data-lightbox-src]').filter((trigger) => !trigger.getAttribute('data-lightbox-alt')?.trim()),
     ];
 

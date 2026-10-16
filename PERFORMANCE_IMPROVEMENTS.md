@@ -8,13 +8,13 @@ An audit of why images visibly load in on page load, from October 15, 2026. Each
 | --- | --- | --- | --- |
 | 1 | AVIF encoded at quality 88 | High | **Done** (October 15, 2026): fix B, AVIF 60 and WebP 80, with a per-work full-resolution override for deep blacks |
 | 2 | `sizes` overstate height-capped images | High | **Done** (October 16, 2026): `heightCap` on `ArtworkImage` |
-| 3 | First row on `/artwork/` is lazy-loaded | Medium | Open |
+| 3 | First row on `/artwork/` is lazy-loaded | Medium | **Done** (October 16, 2026) |
 | 4 | Main image not fetched with high priority | Medium | **Done** (October 15, 2026) |
 | 5 | Lightbox opens a 1 to 2 MB file with nothing to show first | Medium | Open |
 | 6 | Clicking a card starts a fresh download | Medium | Open |
 | 7 | No placeholder while an image loads | Low (perceived) | Open |
 | 8 | Build output carries files nobody downloads | None for visitors | Open |
-| 9 | Header logo is a 237 KB PNG shown at 52 px | Medium | Open |
+| 9 | Header logo is a 237 KB PNG shown at 52 px | Medium | **Done** (October 16, 2026): about 3 KB per page |
 
 ## What was measured
 
@@ -96,13 +96,15 @@ What headless Chromium picked for Riptide's hero, checked through the DevTools p
 
 High-density screens still get 1600w because they show the photograph at about 1,200 device pixels or more. On standard-density desktops the hero is now the same file as the card, so clicking through from `/artwork/` loads it from the cache (see issue 6). A test reads each artwork hero's `sizes` the way a browser does and checks it against the 88vh fit on a desktop and a phone.
 
-## 3. The first row on `/artwork/` is lazy-loaded
+## 3. The first row on `/artwork/` is lazy-loaded (done)
 
 **Problem.** `ArtworkCard` has an `eager` prop that nothing passes, so every card on `/artwork/` is `loading="lazy"`, including the ones on screen. The browser waits for layout before it even requests them, which shows up as pop-in.
 
 **Fix.** Pass `eager={index < 3}` from `src/pages/artwork/index.astro`.
 
 **Tradeoff.** A phone (one column) fetches two cards early that are not yet on screen. They are the next two the visitor scrolls to.
+
+**Adopted, October 16, 2026,** as proposed. The first three cards are `eager` in document order, which is also the order with no filter active. A test checks that the first three are eager and the rest lazy.
 
 ## 4. The main image was not fetched with high priority (done)
 
@@ -154,13 +156,15 @@ Visitors are unaffected; this costs build and deploy time.
 - 70 MB is JPEG fallback files, used only by browsers without WebP support. Each `<img>` also has a `src` (as opposed to its srcset) at the photograph's full resolution, up to 4.3 MB; no current browser requests it. Setting `fallbackFormat: 'webp'` would drop the JPEGs (fix B would change the fallback format instead), at the cost of very old browsers showing no image.
 - Four source photographs (Jameson 1, Jameson 2, SirDavis, Blue Label 1) are 4000 to 5700 px, above the 2000 to 3000 px CLAUDE.md asks for. Downsizing them only speeds up builds.
 
-## 9. The header logo is a 237 KB PNG shown at 52 px
+## 9. The header logo is a 237 KB PNG shown at 52 px (done)
 
 **Problem.** `src/assets/endeavor-emblem.png` (512 × 512) is used as `emblem.src` directly in `Header.astro` (52 px), `Footer.astro` (112 px), and the favicon, so it is never optimized. It is the first image on every page, so it is part of the loading a visitor sees on their first page.
 
 **Fix.** Render the header and footer marks with Astro's `<Image>` at 2× their display size. Measured: 104 px is 3.0 KB as AVIF and 4.5 KB as WebP; 224 px is 7.6 KB as AVIF. Generate a small PNG for the favicon, and keep the 512 px original for the Organization JSON-LD `logo`.
 
 **Tradeoff.** None worth noting.
+
+**Adopted, October 16, 2026.** The header and footer render the emblem with `<Picture>` at 52 and 64 px for 1×, 2×, and 3× screens, as AVIF and WebP at quality 80 with a PNG fallback (settings in `src/lib/emblem.ts`). The footer was sized 112 px in its markup, but CSS shows it at 64 px. A 2× screen now loads a 3.1 KB AVIF in the header and a 3.8 KB one in the footer, instead of the 237 KB PNG; the favicon is a 3.6 KB, 48 px PNG. The Organization JSON-LD `logo` keeps the 512 px original, which only crawlers fetch. Header and footer screenshots match the old ones apart from resampling. A test fails if the header, footer, or favicon references a file over 16 KB (the largest is the footer's 3× PNG fallback at 10.4 KB).
 
 ## Suggested order
 

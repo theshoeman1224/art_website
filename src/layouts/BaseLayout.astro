@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Lightbox from '../components/Lightbox.astro';
+import { getImage } from 'astro:assets';
 import emblem from '../assets/endeavor-emblem.png';
 import { siteConfig } from '../config';
 import '../styles/global.css';
@@ -19,7 +20,9 @@ const {
 } = Astro.props;
 const pageTitle = title ? `${title} | ${siteConfig.title}` : siteConfig.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Crawlers get the full 512 px emblem as the organization's logo; browser tabs get a 48 px copy.
 const logo = new URL(emblem.src, Astro.site);
+const favicon = await getImage({ src: emblem, width: 48, height: 48, format: 'png' });
 const organization = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -38,7 +41,7 @@ const organization = {
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0b0b0a" />
-    <link rel="icon" href={emblem.src} type="image/png" />
+    <link rel="icon" href={favicon.src} type="image/png" sizes="48x48" />
     <link rel="canonical" href={canonical} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />

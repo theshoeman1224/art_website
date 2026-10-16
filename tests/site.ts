@@ -129,6 +129,11 @@ export function existsInBuild(pathname: string) {
   return candidates.some((candidate) => existsSync(candidate) && statSync(candidate).isFile());
 }
 
+// The size in bytes of a built file, from its URL path.
+export function builtSize(pathname: string) {
+  return statSync(join(distDir, decodeURIComponent(pathname))).size;
+}
+
 export function references(html: HTMLElement) {
   const single = ['href', 'src', 'data-lightbox-src'].flatMap((name) =>
     html.querySelectorAll(`[${name}]`).map((element) => element.getAttribute(name) ?? ''),
