@@ -136,6 +136,15 @@ There is no backend. `sendInquiry()` in `contact.astro`, marked `BACKEND HOOK`, 
 - The contact email in `src/config.ts` is the studio's real address; the contact page and the footer both read it from there.
 - Alt text describes what is visible and what the photograph adds, rather than repeating the artwork title. An angled view should mention depth or projection.
 
+## Commit messages
+
+Keep them short and true to the diff.
+
+- **Subject**: imperative mood, at most 72 characters, no trailing period. Say what changed for the site or its visitors ("Load the first row of artwork eagerly"), not how the work went ("Fix issues", "Update files"). One commit, one subject; if it needs "and" to join unrelated changes, split the commit. Do not write the PR number; GitHub adds it on merge.
+- **Body**: optional. When included, at most about five lines, wrapped at 72 columns: why the change was needed and what a reader cannot see from the diff (a behavior change, a measured effect, a decision and its reason). Do not walk through the diff file by file, and do not list routine test, README, CLAUDE.md, or TODO.md updates unless they are the point of the commit.
+- **Accuracy**: write the message from `git diff --staged`, not from memory of the session. Describe only what that diff contains: nothing that was tried and reverted, left for later, or committed separately. Any number (file sizes, counts, timings) must come from a command run for this change; otherwise leave it out. Do not say tests pass unless they were run on this exact change.
+- Plain words: no "This commit", "various", "improve" without saying what, emoji, or marketing tone.
+
 ## Deployment state
 
 The site is currently on a temporary Cloudflare Workers static-assets deployment for testing: `wrangler.jsonc` serves `./dist` and returns `404.html` for unknown paths (`not_found_handling`), and `site` in `astro.config.mjs` points at the matching `workers.dev` URL, `https://glizzy-enjoyer.theshoeman1224.workers.dev`. A `workers.dev` host is `<worker name>.<account subdomain>.workers.dev`; the test "publishes canonical URLs on the deployed host" checks the Worker name against `wrangler.jsonc`, but only a deploy shows whether the account subdomain is right. `wrangler` is not a dependency in `package.json`, so deploying is `npm run build` followed by `npx wrangler deploy`.
