@@ -6,9 +6,6 @@ title: Riptide
 slug: riptide
 # TODO: placeholder year. The schema needs an integer; the photographs are dated 2024-01-01.
 year: 2024
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 10
   width: 8

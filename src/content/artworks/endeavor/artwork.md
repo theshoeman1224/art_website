@@ -3,11 +3,6 @@ schemaVersion: 1
 title: Endeavor
 slug: endeavor
 year: 2024
-medium: Mixed media with sculptural texture and metallic gold accents
-materials:
-  - Canvas
-  - Plaster
-  - Gold leaf
 dimensions:
   height: 36
   width: 24

@@ -7,9 +7,6 @@ title: "Jack Daniel's 1"
 slug: jack-daniels-1
 # TODO: placeholder year. The schema needs an integer; the photographs are dated 2024-02-21.
 year: 2024
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 12
   width: 16

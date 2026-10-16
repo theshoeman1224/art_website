@@ -7,9 +7,6 @@ title: Tanqueray 1
 slug: tanqueray-1
 # TODO: placeholder year. The schema needs an integer; the photographs are dated 2023-12-25.
 year: 2023
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 16
   width: 12

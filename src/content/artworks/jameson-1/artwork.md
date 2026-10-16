@@ -7,9 +7,6 @@ title: Jameson 1
 slug: jameson-1
 # TODO: placeholder year. The schema needs an integer; the photograph is dated 2025-02-21.
 year: 2025
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 18
   width: 14

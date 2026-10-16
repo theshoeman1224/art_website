@@ -10,8 +10,6 @@ const artworks = defineCollection({
       title: z.string(),
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
       year: z.number().int(),
-      medium: z.string(),
-      materials: z.array(z.string()).min(1),
       // Optional: a blank description counts as none, and the artwork page fills its space with the next photograph.
       description: z.string().trim().optional(),
       status: z.enum(['available', 'unavailable', 'sold']).optional(),

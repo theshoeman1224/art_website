@@ -7,9 +7,6 @@ title: Moxie 1
 slug: moxie-1
 # TODO: placeholder year. The schema needs an integer; the photograph is dated 2024-05-24.
 year: 2024
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 18
   width: 14

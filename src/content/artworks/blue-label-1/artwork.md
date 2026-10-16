@@ -7,9 +7,6 @@ title: Blue Label 1
 slug: blue-label-1
 # TODO: placeholder year. The schema needs an integer; the photographs are dated 2024-04-04.
 year: 2024
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 18
   width: 14
