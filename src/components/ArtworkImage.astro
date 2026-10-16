@@ -1,6 +1,7 @@
 ---
-import { Picture, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import type { HTMLAttributes } from 'astro/types';
 
 interface Props {
   src: ImageMetadata;
@@ -8,6 +9,10 @@ interface Props {
   caption?: string;
   sizes?: string;
   loading?: 'eager' | 'lazy';
+  /** The page's main image: loads eagerly, decodes synchronously, and is fetched with high priority. */
+  priority?: boolean;
+  /** Serves the photograph exactly as supplied, with no resizing or re-encoding. Pass the artwork's `fullResolution`. */
+  fullResolution?: boolean;
   lightbox?: boolean;
   gallery?: string;
   class?: string;
@@ -18,17 +23,54 @@ const {
   alt,
   caption,
   sizes = '100vw',
-  loading = 'lazy',
+  // Left undefined so `priority` can choose it; Astro then defaults to lazy.
+  loading,
+  priority = false,
+  fullResolution = false,
   lightbox = false,
   gallery = 'page',
   class: className,
 } = Astro.props;
 
+// <Picture> takes one quality for every format, so the <picture> is built here to let each format have its own. The
+// scales differ: AVIF at 88 is larger than WebP at 88, and AVIF at 60 is about a third the size of AVIF at 88.
+// The fallback is for browsers with neither AVIF nor WebP, in the source's own format, as <Picture> chose it.
+// Works whose deep blacks suffer at these settings use `fullResolution` instead of a higher number here.
+const quality = { avif: 60, webp: 80, fallback: 80 };
 const responsiveWidths = [...new Set([480, 960, Math.min(src.width, 1600)])].sort((a, b) => a - b);
 
-const fullImage = lightbox
-  ? await getImage({ src, width: Math.min(src.width, 2200), format: 'webp', quality: 92 })
-  : undefined;
+let sources: { type: string; srcset: string }[] = [];
+let image: HTMLAttributes<'img'>;
+let fullImage: string | undefined;
+
+if (fullResolution) {
+  // The original file, which Astro emits under a content hash, is the only source, here and in the lightbox.
+  image = {
+    src: src.src,
+    alt,
+    width: src.width,
+    height: src.height,
+    loading: loading ?? (priority ? 'eager' : 'lazy'),
+    decoding: priority ? 'sync' : 'async',
+    fetchpriority: priority ? 'high' : undefined,
+  };
+  fullImage = src.src;
+} else {
+  const transform = { src, alt, widths: responsiveWidths, sizes, loading, priority };
+  const [avif, webp, fallback] = await Promise.all([
+    getImage({ ...transform, format: 'avif', quality: quality.avif }),
+    getImage({ ...transform, format: 'webp', quality: quality.webp }),
+    getImage({ ...transform, format: src.format === 'png' ? 'png' : 'jpg', quality: quality.fallback }),
+  ]);
+  sources = [
+    { type: 'image/avif', srcset: avif.srcSet.attribute },
+    { type: 'image/webp', srcset: webp.srcSet.attribute },
+  ];
+  image = { src: fallback.src, srcset: fallback.srcSet.attribute, ...fallback.attributes };
+  fullImage = lightbox
+    ? (await getImage({ src, width: Math.min(src.width, 2200), format: 'webp', quality: 92 })).src
+    : undefined;
+}
 ---
 
 {
@@ -37,33 +79,22 @@ const fullImage = lightbox
       class:list={['image-button', className]}
       type="button"
       aria-label={`View larger image: ${alt}`}
-      data-lightbox-src={fullImage?.src}
+      data-lightbox-src={fullImage}
       data-lightbox-alt={alt}
       data-lightbox-caption={caption ?? ''}
       data-lightbox-group={gallery}
     >
-      <Picture
-        src={src}
-        alt={alt}
-        formats={['avif', 'webp']}
-        widths={responsiveWidths}
-        sizes={sizes}
-        loading={loading}
-        quality={88}
-      />
+      <picture>
+        {sources.map((source) => <source srcset={source.srcset} type={source.type} sizes={sizes} />)}
+        <img {...image} />
+      </picture>
       <span class="expand-label" aria-hidden="true">View larger</span>
     </button>
   ) : (
-    <Picture
-      class={className}
-      src={src}
-      alt={alt}
-      formats={['avif', 'webp']}
-      widths={responsiveWidths}
-      sizes={sizes}
-      loading={loading}
-      quality={88}
-    />
+    <picture>
+      {sources.map((source) => <source srcset={source.srcset} type={source.type} sizes={sizes} />)}
+      <img {...image} class={className} />
+    </picture>
   )
 }
 

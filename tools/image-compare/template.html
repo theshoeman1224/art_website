@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image Quality Comparison</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0b0a;
+    --panel: #171715;
+    --line: #2c2b28;
+    --text: #ece8df;
+    --muted: #9b968b;
+    --good: #8fc79a;
+    --flag: #d8b46a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 16px 6rem;
+    color: var(--text);
+    background: var(--bg);
+    font: 15px/1.5 system-ui, sans-serif;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 1.25rem 0 1rem;
+    background: rgb(11 11 10 / 94%);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(6px);
+  }
+  h1 { margin: 0 0 .25rem; font-size: 1.35rem; font-weight: 600; }
+  .intro { margin: 0 0 1rem; max-width: 70rem; color: var(--muted); }
+  .intro b { color: var(--text); }
+  .bar { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; }
+  .control { display: flex; gap: .5rem; align-items: center; }
+  .control > span { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+  .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .segmented button {
+    padding: .4rem .8rem;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+  }
+  .segmented button + button { border-left: 1px solid var(--line); }
+  .segmented button[aria-pressed="true"] { color: var(--bg); background: var(--text); }
+  .totals { margin: 0; color: var(--muted); font-size: .85rem; }
+  .totals b { color: var(--text); font-weight: 600; }
+  .good { color: var(--good); }
+  .row { padding: 2rem 0; border-bottom: 1px solid var(--line); }
+  .row h2 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+  .row .path { margin: 0 0 .9rem; color: var(--muted); font-size: .8rem; }
+  .flag {
+    display: inline-block;
+    margin-left: .6rem;
+    padding: .05rem .5rem;
+    color: var(--flag);
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    font-size: .75rem;
+    font-weight: 500;
+    vertical-align: .1rem;
+  }
+  .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  figure { margin: 0; }
+  .pane {
+    position: relative;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--line);
+  }
+  .pane img { display: block; width: 100%; height: auto; }
+  body.zoomed .pane { aspect-ratio: auto !important; height: min(70vh, 46rem); cursor: crosshair; touch-action: none; }
+  body.zoomed .pane img { position: absolute; top: 0; left: 0; max-width: none; will-change: transform; }
+  figcaption { padding-top: .5rem; font-size: .85rem; }
+  figcaption .label { font-weight: 600; }
+  figcaption .detail { display: block; color: var(--muted); }
+  .empty { padding: 4rem 0; color: var(--muted); }
+  @media (max-width: 40rem) {
+    .trio { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Image quality comparison</h1>
+  <p class="intro" data-intro></p>
+  <div class="bar">
+    <div class="control"><span>Size</span><div class="segmented" data-control="size">
+      <button type="button" data-value="0">Small · 480</button>
+      <button type="button" data-value="1">Medium · 960</button>
+      <button type="button" data-value="2" aria-pressed="true">Large · up to 1600</button>
+    </div></div>
+    <div class="control"><span>Zoom</span><div class="segmented" data-control="zoom">
+      <button type="button" data-value="0" aria-pressed="true">Fit</button>
+      <button type="button" data-value="1">1:1</button>
+      <button type="button" data-value="2">2×</button>
+    </div></div>
+    <p class="totals" data-totals></p>
+  </div>
+</header>
+<main data-rows></main>
+<script>
+  const { settings, rows } = __DATA__;
+  const state = { size: 2, zoom: 0 };
+  const kb = (bytes) => `${Math.round(bytes / 1024).toLocaleString()} KB`;
+  const mb = (bytes) => `${(bytes / 1048576).toFixed(1)} MB`;
+  // A photograph narrower than a size has fewer variants; it shows its largest instead.
+  const variant = (row) => row.variants[Math.min(state.size, row.variants.length - 1)];
+  const atSiteQuality = settings.avif === settings.site.avif && settings.webp === settings.site.webp;
+
+  document.querySelector('[data-intro]').innerHTML = `
+    Each row puts a source photograph next to the AVIF at quality <b>${settings.avif}</b> (about 95% of visitors) and
+    the WebP at quality <b>${settings.webp}</b> (browsers without AVIF) that the site would make from it.
+    ${atSiteQuality ? 'These are the qualities the site uses today.' : `The site uses AVIF ${settings.site.avif} and WebP ${settings.site.webp} today.`}
+    <b>Size</b> picks which srcset width to compare: small is phones in the grid, medium the grid on most screens, large the artwork page hero.
+    <b>Zoom</b> 1:1 is one image pixel per screen pixel; move the pointer over any pane (or drag on a touch screen) to pan all three.
+    Works marked <span class="flag">full resolution</span> are served as supplied on the site, so their compressed panes show what dropping the flag would look like.`;
+
+  const main = document.querySelector('[data-rows]');
+  // ?eager loads every image up front, for screenshots.
+  const eager = new URLSearchParams(location.search).has('eager');
+  if (rows.length === 0) main.innerHTML = '<p class="empty">No photographs matched.</p>';
+  const rowElements = rows.map((row) => {
+    const section = document.createElement('section');
+    section.className = 'row';
+    section.innerHTML = `
+      <h2></h2>
+      <p class="path"></p>
+      <div class="trio">
+        ${['original', 'avif', 'webp'].map((kind) => `
+          <figure data-kind="${kind}">
+            <div class="pane" style="aspect-ratio: ${row.width} / ${row.height}"><img loading="${eager ? 'eager' : 'lazy'}" decoding="async" alt=""></div>
+            <figcaption><span class="label"></span><span class="detail"></span></figcaption>
+          </figure>`).join('')}
+      </div>`;
+    const heading = section.querySelector('h2');
+    heading.textContent = row.title;
+    if (row.fullResolution) heading.insertAdjacentHTML('beforeend', '<span class="flag">full resolution</span>');
+    section.querySelector('.path').textContent = `${row.path} · ${row.width} × ${row.height}`;
+    main.append(section);
+    return section;
+  });
+
+  function render() {
+    document.body.classList.toggle('zoomed', state.zoom > 0);
+    let before = 0, avif = 0, webp = 0;
+    rows.forEach((row, index) => {
+      const section = rowElements[index];
+      const v = variant(row);
+      before += v.siteAvifBytes ?? v.avif.bytes; avif += v.avif.bytes; webp += v.webp.bytes;
+      const change = v.siteAvifBytes
+        ? `${kb(v.siteAvifBytes)} at the site's q${settings.site.avif}, ${Math.round((1 - v.avif.bytes / v.siteAvifBytes) * 100)}% smaller`
+        : undefined;
+      const figures = {
+        original: { src: row.original.file, label: 'Original', detail: `${kb(row.original.bytes)} · full-size source` },
+        avif: { src: v.avif.file, label: `AVIF q${settings.avif} · ${v.width} px`, detail: kb(v.avif.bytes), note: change },
+        webp: { src: v.webp.file, label: `WebP q${settings.webp} · ${v.width} px`, detail: `${kb(v.webp.bytes)} · browsers without AVIF` },
+      };
+      for (const [kind, f] of Object.entries(figures)) {
+        const figure = section.querySelector(`[data-kind="${kind}"]`);
+        const img = figure.querySelector('img');
+        if (img.getAttribute('src') !== f.src) img.src = f.src;
+        img.alt = `${row.title}, ${f.label}`;
+        figure.querySelector('.label').textContent = f.label;
+        const detail = figure.querySelector('.detail');
+        detail.textContent = f.detail;
+        if (f.note) {
+          const note = document.createElement('span');
+          note.className = 'good';
+          note.textContent = ` · was ${f.note}`;
+          detail.append(note);
+        }
+      }
+      layout(section, row, 0.5, 0.5);
+    });
+    document.querySelector('[data-totals]').innerHTML = atSiteQuality
+      ? `${rows.length} photos at this size: AVIF <b>${mb(avif)}</b> · WebP <b>${mb(webp)}</b>`
+      : `${rows.length} photos at this size: AVIF q${settings.site.avif} <b>${mb(before)}</b> → AVIF q${settings.avif} <b class="good">${mb(avif)}</b> · WebP q${settings.webp} <b>${mb(webp)}</b>`;
+  }
+
+  // Places the three images so the same point of the photograph sits under the same point of each pane.
+  function layout(section, row, fx, fy) {
+    const scale = [0, 1, 2][state.zoom];
+    for (const pane of section.querySelectorAll('.pane')) {
+      const img = pane.querySelector('img');
+      if (!scale) {
+        img.style.width = img.style.transform = '';
+        continue;
+      }
+      const width = (variant(row).width * scale) / devicePixelRatio;
+      const height = (width * row.height) / row.width;
+      const x = width > pane.clientWidth ? -(width - pane.clientWidth) * fx : (pane.clientWidth - width) / 2;
+      const y = height > pane.clientHeight ? -(height - pane.clientHeight) * fy : (pane.clientHeight - height) / 2;
+      img.style.width = `${width}px`;
+      img.style.transform = `translate(${x}px, ${y}px)`;
+    }
+  }
+
+  main.addEventListener('pointermove', (event) => {
+    if (!state.zoom) return;
+    const pane = event.target.closest('.pane');
+    if (!pane || (event.pointerType !== 'mouse' && !event.buttons)) return;
+    const box = pane.getBoundingClientRect();
+    const section = pane.closest('.row');
+    const fx = Math.min(1, Math.max(0, (event.clientX - box.left) / box.width));
+    const fy = Math.min(1, Math.max(0, (event.clientY - box.top) / box.height));
+    layout(section, rows[rowElements.indexOf(section)], fx, fy);
+  });
+
+  function press(group, value) {
+    for (const button of group.querySelectorAll('button')) button.setAttribute('aria-pressed', String(button.dataset.value === String(value)));
+    state[group.dataset.control] = Number(value);
+  }
+
+  // ?size=0-2 and ?zoom=0-2 choose the starting view.
+  const params = new URLSearchParams(location.search);
+  for (const group of document.querySelectorAll('[data-control]')) {
+    const value = params.get(group.dataset.control);
+    if (value && group.querySelector(`[data-value="${value}"]`)) press(group, value);
+    group.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      press(group, button.dataset.value);
+      render();
+    });
+  }
+  addEventListener('resize', render);
+  render();
+</script>
+</body>
+</html>

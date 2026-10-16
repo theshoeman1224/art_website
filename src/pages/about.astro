@@ -23,7 +23,7 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
         src={artistPortrait}
         alt="Illustrated portrait of Chelsea in a pink beret riding an electric scooter past flames"
         sizes="(min-width: 768px) 42vw, 100vw"
-        loading="eager"
+        priority
       />
       <figcaption>Chelsea, artist</figcaption>
     </figure>
@@ -59,6 +59,7 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
         <ArtworkImage
           src={processImage.src}
           alt={processImage.alt}
+          fullResolution={processArtwork?.data.fullResolution}
           caption="Process photograph"
           sizes="(min-width: 768px) 62vw, 100vw"
           lightbox

@@ -16,9 +16,12 @@ npm run check     # astro check: TypeScript, .astro diagnostics, and content sch
 npm run build     # astro check && astro build, output in dist/
 npm run preview   # Serve dist/ locally
 npm test          # npm run build, then vitest run
+npm run compare   # Image quality comparison page on http://127.0.0.1:4390/ (tools/image-compare/README.md)
 ```
 
 There is no linter or formatter. `npm run check` is what catches a malformed artwork record.
+
+`tools/` holds development tools that the site never imports, so they stay out of `dist/`. `tools/image-compare/` (`npm run compare`) previews artwork photographs at any AVIF and WebP quality next to the originals, and its output is byte-identical to the build's; keep it that way when `ArtworkImage` changes (its README says how to check).
 
 ### Tests
 
@@ -30,7 +33,7 @@ npx vitest run                        # Run against the existing dist/ without r
 npx vitest run -t "page /about/"      # Run the tests for one page
 ```
 
-Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()` is the only place the tests read source content, and it must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to check that `/artwork` offers a filter for every section, and `inquiryTypes` from `src/inquiry.ts` to check that `/contact` offers every inquiry type and every artwork.
+Per-page tests are generated from whatever HTML files are in `dist/`, so new pages are covered automatically. `tests/site.ts` holds the helpers; its `artworkSlugs()`, `fullResolutionWorks()`, and `hasGpsMetadata()` are the only places the tests read source content, and they must be updated if artwork records move or change format. The suite also imports `sectionIds` from `src/sections.ts` to check that `/artwork` offers a filter for every section, and `inquiryTypes` from `src/inquiry.ts` to check that `/contact` offers every inquiry type and every artwork.
 
 ## Architecture
 
@@ -53,6 +56,10 @@ Exactly one `hero` image is required (enforced by `superRefine`). Change the sch
 The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/artwork/[slug].astro`), not from the folder name. Keep the two identical.
 
 `placeholder: true` marks a stub record whose details are still `TODO`. It only keeps the work out of the homepage's "Selected work"; the work is still listed everywhere else and still gets its page. Remove the flag when the record is filled in. A test fails if `TODO` text reaches the homepage, so do not set `featured` on a placeholder.
+
+`fullResolution: true` serves every photograph of the work exactly as supplied, byte for byte: no resizing, no re-encoding, no srcset, and the lightbox shows the same file. It exists because AVIF and WebP compression visibly flattens deep blacks; Endeavor and Death Isn't Black and White use it. It costs about 1 MB per photograph wherever the work appears (its card, the homepage, its page), so it is opt-in per work, not a default. Every `ArtworkImage` that shows an artwork's photograph must pass `fullResolution={<artwork>.data.fullResolution}`; a test fails if any page carries a resized or re-encoded copy of a flagged work's photograph, or if a flagged photograph records GPS coordinates (an original keeps its metadata, and a phone photo usually records where it was taken).
+
+**When adding an artwork, ask the user whether to set `fullResolution: true`** whenever its photographs show large areas of deep black, dark gradients, subtle tonal detail in shadows, gold leaf or other metallic sheen, or anything else compression could visibly change. Look at the photographs before asking, say what in them prompted the question, and mention the cost. If the user is unsure, run `npm run compare -- --only <slug>` and have them look at the work at 1:1 against its original photograph. If a flagged photograph fails the GPS test, ask the user before stripping the metadata.
 
 ### Portfolio sections
 
@@ -83,7 +90,7 @@ No artwork has a `detail` or `process` image yet, and the artwork in the homepag
 
 ### Images and the lightbox
 
-All artwork imagery goes through `src/components/ArtworkImage.astro`, which wraps Astro's `<Picture>` (AVIF + WebP, widths 480 / 960 / up to 1600). Pass a `sizes` value that matches the layout slot.
+All artwork imagery goes through `src/components/ArtworkImage.astro`, which builds a `<picture>` from `getImage()` (AVIF + WebP, widths 480 / 960 / up to 1600) rather than using `<Picture>`, so each format can have its own quality (`quality` in the component) and a `fullResolution` work can skip the pipeline entirely. Pass a `sizes` value that matches the layout slot. Pass `priority` to the page's main image (the homepage hero, the artwork page hero, the About portrait), and to nothing else: it loads eagerly with `fetchpriority="high"`, and a test allows at most one per page. Every other image is lazy unless it passes `loading="eager"`.
 
 With the `lightbox` prop it renders a `<button>` carrying `data-lightbox-*` attributes and pre-generates a larger WebP (up to 2200px). `src/components/Lightbox.astro` is mounted once in `BaseLayout.astro` and handles those buttons through a delegated click listener on `document`. The `gallery` prop sets the group that prev/next, arrow keys, and swipe cycle through; artwork pages use the slug, other pages use a per-section name.
 
@@ -118,6 +125,7 @@ There is no backend. `sendInquiry()` in `contact.astro`, marked `BACKEND HOOK`, 
 ## Content conventions
 
 - `TODO.md` tracks open questions for the artist and for the build. Add new ones there instead of only raising them in conversation, and remove them once answered.
+- `PERFORMANCE_IMPROVEMENTS.md` tracks the image-loading audit: each issue's fix, tradeoffs, and status. Update a status when its fix lands.
 - The site speaks in the artist's own voice: first person ("I", "me", "my") wherever copy refers to her or to who replies to an inquiry, never "the artist", "she", "us", or "the studio". Endeavor Art Studio stays as the business name (header, footer, page titles, meta descriptions, legal name). Exceptions: alt text and captions describe the portrait in the third person, and the message `formatInquiry()` builds is addressed to her, so it is not in her voice.
 - The About biography is the artist's own text. Do not edit its wording; only its presentation.
 - `.draft-note` spans mark copy that still needs the artist's review. Leave them in place unless the copy has been approved.
@@ -130,6 +138,6 @@ The site is currently on a temporary Cloudflare Workers static-assets deployment
 
 Indexing is deliberately blocked while this is temporary, through `public/robots.txt` (`Disallow: /`) and `public/_headers` (`X-Robots-Tag: noindex`). Launching publicly means deleting `robots.txt`, removing the `X-Robots-Tag` rule from `_headers`, and setting `site` to the final canonical domain.
 
-`public/_headers` also sends `Cache-Control: public, max-age=31536000, immutable` for `/_astro/*`, which is permanent. It relies on every file there having a content hash in its name, which Astro's build guarantees for bundled CSS and JS and for imported images. Anything in `public/` keeps its name across changes, so never add long-lived caching for those paths, and never put a hand-named file under `/_astro/`.
+`public/_headers` also sends `Cache-Control: public, max-age=31536000, immutable` for `/_astro/*`, which is permanent. It relies on every file there having a content hash in its name, which Astro's build guarantees for bundled CSS and JS and for imported images. `astro preview` ignores `_headers` and sends `Cache-Control: no-cache` for everything, so images are re-checked on every visit there; use `npx wrangler dev` (after `npm run build`) to see the deployed caching locally. Anything in `public/` keeps its name across changes, so never add long-lived caching for those paths, and never put a hand-named file under `/_astro/`.
 
 The README also documents a Cloudflare Pages setup (build command `npm run build`, output `dist`) with staging protected by Cloudflare Access. Authentication stays outside the app: do not add login pages, sessions, passwords, or access tokens to this repository.

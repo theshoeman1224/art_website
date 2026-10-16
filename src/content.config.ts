@@ -18,6 +18,9 @@ const artworks = defineCollection({
       // Marks a record whose details are still TODO, so the homepage showcase can leave it out.
       placeholder: z.boolean().default(false),
       instagramUrl: z.url().optional(),
+      // Serves every photograph of the work exactly as supplied, with no resizing or re-encoding, for a work whose deep
+      // blacks or fine tonal detail compression visibly damages. Costs about 1 MB per photograph wherever it appears.
+      fullResolution: z.boolean().default(false),
       sortOrder: z.number().int().default(99),
     };
     const secondaryImageRole = z.enum(['detail', 'angled', 'environment', 'process']);

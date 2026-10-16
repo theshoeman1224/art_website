@@ -30,9 +30,10 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
       <ArtworkImage
         src={hero.data.hero.src}
         alt={hero.data.hero.alt}
+        fullResolution={hero.data.fullResolution}
         caption={`${hero.data.title}, ${hero.data.year}`}
         sizes="(min-width: 768px) 58vw, 100vw"
-        loading="eager"
+        priority
         lightbox
         gallery="home-hero"
       />
@@ -73,6 +74,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
       <ArtworkImage
         src={textureImage.src}
         alt={textureImage.alt}
+        fullResolution={textureArtwork.data.fullResolution}
         caption={`${textureArtwork.data.title} · Macro detail`}
         sizes="100vw"
         lightbox
@@ -97,6 +99,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
       <ArtworkImage
         src={feature.data.hero.src}
         alt={feature.data.hero.alt}
+        fullResolution={feature.data.fullResolution}
         caption={`${feature.data.title} · Full view`}
         sizes="(min-width: 768px) 52vw, 100vw"
         lightbox
@@ -106,6 +109,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
         <ArtworkImage
           src={featureDetail.src}
           alt={featureDetail.alt}
+          fullResolution={feature.data.fullResolution}
           caption={`${feature.data.title} · Macro detail`}
           sizes="(min-width: 768px) 25vw, 48vw"
           lightbox
@@ -116,6 +120,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
         <ArtworkImage
           src={featureAngle.src}
           alt={featureAngle.alt}
+          fullResolution={feature.data.fullResolution}
           caption={`${feature.data.title} · Angled view`}
           sizes="(min-width: 768px) 25vw, 48vw"
           lightbox
