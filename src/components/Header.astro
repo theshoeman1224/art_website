@@ -1,5 +1,7 @@
 ---
+import { Picture } from 'astro:assets';
 import emblem from '../assets/endeavor-emblem.png';
+import { emblemImage } from '../lib/emblem';
 
 const pathname = Astro.url.pathname;
 const nav = [
@@ -12,7 +14,7 @@ const nav = [
 
 <header class="site-header page-shell">
   <a class="wordmark" href="/" aria-label="Endeavor Art Studio home">
-    <img src={emblem.src} alt="" width="52" height="52" />
+    <Picture src={emblem} alt="" width={52} height={52} {...emblemImage} loading="eager" />
     <span class="wordmark-text">
       <span>Endeavor</span>
       <span>Art Studio</span>

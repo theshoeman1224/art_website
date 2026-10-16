@@ -45,9 +45,10 @@ const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work
   </div>
 
   <section class="artwork-grid page-shell" aria-label="All artwork">
-    {artworks.map((artwork) => (
+    {artworks.map((artwork, index) => (
       <div data-artwork data-filters={filterIds(artwork).join(' ')}>
-        <ArtworkCard artwork={artwork} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
+        {/* The first row is on screen when the page opens, so it is fetched without waiting for layout. */}
+        <ArtworkCard artwork={artwork} eager={index < 3} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
       </div>
     ))}
   </section>

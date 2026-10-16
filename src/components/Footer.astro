@@ -1,11 +1,13 @@
 ---
+import { Picture } from 'astro:assets';
 import emblem from '../assets/endeavor-emblem.png';
+import { emblemImage } from '../lib/emblem';
 import { siteConfig } from '../config';
 ---
 
 <footer class="site-footer page-shell">
   <div class="footer-identity">
-    <img src={emblem.src} alt="" width="112" height="112" />
+    <Picture src={emblem} alt="" width={64} height={64} {...emblemImage} />
     <p class="footer-mark">Endeavor<br />Art Studio</p>
   </div>
   <div class="footer-links">
@@ -33,10 +35,13 @@ import { siteConfig } from '../config';
     align-items: center;
   }
 
+  .footer-identity picture {
+    flex: 0 0 auto;
+  }
+
   .footer-identity img {
     width: 4rem;
     height: auto;
-    flex: 0 0 auto;
     background: transparent;
   }
 
