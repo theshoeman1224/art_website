@@ -42,6 +42,7 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
         fullResolution={data.fullResolution}
         caption={`${data.title} · Full view`}
         sizes="100vw"
+        heightCap={{ vh: 88 }}
         priority
         lightbox
         gallery={data.slug}
@@ -94,7 +95,7 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
               alt={image.alt}
               fullResolution={data.fullResolution}
               caption={`${data.title} · ${image.type} view`}
-              sizes={index === 0 ? '100vw' : '(min-width: 768px) 65vw, 100vw'}
+              sizes={index === 0 && image.type === 'detail' ? '100vw' : '(min-width: 768px) 65vw, 100vw'}
               lightbox
               gallery={data.slug}
             />

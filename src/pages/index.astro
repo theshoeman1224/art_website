@@ -33,6 +33,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
         fullResolution={hero.data.fullResolution}
         caption={`${hero.data.title}, ${hero.data.year}`}
         sizes="(min-width: 768px) 58vw, 100vw"
+        heightCap={{ vh: 72, slot: 58, media: '(min-width: 768px)' }}
         priority
         lightbox
         gallery="home-hero"
