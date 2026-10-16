@@ -182,7 +182,7 @@ The form validates in the browser but does not send anything yet: there is no su
 2. Add a Worker entry point to `wrangler.jsonc` (`main`, with `assets.run_worker_first` limited to the endpoint path) that accepts the POST, runs `validateInquiry()` again, drops submissions where `isLikelySpam()` is true, rate-limits by IP, and sends `formatInquiry()`'s message with `Reply-To` set to the visitor.
 3. Replace the body of `sendInquiry()` in `src/pages/contact.astro` (marked `BACKEND HOOK`) with a `fetch` to that endpoint.
 
-The budget ranges in `src/inquiry.ts` are placeholders. Reference image uploads are not supported; they would need storage (R2) or mail attachments with file type and size limits.
+Reference image uploads are not supported; they would need storage (R2) or mail attachments with file type and size limits.
 
 ## Contact configuration
 

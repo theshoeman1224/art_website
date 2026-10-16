@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteConfig } from '../config';
 import { getSortedArtworks } from '../lib/artworks';
-import { budgetRanges, honeypotField, inquiryTypes, pieceNotListed, sizeOptions, timingOptions } from '../inquiry';
+import { honeypotField, inquiryTypes, pieceNotListed, sizeOptions } from '../inquiry';
 
 // Alphabetical rather than portfolio order, because visitors look a piece up by name here.
 const pieces = (await getSortedArtworks())
@@ -14,12 +14,6 @@ const steps = [
   { title: 'Settle the direction', copy: 'Together we talk through approximate size, meaningful elements, and practical constraints.' },
   { title: 'I interpret', copy: 'Composition, materials, texture, and treatment are mine to decide, and the piece develops through experimentation.' },
   { title: 'An original work', copy: 'You receive a piece shaped by your idea, not reproduced from an exact reference.' },
-];
-
-const choiceGroups = [
-  { name: 'size', legend: 'Approximate size', options: sizeOptions, required: false, draft: false },
-  { name: 'budget', legend: 'Approximate budget', options: budgetRanges, required: true, draft: true },
-  { name: 'timing', legend: 'Timing', options: timingOptions, required: true, draft: false },
 ];
 ---
 
@@ -77,7 +71,7 @@ const choiceGroups = [
             </li>
           ))}
         </ol>
-        <p class="quiet">Before accepting a project, I confirm that its subject, timing, scale, and practical needs suit my practice.</p>
+        <p class="quiet">Before accepting a project, I confirm that its subject, scale, and practical needs suit my practice.</p>
       </section>
 
       <fieldset class="form-part" data-for="artwork commission general">
@@ -126,26 +120,16 @@ const choiceGroups = [
           <textarea id="elements" name="elements" rows="3" maxlength="5000" aria-describedby="elements-help elements-error"></textarea>
           <p class="field-error" id="elements-error" data-error-for="elements" hidden></p>
         </div>
-        {choiceGroups.map((group) => (
-          <fieldset class="choice-group" aria-describedby={`${group.name}-error`}>
-            <legend class="meta-label">
-              {group.legend} {group.required && <span aria-hidden="true">*</span>}
-              {group.draft && <span class="draft-note">Placeholder ranges for artist review</span>}
-            </legend>
-            {group.options.map((option) => (
-              <label class="choice">
-                <input type="radio" name={group.name} value={option.value} required={group.required} />
-                {option.label}
-              </label>
-            ))}
-            <p class="field-error" id={`${group.name}-error`} data-error-for={group.name} hidden></p>
-          </fieldset>
-        ))}
-        <div class="field date-field">
-          <label class="meta-label" for="date">Date <span aria-hidden="true">*</span></label>
-          <input id="date" name="date" type="date" required aria-describedby="date-error" />
-          <p class="field-error" id="date-error" data-error-for="date" hidden></p>
-        </div>
+        <fieldset class="choice-group" aria-describedby="size-error">
+          <legend class="meta-label">Approximate size</legend>
+          {sizeOptions.map((option) => (
+            <label class="choice">
+              <input type="radio" name="size" value={option.value} />
+              {option.label}
+            </label>
+          ))}
+          <p class="field-error" id="size-error" data-error-for="size" hidden></p>
+        </fieldset>
         <div class="field">
           <p class="meta-label">Reference images</p>
           <p class="field-help">The form can’t take uploads yet. If you have photos of the object or references, mention them below and send them by email once I reply.</p>
@@ -226,12 +210,6 @@ const choiceGroups = [
     return 'unavailable';
   }
 
-  // The visitor's own calendar date, which is what a date input shows.
-  function localToday() {
-    const now = new Date();
-    return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-  }
-
   const form = document.querySelector<HTMLFormElement>('[data-inquiry-form]');
   const sent = document.querySelector<HTMLElement>('[data-inquiry-sent]');
 
@@ -239,7 +217,6 @@ const choiceGroups = [
     const typeInputs = Array.from(form.querySelectorAll<HTMLInputElement>('[name="type"]'));
     const parts = Array.from(form.querySelectorAll<HTMLFieldSetElement>('fieldset[data-for]'));
     const piece = form.querySelector<HTMLSelectElement>('[name="piece"]');
-    const date = form.querySelector<HTMLInputElement>('[name="date"]');
     const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
     const alert = form.querySelector<HTMLElement>('[data-form-errors]');
     const status = form.querySelector<HTMLElement>('[data-form-status]');
@@ -252,7 +229,6 @@ const choiceGroups = [
     const apply = () => {
       const type = currentType();
       for (const part of parts) part.disabled = !type || !(part.dataset.for ?? '').split(' ').includes(type);
-      if (date) date.disabled = form.querySelector<HTMLInputElement>('[name="timing"]:checked')?.value !== 'date';
 
       // The header marks /contact as current; arriving through the Commissions tab moves that to Commissions.
       for (const link of navLinks) {
@@ -295,7 +271,6 @@ const choiceGroups = [
     if (piece && requested && Array.from(piece.options).some((option) => option.value === requested)) {
       piece.value = requested;
     }
-    if (date) date.min = localToday();
     apply();
 
     form.addEventListener('change', (event) => {
@@ -323,7 +298,7 @@ const choiceGroups = [
       if (sending || !submit) return;
 
       const fields = Object.fromEntries(Array.from(new FormData(form), ([name, value]) => [name, String(value)]));
-      const errors = validateInquiry(fields, localToday());
+      const errors = validateInquiry(fields);
       showErrors(errors);
       showStatus(null);
 
@@ -392,8 +367,7 @@ const choiceGroups = [
   .inquiry-form:not(:has([name='type']:checked)) [data-for],
   .inquiry-form:has([name='type'][value='artwork']:checked) [data-for]:not([data-for~='artwork']),
   .inquiry-form:has([name='type'][value='commission']:checked) [data-for]:not([data-for~='commission']),
-  .inquiry-form:has([name='type'][value='general']:checked) [data-for]:not([data-for~='general']),
-  .inquiry-form:not(:has([name='timing'][value='date']:checked)) .date-field {
+  .inquiry-form:has([name='type'][value='general']:checked) [data-for]:not([data-for~='general']) {
     display: none;
   }
 
@@ -578,10 +552,6 @@ const choiceGroups = [
     border-color: var(--clay);
   }
 
-  .date-field input {
-    max-width: 16rem;
-  }
-
   .choice-group {
     display: flex;
     flex-wrap: wrap;
@@ -590,10 +560,6 @@ const choiceGroups = [
 
   .choice-group legend {
     margin-bottom: 0.9rem;
-  }
-
-  .choice-group .draft-note {
-    margin: 0 0 0 0.75rem;
   }
 
   .choice {
