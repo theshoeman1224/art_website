@@ -30,6 +30,7 @@ const statusLabel = !status || status === 'available' ? undefined : statusLabels
         alt={hero.alt}
         sizes={sizes}
         loading={eager ? 'eager' : 'lazy'}
+        fullResolution={artwork.data.fullResolution}
       />
     </a>
     <p class="artwork-overlay" data-artwork-status={status}>

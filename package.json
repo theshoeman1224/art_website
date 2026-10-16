@@ -8,7 +8,8 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "npm run build && vitest run"
+    "test": "npm run build && vitest run",
+    "compare": "node tools/image-compare/compare.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

@@ -36,8 +36,8 @@ Open questions that need an answer from the artist or a decision from us. Remove
 
 Found by reading the source and measuring the built pages in headless Chromium. None of these are fixed yet.
 
-- [ ] **Image weight.** `ArtworkImage` uses `quality={88}` for AVIF and WebP alike: `/artwork` is about 3.0 MB of AVIF at 960w and 7.1 MB at 1600w. Widths jump from 960 to 1600, so a 3× phone in the one-column layout downloads the 1600w file. Lightbox files (WebP, quality 92) reach 1.8 MB each with no loading state.
-- [ ] **Logo.** `endeavor-emblem.png` is a 242 KB, 512 × 512 PNG served unoptimized on every page as the favicon, the 52px header mark, and the footer mark.
+- [ ] **Image weight.** Moved to `PERFORMANCE_IMPROVEMENTS.md`, which covers it in detail (issues 1, 2, and 5) along with the rest of the October 15, 2026 image-loading audit.
+- [ ] **Logo.** `endeavor-emblem.png` is a 242 KB, 512 × 512 PNG served unoptimized on every page as the favicon, the 52px header mark, and the footer mark. Issue 9 in `PERFORMANCE_IMPROVEMENTS.md` has the fix and measured sizes.
 - [ ] **No link preview image.** `BaseLayout` accepts an `image` prop but no page passes one, so nothing emits `og:image`. `og:url` and `twitter:card` are also missing.
 - [ ] **No previous/next between artworks.** The only way on from an artwork page is back, which loses the filter the visitor came from.
 - [ ] **Very small label text.** Navigation, eyebrows, captions, and card metadata render at 10 to 11.5px, uppercase and letter-spaced.

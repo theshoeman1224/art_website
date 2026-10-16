@@ -13,6 +13,8 @@ dimensions:
   unit: in
   each: true
 status: sold
+# Compression visibly flattened the deep blacks, so its photographs are served as supplied.
+fullResolution: true
 sections:
   - bottles
 images:

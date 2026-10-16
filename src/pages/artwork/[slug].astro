@@ -39,9 +39,10 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
       <ArtworkImage
         src={data.hero.src}
         alt={data.hero.alt}
+        fullResolution={data.fullResolution}
         caption={`${data.title} · Full view`}
         sizes="100vw"
-        loading="eager"
+        priority
         lightbox
         gallery={data.slug}
       />
@@ -72,6 +73,7 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
           <ArtworkImage
             src={besideDetails.src}
             alt={besideDetails.alt}
+            fullResolution={data.fullResolution}
             caption={`${data.title} · ${besideDetails.type} view`}
             sizes="(min-width: 768px) 55vw, 100vw"
             lightbox
@@ -90,6 +92,7 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
             <ArtworkImage
               src={image.src}
               alt={image.alt}
+              fullResolution={data.fullResolution}
               caption={`${data.title} · ${image.type} view`}
               sizes={index === 0 ? '100vw' : '(min-width: 768px) 65vw, 100vw'}
               lightbox

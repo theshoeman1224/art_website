@@ -3,9 +3,12 @@ import { inquiryTypes, pieceNotListed } from '../src/inquiry';
 import { sectionIds } from '../src/sections';
 import {
   artworkSlugs,
+  digest,
   distFile,
   distFiles,
   existsInBuild,
+  fullResolutionWorks,
+  hasGpsMetadata,
   headerRules,
   internalPageLinks,
   loadPages,
@@ -119,6 +122,43 @@ describe('built site', () => {
     expect(body?.text.includes('TODO')).toBe(false);
     expect(descriptions.filter((description) => description.includes('TODO'))).toEqual([]);
   });
+
+  it('fetches the main image first on the homepage, the about page, and every artwork page', () => {
+    const leadRoutes = ['/', '/about/', ...artworkSlugs().map((slug) => `/artwork/${slug}/`)];
+    const withoutLead = pages.filter((page) => leadRoutes.includes(page.route) && !page.html.querySelector('img[fetchpriority="high"]'));
+
+    expect(withoutLead.map((page) => page.route)).toEqual([]);
+  });
+
+  it('serves the photographs of full-resolution works exactly as supplied, wherever they appear', () => {
+    for (const work of fullResolutionWorks()) {
+      const page = pages.find((candidate) => candidate.route === `/artwork/${work.slug}/`);
+      const served = page?.html.querySelectorAll('article picture img').map((image) => image.getAttribute('src') ?? '') ?? [];
+
+      expect(new Set(served.map(digest))).toEqual(new Set(work.photographs.map(digest)));
+      expect(page?.html.querySelectorAll('article picture source, article picture img[srcset]')).toHaveLength(0);
+
+      // The pipeline names its copies after the original plus a suffix, so one anywhere means a call site forgot the flag.
+      const copyPrefixes = served.map((src) => src.replace(/\.[a-z]+$/i, '_'));
+      const copies = pages.flatMap((other) => references(other.html)).filter((url) => copyPrefixes.some((prefix) => url.startsWith(prefix)));
+      expect(copies).toEqual([]);
+    }
+  });
+
+  it('optimizes the photographs of every other work', () => {
+    const fullResolutionRoutes = fullResolutionWorks().map((work) => `/artwork/${work.slug}/`);
+    const unoptimized = pages.filter((page) =>
+      /^\/artwork\/[^/]+\/$/.test(page.route)
+      && !fullResolutionRoutes.includes(page.route)
+      && !page.html.querySelector('article source[type="image/avif"]'));
+
+    expect(unoptimized.map((page) => page.route)).toEqual([]);
+  });
+
+  // Served as supplied, a photograph keeps its metadata, and a phone's records where it was taken.
+  it('serves no full-resolution photograph that records where it was taken', () => {
+    expect(fullResolutionWorks().flatMap((work) => work.photographs).filter(hasGpsMetadata)).toEqual([]);
+  });
 });
 
 describe.each(pages)('page $route', ({ route, html }) => {
@@ -146,6 +186,14 @@ describe.each(pages)('page $route', ({ route, html }) => {
 
     expect(missingAlt.map((image) => image.toString())).toEqual([]);
     expect(undescribed.map((element) => element.toString())).toEqual([]);
+  });
+
+  // A priority hint only works if it is rare: a second urgent image competes with the first.
+  it('fetches at most one image with high priority, and never lazily', () => {
+    const urgent = html.querySelectorAll('img[fetchpriority="high"]');
+
+    expect(urgent.length).toBeLessThanOrEqual(1);
+    expect(urgent.filter((image) => image.getAttribute('loading') === 'lazy').map((image) => image.toString())).toEqual([]);
   });
 
   // Cloudflare serves each page at <route>/ and answers <route> with a redirect, so a link without the slash costs
