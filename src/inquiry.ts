@@ -42,23 +42,6 @@ export const sizeOptions: readonly Option[] = [
   { value: 'unsure', label: 'Not sure yet' },
 ];
 
-// PLACEHOLDER: these ranges are not the artist's pricing. Replace them before launch (see TODO.md).
-// The values are what a submission carries, so keep each one stable once real inquiries arrive.
-export const budgetRanges: readonly Option[] = [
-  { value: 'under-1000', label: 'Under $1,000' },
-  { value: '1000-2500', label: '$1,000 – $2,500' },
-  { value: '2500-5000', label: '$2,500 – $5,000' },
-  { value: 'over-5000', label: '$5,000 or more' },
-  { value: 'unsure', label: 'I’m not sure yet' },
-];
-
-export const timingOptions: readonly Option[] = [
-  { value: 'flexible', label: 'No rush / Flexible' },
-  { value: '1-2-months', label: 'Within 1–2 months' },
-  { value: '3-6-months', label: 'Within 3–6 months' },
-  { value: 'date', label: 'I have a specific date' },
-];
-
 // The artwork field's value when the piece is not on the site.
 export const pieceNotListed = 'not-listed';
 
@@ -79,9 +62,7 @@ function labelFor(options: readonly Option[], value: string | undefined) {
   return options.find((option) => option.value === value)?.label;
 }
 
-// `today` is a YYYY-MM-DD string. A date one day earlier is still accepted, because the visitor's
-// calendar can be a day behind the server's.
-export function validateInquiry(fields: InquiryFields, today = new Date().toISOString().slice(0, 10)): InquiryErrors {
+export function validateInquiry(fields: InquiryFields): InquiryErrors {
   const errors: InquiryErrors = {};
   const value = (name: string) => fields[name]?.trim() ?? '';
   const type = parseInquiryType(fields.type);
@@ -100,15 +81,6 @@ export function validateInquiry(fields: InquiryFields, today = new Date().toISOS
   if (type === 'commission') {
     if (!value('idea')) errors.idea = 'Tell me a little about the idea.';
     if (value('size') && !labelFor(sizeOptions, value('size'))) errors.size = 'Choose one of the sizes.';
-    if (!labelFor(budgetRanges, value('budget'))) errors.budget = 'Choose a budget range, or “I’m not sure yet”.';
-    if (!labelFor(timingOptions, value('timing'))) errors.timing = 'Choose a timeframe.';
-    else if (value('timing') === 'date') {
-      const date = value('date');
-      const earliest = new Date(Date.parse(today) - 86_400_000).toISOString().slice(0, 10);
-      if (!date) errors.date = 'Choose the date.';
-      else if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) errors.date = 'Enter a valid date.';
-      else if (date < earliest) errors.date = 'Choose a date that has not passed.';
-    }
   }
 
   for (const [name, text] of Object.entries(fields)) {
@@ -143,11 +115,8 @@ export function formatInquiry(fields: InquiryFields, pieceTitle?: string) {
       ['Idea', value('idea')],
       ['Requested elements', value('elements')],
       ['Approximate size', labelFor(sizeOptions, fields.size) ?? '—'],
-      ['Budget', labelFor(budgetRanges, fields.budget) ?? '—'],
-      ['Timing', labelFor(timingOptions, fields.timing) ?? '—'],
+      ['Additional notes', value('notes')],
     );
-    if (fields.timing === 'date') lines.push(['Specific date', value('date')]);
-    lines.push(['Additional notes', value('notes')]);
   } else {
     lines.push(['Message', value('message')]);
   }
