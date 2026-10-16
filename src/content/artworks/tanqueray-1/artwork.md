@@ -2,7 +2,6 @@
 schemaVersion: 1
 # TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
 placeholder: true
-# TODO: "Tanqueray 1" is a working title. The slug and folder name follow it.
 title: Tanqueray 1
 slug: tanqueray-1
 # TODO: placeholder year. The schema needs an integer; the photographs are dated 2023-12-25.
