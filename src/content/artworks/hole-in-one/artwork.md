@@ -6,9 +6,6 @@ title: Hole in One
 slug: hole-in-one
 # TODO: placeholder year. The schema needs an integer; one photograph is dated 2025-08-24, the others carry no date.
 year: 2025
-medium: TODO
-materials:
-  - TODO
 dimensions:
   height: 24
   width: 24

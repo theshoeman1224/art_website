@@ -46,8 +46,6 @@ The schema in `src/content.config.ts` validates the frontmatter and then **trans
 | `images[]` entry with `role: hero` | pulled out into `hero: { src, alt }` |
 | remaining `images[]` entries, each with `role` | `images[]` without the hero, and `role` renamed to `type` |
 
-`medium` and `materials` are required by the schema but no page displays them, so `TODO` in those two fields never reaches the site.
-
 `description` is optional, and a blank one is turned into `undefined`. Without one, the artwork page puts the first secondary image (`data.images[0]`) in the description's column beside the work details, and "Surface and views" continues from the next image; the homepage featured block leaves the paragraph out, and the page's meta description is built from the title, year, and dimensions. Leave the field out rather than writing `TODO`.
 
 Exactly one `hero` image is required (enforced by `superRefine`). Change the schema and the transform together, then check every consumer of `data.hero`, `data.images[].type`, and `data.dimensions`.
@@ -119,7 +117,7 @@ There is no backend. `sendInquiry()` in `contact.astro`, marked `BACKEND HOOK`, 
 
 ## Content conventions
 
-- `TODO.md` tracks open questions for the artist and for the build. Add new ones there instead of only raising them in conversation, and tick or remove them once answered.
+- `TODO.md` tracks open questions for the artist and for the build. Add new ones there instead of only raising them in conversation, and remove them once answered.
 - The site speaks in the artist's own voice: first person ("I", "me", "my") wherever copy refers to her or to who replies to an inquiry, never "the artist", "she", "us", or "the studio". Endeavor Art Studio stays as the business name (header, footer, page titles, meta descriptions, legal name). Exceptions: alt text and captions describe the portrait in the third person, and the message `formatInquiry()` builds is addressed to her, so it is not in her voice.
 - The About biography is the artist's own text. Do not edit its wording; only its presentation.
 - `.draft-note` spans mark copy that still needs the artist's review. Leave them in place unless the copy has been approved.

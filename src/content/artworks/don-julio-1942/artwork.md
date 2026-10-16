@@ -3,10 +3,6 @@ schemaVersion: 1
 title: Don Julio 1942
 slug: don-julio-1942
 year: 2024
-medium: Mixed media, framed assemblage
-materials:
-  - Don Julio 1942 bottle components
-  - Epoxy
 dimensions:
   height: 18
   width: 14
