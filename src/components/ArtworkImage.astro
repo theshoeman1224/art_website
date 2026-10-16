@@ -41,9 +41,8 @@ const {
 
 // <Picture> takes one quality for every format, so the <picture> is built here to let each format have its own. The
 // scales differ: AVIF at 88 is larger than WebP at 88, and AVIF at 60 is about a third the size of AVIF at 88.
-// The fallback is for browsers with neither AVIF nor WebP, in the source's own format, as <Picture> chose it.
 // Works whose deep blacks suffer at these settings use `fullResolution` instead of a higher number here.
-const quality = { avif: 60, webp: 80, fallback: 80 };
+const quality = { avif: 60, webp: 80 };
 // The browser picks a srcset width before layout, from `sizes` alone. A height-capped photograph on a wide screen is
 // narrower than its slot: it shows `vh × aspect ratio` wide once the screen's aspect ratio exceeds that over the slot
 // width. `sizes` cannot use `svh` or read CSS, so this uses `vh`, which is never smaller than `svh` and so errs large.
@@ -56,34 +55,33 @@ function cappedSizes({ vh, slot = 100, media }: NonNullable<Props['heightCap']>)
 }
 const responsiveWidths = [...new Set([480, 960, Math.min(src.width, 1600)])].sort((a, b) => a - b);
 
+// The <img> is the original file, which Astro emits under a content hash whether or not a page uses it. For a
+// `fullResolution` work it is the only source, here and in the lightbox. Otherwise only a browser with neither AVIF nor
+// WebP reaches it, which is too rare to justify generating a JPEG set as well.
+const image: HTMLAttributes<'img'> = {
+  src: src.src,
+  alt,
+  width: src.width,
+  height: src.height,
+  loading: loading ?? (priority ? 'eager' : 'lazy'),
+  decoding: priority ? 'sync' : 'async',
+  fetchpriority: priority ? 'high' : undefined,
+};
 let sources: { type: string; srcset: string }[] = [];
-let image: HTMLAttributes<'img'>;
 let fullImage: string | undefined;
 
 if (fullResolution) {
-  // The original file, which Astro emits under a content hash, is the only source, here and in the lightbox.
-  image = {
-    src: src.src,
-    alt,
-    width: src.width,
-    height: src.height,
-    loading: loading ?? (priority ? 'eager' : 'lazy'),
-    decoding: priority ? 'sync' : 'async',
-    fetchpriority: priority ? 'high' : undefined,
-  };
   fullImage = src.src;
 } else {
-  const transform = { src, alt, widths: responsiveWidths, sizes, loading, priority };
-  const [avif, webp, fallback] = await Promise.all([
+  const transform = { src, widths: responsiveWidths, sizes };
+  const [avif, webp] = await Promise.all([
     getImage({ ...transform, format: 'avif', quality: quality.avif }),
     getImage({ ...transform, format: 'webp', quality: quality.webp }),
-    getImage({ ...transform, format: src.format === 'png' ? 'png' : 'jpg', quality: quality.fallback }),
   ]);
   sources = [
     { type: 'image/avif', srcset: avif.srcSet.attribute },
     { type: 'image/webp', srcset: webp.srcSet.attribute },
   ];
-  image = { src: fallback.src, srcset: fallback.srcSet.attribute, ...fallback.attributes };
   fullImage = lightbox
     ? (await getImage({ src, width: Math.min(src.width, 2200), format: 'webp', quality: 92 })).src
     : undefined;

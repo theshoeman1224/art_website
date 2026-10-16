@@ -36,7 +36,7 @@ Open questions that need an answer from the artist or a decision from us. Remove
 
 Found by reading the source and measuring the built pages in headless Chromium. None of these are fixed yet.
 
-- [ ] **Image weight.** Moved to `PERFORMANCE_IMPROVEMENTS.md`, which covers it in detail (issues 1, 2, and 5; 1 and 2 are done) along with the rest of the October 15, 2026 image-loading audit.
+- [ ] **Image weight.** Moved to `PERFORMANCE_IMPROVEMENTS.md`, which covers it in detail (issues 5 and 10) along with the rest of the October 15, 2026 image-loading audit.
 - [ ] **No link preview image.** `BaseLayout` accepts an `image` prop but no page passes one, so nothing emits `og:image`. `og:url` and `twitter:card` are also missing.
 - [ ] **No previous/next between artworks.** The only way on from an artwork page is back, which loses the filter the visitor came from.
 - [ ] **Very small label text.** Navigation, eyebrows, captions, and card metadata render at 10 to 11.5px, uppercase and letter-spaced.
