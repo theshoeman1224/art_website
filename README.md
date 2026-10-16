@@ -107,7 +107,7 @@ The validated schema lives in `src/content.config.ts`. Real artworks use the por
 | `medium` | string | Primary medium label. Required, but not shown on the site |
 | `materials` | string array | Physical materials used. Required, but not shown on the site |
 | `dimensions` | object | Numeric height, width, optional depth, and unit. Shown with the smaller of height and width first (`24 × 36 in`). Optional `each: true` adds "each" for a work made of same-sized parts |
-| `description` | string | Artwork description |
+| `description` | optional string | Artwork description. Leave it out (or blank) and the artwork page shows the next photograph in its place |
 | `status` | optional enum | Availability: available, unavailable, or sold |
 | `sections` | enum array | Portfolio sections the work is listed in, at least one |
 | `images` | image array | All photographs, relative paths, alt text, and roles |

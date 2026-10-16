@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import ArtworkImage from '../../components/ArtworkImage.astro';
+import { siteConfig } from '../../config';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { statusLabels } from '../../lib/artworks';
 
@@ -18,9 +19,13 @@ interface Props {
 
 const { artwork } = Astro.props;
 const { data } = artwork;
+// Without a description, the first secondary photograph takes its place beside the work details.
+const besideDetails = data.description ? undefined : data.images[0];
+const sequence = besideDetails ? data.images.slice(1) : data.images;
+const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data.dimensions}. Original work by ${siteConfig.title}.`;
 ---
 
-<BaseLayout title={data.title} description={data.description}>
+<BaseLayout title={data.title} description={metaDescription}>
   <article>
     <header class="artwork-header page-shell">
       <a class="back-link" href="/artwork/">← All artwork</a>
@@ -50,19 +55,37 @@ const { data } = artwork;
           <div><dt>Dimensions</dt><dd>{data.dimensions}</dd></div>
           {data.status && <div class="status"><dt>Status</dt><dd>{statusLabels[data.status]}</dd></div>}
         </dl>
-      </div>
-      <div>
-        <p class="large-copy">{data.description}</p>
-        {data.instagramUrl && (
+        {!data.description && data.instagramUrl && (
           <a class="text-link" href={data.instagramUrl} rel="noreferrer">View on Instagram</a>
         )}
       </div>
+      {data.description && (
+        <div>
+          <p class="large-copy">{data.description}</p>
+          {data.instagramUrl && (
+            <a class="text-link" href={data.instagramUrl} rel="noreferrer">View on Instagram</a>
+          )}
+        </div>
+      )}
+      {besideDetails && (
+        <figure class="beside-details">
+          <ArtworkImage
+            src={besideDetails.src}
+            alt={besideDetails.alt}
+            caption={`${data.title} · ${besideDetails.type} view`}
+            sizes="(min-width: 768px) 55vw, 100vw"
+            lightbox
+            gallery={data.slug}
+          />
+          <figcaption>{besideDetails.type} view</figcaption>
+        </figure>
+      )}
     </section>
 
-    {data.images.length > 0 && (
+    {sequence.length > 0 && (
       <section class="image-sequence page-shell" aria-labelledby="views-title">
         <h2 id="views-title" class="section-label">Surface and views</h2>
-        {data.images.map((image, index) => (
+        {sequence.map((image, index) => (
           <figure class:list={[`image-${image.type}`, { first: index === 0 }]}>
             <ArtworkImage
               src={image.src}
@@ -160,6 +183,14 @@ const { data } = artwork;
     font-size: clamp(2rem, 3.5vw, 4rem);
   }
 
+  .artwork-info dl + .text-link {
+    margin-top: 2rem;
+  }
+
+  .beside-details {
+    margin: 0;
+  }
+
   .image-sequence {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -185,6 +216,7 @@ const { data } = artwork;
     grid-column: 1 / -1;
   }
 
+  .beside-details figcaption,
   .image-sequence figcaption {
     padding-top: 0.5rem;
     color: var(--paper-muted);
