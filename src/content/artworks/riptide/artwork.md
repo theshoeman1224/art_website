@@ -13,7 +13,6 @@ dimensions:
   height: 10
   width: 8
   unit: in
-description: TODO
 status: available
 sections:
   - paintings

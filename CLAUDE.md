@@ -48,6 +48,8 @@ The schema in `src/content.config.ts` validates the frontmatter and then **trans
 
 `medium` and `materials` are required by the schema but no page displays them, so `TODO` in those two fields never reaches the site.
 
+`description` is optional, and a blank one is turned into `undefined`. Without one, the artwork page puts the first secondary image (`data.images[0]`) in the description's column beside the work details, and "Surface and views" continues from the next image; the homepage featured block leaves the paragraph out, and the page's meta description is built from the title, year, and dimensions. Leave the field out rather than writing `TODO`.
+
 Exactly one `hero` image is required (enforced by `superRefine`). Change the schema and the transform together, then check every consumer of `data.hero`, `data.images[].type`, and `data.dimensions`.
 
 The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/artwork/[slug].astro`), not from the folder name. Keep the two identical.
@@ -95,7 +97,7 @@ Source photographs live next to their `artwork.md` (or in `src/assets/` for site
 
 Styling is plain CSS: design tokens and a few shared utility classes (`.page-shell`, `.page-header`, `.section`, `.section-label`, `.eyebrow`, `.large-copy`, `.text-link`, `.artwork-grid`) in `src/styles/global.css`, and everything else in scoped `<style>` blocks inside each page or component. Because `<Picture>` output belongs to a child component, scoped rules that target its `<img>` need `:global(img)`. The site is dark-only, and the main layout breakpoint is `47.99rem`.
 
-Every nav tab page (`/artwork`, `/about`, `/contact`) opens with the same block, `.page-header` in `global.css`: an eyebrow, a centered `h1` at the global `h1` size, and a hairline along the bottom edge, so none of them jump when switching tabs. The header holds nothing else. `/artwork` and `/about` use the tab's one-word name as the title, which keeps their hairlines at the same height; `/contact` keeps its two-line phrase, so its header is taller. The statement line for `/about` sits below the hairline as a `.large-copy` paragraph. Above the main breakpoint the eyebrow is positioned absolutely in the top-left corner, centered on the `--page-eyebrow` token, which is derived from the header's top padding and the `h1` size; change those three together. Below the breakpoint the eyebrow returns to the flow at `--page-top`, centered above the title, and the title shrinks with the viewport so that "conversation." fits a 320px screen. A new tab page starts with `<header class="page-header page-shell">`.
+Every nav tab page (`/artwork`, `/about`, `/contact`) opens with the same block, `.page-header` in `global.css`: an eyebrow, a centered `h1` at the global `h1` size, and a hairline along the bottom edge, so none of them jump when switching tabs. The header holds nothing else. `/artwork` uses the tab's one-word name as the title; `/about` uses "About the Artist" and `/contact` a two-line phrase, so their headers can be taller. The opening line of the artist's biography ("Creativity has a way of revealing itself…") sits below the `/about` hairline as a `.large-copy` paragraph. Above the main breakpoint the eyebrow is positioned absolutely in the top-left corner, centered on the `--page-eyebrow` token, which is derived from the header's top padding and the `h1` size; change those three together. Below the breakpoint the eyebrow returns to the flow at `--page-top`, centered above the title, and the title shrinks with the viewport so that "conversation." fits a 320px screen. A new tab page starts with `<header class="page-header page-shell">`.
 
 Client behavior is vanilla TypeScript in Astro `<script>` blocks (the lightbox, the `/artwork` filters, and the contact form). Do not add a UI framework for this.
 
@@ -118,6 +120,8 @@ There is no backend. `sendInquiry()` in `contact.astro`, marked `BACKEND HOOK`, 
 ## Content conventions
 
 - `TODO.md` tracks open questions for the artist and for the build. Add new ones there instead of only raising them in conversation, and tick or remove them once answered.
+- The site speaks in the artist's own voice: first person ("I", "me", "my") wherever copy refers to her or to who replies to an inquiry, never "the artist", "she", "us", or "the studio". Endeavor Art Studio stays as the business name (header, footer, page titles, meta descriptions, legal name). Exceptions: alt text and captions describe the portrait in the third person, and the message `formatInquiry()` builds is addressed to her, so it is not in her voice.
+- The About biography is the artist's own text. Do not edit its wording; only its presentation.
 - `.draft-note` spans mark copy that still needs the artist's review. Leave them in place unless the copy has been approved.
 - The contact email in `src/config.ts` is the studio's real address; the contact page and the footer both read it from there.
 - Alt text describes what is visible and what the photograph adds, rather than repeating the artwork title. An angled view should mention depth or projection.

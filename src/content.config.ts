@@ -12,7 +12,8 @@ const artworks = defineCollection({
       year: z.number().int(),
       medium: z.string(),
       materials: z.array(z.string()).min(1),
-      description: z.string(),
+      // Optional: a blank description counts as none, and the artwork page fills its space with the next photograph.
+      description: z.string().trim().optional(),
       status: z.enum(['available', 'unavailable', 'sold']).optional(),
       sections: z.array(z.enum(sectionIds)).min(1),
       featured: z.boolean().default(false),
@@ -70,6 +71,7 @@ const artworks = defineCollection({
 
       return {
         ...artwork,
+        description: artwork.description || undefined,
         dimensions: `${measurements} ${unit}${each ? ' each' : ''}`,
         hero: { src: heroImage.src, alt: heroImage.alt },
         images,

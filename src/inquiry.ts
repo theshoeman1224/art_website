@@ -26,7 +26,7 @@ const definitions = [
   {
     id: 'general',
     label: 'Something else',
-    hint: 'Any other question for the studio.',
+    hint: 'Any other question for me.',
     heading: 'GENERAL INQUIRY',
     submit: 'Send message',
   },
@@ -98,7 +98,7 @@ export function validateInquiry(fields: InquiryFields, today = new Date().toISOS
   if ((type === 'artwork' || type === 'general') && !value('message')) errors.message = 'Write your message.';
 
   if (type === 'commission') {
-    if (!value('idea')) errors.idea = 'Tell us a little about the idea.';
+    if (!value('idea')) errors.idea = 'Tell me a little about the idea.';
     if (value('size') && !labelFor(sizeOptions, value('size'))) errors.size = 'Choose one of the sizes.';
     if (!labelFor(budgetRanges, value('budget'))) errors.budget = 'Choose a budget range, or “I’m not sure yet”.';
     if (!labelFor(timingOptions, value('timing'))) errors.timing = 'Choose a timeframe.';

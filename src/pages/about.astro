@@ -9,15 +9,15 @@ const processArtwork = artworks.find((artwork) => artwork.data.images.some((imag
 const processImage = processArtwork?.data.images.find((image) => image.type === 'process');
 ---
 
-<BaseLayout title="About" description="About the artist and material practice behind Endeavor Art Studio.">
+<BaseLayout title="About the Artist" description="How a midnight experiment became Endeavor Art Studio.">
   <header class="page-header page-shell">
     <p class="eyebrow">About / Artist and practice</p>
-    <h1>About</h1>
+    <h1>About the Artist</h1>
   </header>
 
-  <p class="lede large-copy page-shell">Material leads. The work follows.</p>
+  <p class="lede large-copy page-shell">Creativity has a way of revealing itself when you least expect it.</p>
 
-  <section class="bio page-shell" aria-labelledby="bio-title">
+  <section class="bio page-shell">
     <figure>
       <ArtworkImage
         src={artistPortrait}
@@ -28,11 +28,14 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
       <figcaption>Chelsea, artist</figcaption>
     </figure>
     <div>
-      <h2 id="bio-title" class="section-label">Biography</h2>
-      <p class="large-copy">Chelsea</p>
-      <p>Chelsea is a mixed-media artist whose work is rooted in texture, intention, and the deeply held belief that sometimes the best thing you can do to a perfectly good bottle is smash it and turn the remains into something better. Her process is surprisingly deliberate: each piece is carefully planned, composed, and refined until the materials land exactly where she wants them. Much like Chelsea herself, the finished work tends to be bold, direct, and considerably more approachable once you spend a little time with it.</p>
-      <p>Outside the studio, Chelsea maintains a rigorous creative practice consisting of working out, consuming gin and tonics, making her celebrated Ghetto Pasta, and causing mayhem on her local neighborhood streets aboard an electric scooter with absolutely no indication that she considers this unusual behavior for an adult. Scooting is not merely transportation; it is a lifestyle. A calling. Possibly a mobility-based personality disorder. When she is not scooting, she can occasionally be found appreciating the finer performing arts, particularly Yung Gravy and the timeless cultural institution of little-person wrestling.</p>
-      <p>Chelsea is also an accomplished Glizzy Gobbler, a title earned not through self-promotion but through years of consistent performance in the highly competitive field of putting away hot dogs. She approaches the glizzy with the same focus and commitment she brings to her artwork: confidently, efficiently, and without unnecessary discussion. Her other culinary achievements include fajitas and the aforementioned Ghetto Pasta, which remains both a meal and an important reminder that branding can overcome almost anything.</p>
+      <p>Growing up surrounded by artistic talent, I never considered myself an artist. While creativity came naturally to those around me, I had yet to discover a medium that felt like my own.</p>
+      <p>During a difficult time in my life, I found myself searching for a creative outlet. Inspired by the work of other artists and driven by little more than curiosity, I began wondering what I might be capable of creating.</p>
+      <p>One night, just after midnight, I picked up a blank canvas and decided to find out.</p>
+      <p>What began as a spontaneous experiment evolved into a three-month creative process and ultimately became my first original piece, <a href="/artwork/endeavor/">Endeavor</a>. Imperfect, unconventional, and entirely unplanned, it represented the discovery of something I never knew I was capable of.</p>
+      <p>That single experience opened the door to an entirely new creative world.</p>
+      <p>As my curiosity expanded, so did my work. I began exploring different materials, techniques, and forms, eventually creating distinctive mixed-media pieces and transforming unexpected objects into original works of art. What started as a personal creative outlet gradually developed into a business as others began connecting with and purchasing my work.</p>
+      <p>Today, Endeavor represents the same spirit of exploration that inspired its beginning. Each piece is individually conceived and created, combining texture, dimension, and unconventional materials to produce artwork that is as unique as the space it inhabits.</p>
+      <p class="bio-close">What began as an experiment became an identity. And the endeavor continues.</p>
     </div>
   </section>
 
@@ -84,11 +87,14 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
     display: grid;
     grid-template-columns: minmax(0, 0.85fr) minmax(20rem, 1.15fr);
     gap: clamp(3rem, 8vw, 10rem);
-    align-items: center;
+    align-items: start;
     padding-bottom: var(--section-space);
   }
 
+  /* The story runs much taller than the portrait, so the portrait stays in view beside it. */
   .bio figure {
+    position: sticky;
+    top: 2rem;
     margin: 0;
   }
 
@@ -100,13 +106,17 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
     text-transform: uppercase;
   }
 
-  .bio > div > p:not(.large-copy) {
+  .bio > div > p {
     max-width: 38rem;
     color: var(--paper-muted);
   }
 
-  .bio > div > p.large-copy {
-    margin-bottom: 2.5rem;
+  .bio > div > p.bio-close {
+    margin-top: 2.5rem;
+    color: var(--paper);
+    font-family: var(--serif);
+    font-size: 1.5em;
+    line-height: 1.3;
   }
 
   .statement {
@@ -153,6 +163,7 @@ const processImage = processArtwork?.data.images.find((image) => image.type === 
     }
 
     .bio figure {
+      position: static;
       width: calc(100% + var(--page-pad) * 2);
       margin-left: calc(var(--page-pad) * -1);
     }

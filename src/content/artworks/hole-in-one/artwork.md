@@ -13,7 +13,6 @@ dimensions:
   height: 24
   width: 24
   unit: in
-description: TODO
 status: sold
 sections:
   - statement

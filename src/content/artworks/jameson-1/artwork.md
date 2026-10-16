@@ -14,7 +14,6 @@ dimensions:
   height: 18
   width: 14
   unit: in
-description: TODO
 status: sold
 sections:
   - bottles

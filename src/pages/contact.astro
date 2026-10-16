@@ -11,8 +11,8 @@ const pieces = (await getSortedArtworks())
 
 const steps = [
   { title: 'Share the idea', copy: 'An object, memory, subject, material, color, or general direction.' },
-  { title: 'Settle the direction', copy: 'Together you talk through approximate size, meaningful elements, and practical constraints.' },
-  { title: 'The artist interprets', copy: 'Composition, materials, texture, and treatment are hers to decide, and the piece develops through experimentation.' },
+  { title: 'Settle the direction', copy: 'Together we talk through approximate size, meaningful elements, and practical constraints.' },
+  { title: 'I interpret', copy: 'Composition, materials, texture, and treatment are mine to decide, and the piece develops through experimentation.' },
   { title: 'An original work', copy: 'You receive a piece shaped by your idea, not reproduced from an exact reference.' },
 ];
 
@@ -32,7 +32,7 @@ const choiceGroups = [
   <div class="inquiry page-shell">
     <div class="inquiry-intro">
       <span class="draft-note">Draft for artist review</span>
-      <p>Interested in a piece, thinking about a commission, or have another question? Tell us a little about it.</p>
+      <p>Interested in a piece, thinking about a commission, or have another question? Tell me a little about it.</p>
     </div>
 
     <form class="inquiry-form" method="post" novalidate aria-labelledby="contact-title" data-inquiry-form>
@@ -66,7 +66,7 @@ const choiceGroups = [
         <p>
           A commission can begin with a meaningful object, memory, subject, material, color, or simply a general
           direction. You don’t need to have the finished piece figured out. Your idea is the starting point; the
-          final work is interpreted through the artist’s style and process.
+          final work is interpreted through my style and process.
         </p>
         <ol class="commission-steps">
           {steps.map((step, index) => (
@@ -77,7 +77,7 @@ const choiceGroups = [
             </li>
           ))}
         </ol>
-        <p class="quiet">Before accepting a project, the artist confirms that its subject, timing, scale, and practical needs suit her practice.</p>
+        <p class="quiet">Before accepting a project, I confirm that its subject, timing, scale, and practical needs suit my practice.</p>
       </section>
 
       <fieldset class="form-part" data-for="artwork commission general">
@@ -116,7 +116,7 @@ const choiceGroups = [
       <fieldset class="form-part" data-for="commission">
         <div class="field">
           <label class="meta-label" for="idea">What’s the idea? <span aria-hidden="true">*</span></label>
-          <p class="field-help" id="idea-help">Tell us about the object, memory, subject, material, color, or idea you’re starting with.</p>
+          <p class="field-help" id="idea-help">Tell me about the object, memory, subject, material, color, or idea you’re starting with.</p>
           <textarea id="idea" name="idea" rows="7" required maxlength="5000" aria-describedby="idea-help idea-error"></textarea>
           <p class="field-error" id="idea-error" data-error-for="idea" hidden></p>
         </div>
@@ -148,7 +148,7 @@ const choiceGroups = [
         </div>
         <div class="field">
           <p class="meta-label">Reference images</p>
-          <p class="field-help">The form can’t take uploads yet. If you have photos of the object or references, mention them below and send them by email once the studio replies.</p>
+          <p class="field-help">The form can’t take uploads yet. If you have photos of the object or references, mention them below and send them by email once I reply.</p>
         </div>
         <div class="field">
           <label class="meta-label" for="notes">Anything else?</label>
@@ -194,7 +194,7 @@ const choiceGroups = [
 
     <div class="inquiry-sent" tabindex="-1" data-inquiry-sent hidden>
       <p class="large-copy">Thank you.</p>
-      <p>Your message is on its way. The studio will reply to the email address you gave.</p>
+      <p>Your message is on its way. I’ll reply to the email address you gave.</p>
     </div>
 
     <div class="contact-options">

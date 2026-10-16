@@ -12,7 +12,7 @@ dimensions:
   height: 36
   width: 24
   unit: in
-description: "Endeavor explores the quiet beauty that can emerge after fracture and hardship. Through rich texture and a luminous path of gold cutting across a dark surface, the piece suggests resilience, transformation, and the possibility of something meaningful taking shape after disruption."
+description: "Endeavor explores the quiet beauty that can emerge after fracture and hardship. Through rich texture and a luminous path of gold cutting across a dark surface, the piece suggests resilience, transformation, and the possibility of something meaningful taking shape after disruption. It is also my first original piece, begun on a blank canvas one night just after midnight and finished three months later."
 sections:
   - statement
 images:
