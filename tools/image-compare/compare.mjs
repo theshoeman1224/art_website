@@ -40,7 +40,7 @@ if (args.help) {
 // The site's settings, read from the component so this page always starts from what visitors get.
 async function siteSettings() {
   const component = await readFile(join(root, 'src/components/ArtworkImage.astro'), 'utf8');
-  const quality = component.match(/const quality = \{ avif: (\d+), webp: (\d+), fallback: (\d+) \}/);
+  const quality = component.match(/const quality = \{ avif: (\d+), webp: (\d+) \}/);
   const widths = component.match(/\[480, 960, Math\.min\(src\.width, 1600\)\]/);
   if (!quality || !widths) {
     throw new Error('ArtworkImage.astro no longer matches what tools/image-compare/compare.mjs expects. Update siteSettings().');

@@ -129,6 +129,11 @@ export function existsInBuild(pathname: string) {
   return candidates.some((candidate) => existsSync(candidate) && statSync(candidate).isFile());
 }
 
+// The path on disk of a built file, from its URL path.
+export function distPath(pathname: string) {
+  return join(distDir, decodeURIComponent(pathname));
+}
+
 // The size in bytes of a built file, from its URL path.
 export function builtSize(pathname: string) {
   return statSync(join(distDir, decodeURIComponent(pathname))).size;

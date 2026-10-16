@@ -1,122 +1,35 @@
 # Performance improvements
 
-An audit of why images visibly load in on page load, from October 15, 2026. Each issue below lists what is wrong, the proposed fix, its tradeoffs, and its status. Update the status as fixes land, and delete this file once everything in it is settled.
+The open items from an audit of why images visibly load in on page load, started October 15, 2026. Each issue lists what is wrong, the proposed fix, and its tradeoffs. Remove an issue once its fix lands, and delete this file once nothing is left.
+
+Settled items have been removed; CLAUDE.md documents what they built. They were per-format compression with a full-resolution override for deep blacks (issue 1), `sizes` that follow height caps (2), an eager first row on `/artwork/` (3), high priority for each page's main image (4), a small emblem (9), and the original photograph in place of 93 generated JPEG fallbacks (part of 8). Riptide and Undertow were checked at 1:1 and look right at AVIF 60 (11). The remaining issues keep their original numbers so that older commits and PRs still point at the right one.
 
 ## Status
 
-| # | Issue | Impact | Status |
-| --- | --- | --- | --- |
-| 1 | AVIF encoded at quality 88 | High | **Done** (October 15, 2026): fix B, AVIF 60 and WebP 80, with a per-work full-resolution override for deep blacks |
-| 2 | `sizes` overstate height-capped images | High | **Done** (October 16, 2026): `heightCap` on `ArtworkImage` |
-| 3 | First row on `/artwork/` is lazy-loaded | Medium | **Done** (October 16, 2026) |
-| 4 | Main image not fetched with high priority | Medium | **Done** (October 15, 2026) |
-| 5 | Lightbox opens a 1 to 2 MB file with nothing to show first | Medium | Open |
-| 6 | Clicking a card starts a fresh download | Medium | Open |
-| 7 | No placeholder while an image loads | Low (perceived) | Open |
-| 8 | Build output carries files nobody downloads | None for visitors | Open |
-| 9 | Header logo is a 237 KB PNG shown at 52 px | Medium | **Done** (October 16, 2026): about 3 KB per page |
-
-## What was measured
-
-Caching is not the problem. The deployed site serves `/_astro/*` with `Cache-Control: public, max-age=31536000, immutable` and Cloudflare reports `cf-cache-status: HIT`, so an image downloaded once comes back instantly on later visits. What is visible is the first download of each image: the files are 3 to 6 times heavier than they need to be, and the pages do not tell the browser which images matter most.
-
-What a first visit downloads, picked the way a browser picks from the srcset, before any fix:
-
-| Page | Laptop 1440 px @2x | Phone 390 px @3x |
+| # | Issue | Impact |
 | --- | --- | --- |
-| Home hero | 1170w, 562 KB | 1170w, 562 KB |
-| `/artwork/` first card | 960w, 427 KB | 1170w, 562 KB |
-| `/artwork/riptide/` hero | 1600w, 978 KB | 1600w, 978 KB |
-| `/artwork/` with every card loaded | 5.0 MB | 12.0 MB |
+| 5 | Lightbox opens a 1 to 2 MB file with nothing to show first | Medium |
+| 6 | Clicking a card on a high-density laptop or tablet starts a fresh download | Low |
+| 7 | No placeholder while an image loads | Low (perceived) |
+| 8 | Oversized source photographs slow the build | None for visitors |
+| 10 | Full-resolution works are now most of the image weight | Medium |
 
-## 1. AVIF is encoded at quality 88
+## Where things stand
 
-**Problem.** `ArtworkImage.astro` passes `quality={88}` to `<Picture>`, which uses one quality for every format. The two formats' scales differ: AVIF at 88 comes out larger than WebP at 88, so AVIF's size advantage is lost. AVIF at 60 is about a third the size of AVIF at 88.
+Image bytes each page downloads on a first visit, measured on October 16, 2026 in headless Chromium against the current build with the cache disabled. "Before scrolling" is what loads with the page; "in total" adds everything a visitor scrolls past.
 
-**Options.**
+| Page | Laptop 1440 × 900, 2×: before scrolling / in total | Phone 390 × 844, 3×: before scrolling / in total |
+| --- | --- | --- |
+| `/` | 1.1 / 1.1 MB | 1.1 / 1.2 MB |
+| `/artwork/` | 3.2 / 3.4 MB | 2.8 / 5.3 MB |
+| `/artwork/riptide/` | 558 / 558 KB | 562 / 562 KB |
+| `/artwork/death-isnt-black-and-white/` | 3.2 / 6.4 MB | 6.4 / 6.4 MB |
 
-- **A. One lower value (60 to 65) for both formats.** The smallest change. Tradeoff: WebP at 60 is visibly softer, though only browsers without AVIF (about 5% of visitors) get WebP.
-- **B. A quality per format (AVIF 60, WebP 80).** Chosen for the sandbox. `<Picture>` cannot do this, so the component builds the `<picture>` itself from three `getImage()` calls. Tradeoff: about 20 more lines in the component, and the markup no longer follows Astro's `<Picture>` updates automatically.
-
-**Risk.** An art site lives on surface detail. AVIF at 60 can smooth fine grain in dark, low-contrast areas and in gold leaf. The lightbox keeps its own high-quality file (WebP, quality 92) for close inspection, which is unaffected.
-
-### Sandbox for fix B
-
-Fix B was first built in a separate git worktree and compared photograph by photograph against the originals before it was merged. The figures below come from that comparison.
-
-**Results across all 33 photographs**, at each of the three widths a visitor can receive:
-
-| Width | Today (AVIF 88) | AVIF 60 | WebP 80 |
-| --- | --- | --- | --- |
-| Small, 480 px (phones in the grid) | 2.4 MB | 0.9 MB | 1.2 MB |
-| Medium, 960 px (the grid on most screens) | 9.1 MB | 3.0 MB | 4.1 MB |
-| Large, up to 1600 px (artwork page hero) | 21.3 MB | 6.4 MB | 8.5 MB |
-
-Individual files shrink by 67 to 86% at 1600 px: Blue Label 1's hero goes from 989 KB to 322 KB, and Death Isn't Black and White's darkest photograph from 612 KB to 86 KB.
-
-**Comparison page.** `npm run compare -- --avif 60 --webp 80` serves a local page (http://127.0.0.1:4390/) with each artwork photograph next to its AVIF and WebP files at those qualities. It can switch between the three widths and zoom to 1:1 or 2×, with all three panes panning together. It lives in `tools/image-compare/` (see its README), outside the site build, and its files are byte-identical to what `astro build` produces, so it replaces the sandbox worktree for judging quality. The darkest works (Riptide, Undertow, Death Isn't Black and White) and the gold leaf (Endeavor, Blue Label 1) are where a loss would show first.
-
-**Review, October 15, 2026.** Deep blacks lose visible quality at AVIF 60. Rather than raise the quality for every work, works whose look depends on deep black now opt out of compression altogether (below). Fix B is otherwise ready.
-
-**Adopted, October 15, 2026.** `ArtworkImage.astro` builds the `<picture>` by hand with `quality = { avif: 60, webp: 80, fallback: 80 }`. Measured on a 1440 px, 2× laptop with the deployed caching (`wrangler dev`), the images on `/` went from 2.7 to 1.8 MB, on `/artwork/` from 6.2 to 3.3 MB, and on `/artwork/riptide/` from 1.9 to 0.5 MB. Riptide and Undertow, the other dark works, have not had a 1:1 check yet: run `npm run compare -- --only riptide,undertow` and add `fullResolution: true` to either if its blacks suffer.
-
-### Full-resolution override (done)
-
-An artwork record can set `fullResolution: true` (validated in `src/content.config.ts`). Every photograph of that work is then served exactly as supplied: the original file, byte for byte, with no resizing, no re-encoding, no srcset, and the same file in the lightbox. Endeavor and Death Isn't Black and White have it.
-
-- **Cost.** About 1 MB per photograph wherever the work appears. Endeavor's photographs are 712 and 736 KB, against 562 KB for today's AVIF 88 hero; Death Isn't Black and White's six are 0.85 to 1.24 MB each, 6.6 MB in all, of which only the hero loads before scrolling. Its card on `/artwork/` is a 1.2 MB, 2250 × 3000 file shown at about 400 px.
-- **Middle ground, not built.** Keep the responsive widths but encode flagged works at a much higher quality, or losslessly. That costs far less on phones and in the grid, but it is still a re-encode, so it would need its own visual check against the originals.
-- **Metadata.** An original keeps its metadata, and a phone photograph usually records where it was taken. None of the eight flagged photographs has GPS data, and a test fails if one ever does.
-- **Tests.** Flagged works' pages serve files byte-identical to the source photographs; no page anywhere carries a resized or re-encoded copy of them, which would mean a call site forgot to pass the flag; and every other artwork page still serves AVIF.
-- **For agents.** CLAUDE.md tells an agent adding an artwork to ask the user about the flag when its photographs show deep black, dark gradients, metallic sheen, or similar.
-
-## 2. `sizes` overstate height-capped images (done)
-
-**Problem.** `sizes` tells the browser how wide an image will be shown, before layout, so it can pick from the srcset. Three images promise far more width than they get:
-
-- **Artwork page hero** (`src/pages/artwork/[slug].astro`): `sizes="100vw"`, but CSS caps it at `max-height: 88svh` with `object-fit: contain`. On a 1440 × 900 laptop it shows about 594 px wide, yet the browser fetches the 1600w file.
-- **Homepage hero** (`src/pages/index.astro`): `58vw`, but capped at `max-height: 72svh`. Endeavor shows about 364 px wide and gets its 1170w file.
-- **First "Surface and views" image** (`[slug].astro`, `sizes={index === 0 ? '100vw' : …}`): `100vw`, but it spans 7 of 12 columns unless it is a `detail` image.
-
-**Fix.** Give `ArtworkImage` a `maxHeight` prop (in `vh`) and have it build `sizes` from the photograph's aspect ratio, for example `(min-aspect-ratio: 3/4) 66vh, 100vw`. Both `vh` units and media conditions are valid in `sizes`. The third case only needs a correct value.
-
-**Tradeoffs.** A little more logic in the component, and the result is an approximation: `sizes` cannot use `svh`, so it uses `vh`. Erring slightly large costs little.
-
-**Adopted, October 16, 2026.** `ArtworkImage` takes `heightCap: { vh, slot?, media? }` and puts an entry in front of the page's `sizes` for screens wide enough that the cap binds. Riptide's hero, for example, gets `(min-aspect-ratio: 660/1000) 66vh, 100vw`. The artwork page hero passes `{ vh: 88 }`; the homepage hero passes `{ vh: 72, slot: 58, media: '(min-width: 768px)' }`, which does nothing while Endeavor (full resolution) is the hero. The first "Surface and views" image now says `100vw` only when it is a full-width `detail` image. `min()` in `sizes` would be shorter, but media conditions are supported everywhere.
-
-What headless Chromium picked for Riptide's hero, checked through the DevTools protocol:
-
-| Screen | Before | After | Card on `/artwork/` |
-| --- | --- | --- | --- |
-| Phone 390 × 844, 3× | 1600w | 1600w | 1600w |
-| Tablet 820 × 1180, 2× | 1600w | 1600w | 960w |
-| Laptop 1440 × 900, 2× | 1600w | 1600w | 960w |
-| Desktop 1920 × 1080, 1× | 1600w | **960w** | 960w |
-| Desktop 2560 × 1440, 1× | 1600w | **960w** | 960w |
-
-High-density screens still get 1600w because they show the photograph at about 1,200 device pixels or more. On standard-density desktops the hero is now the same file as the card, so clicking through from `/artwork/` loads it from the cache (see issue 6). A test reads each artwork hero's `sizes` the way a browser does and checks it against the 88vh fit on a desktop and a phone.
-
-## 3. The first row on `/artwork/` is lazy-loaded (done)
-
-**Problem.** `ArtworkCard` has an `eager` prop that nothing passes, so every card on `/artwork/` is `loading="lazy"`, including the ones on screen. The browser waits for layout before it even requests them, which shows up as pop-in.
-
-**Fix.** Pass `eager={index < 3}` from `src/pages/artwork/index.astro`.
-
-**Tradeoff.** A phone (one column) fetches two cards early that are not yet on screen. They are the next two the visitor scrolls to.
-
-**Adopted, October 16, 2026,** as proposed. The first three cards are `eager` in document order, which is also the order with no filter active. A test checks that the first three are eager and the rest lazy.
-
-## 4. The main image was not fetched with high priority (done)
-
-**Problem.** The heroes used `loading="eager"` but still had `decoding="async"` and no `fetchpriority`, so the browser treated them like any other image until layout.
-
-**Fix, implemented.** `ArtworkImage` has a `priority` prop, which Astro turns into `loading="eager" decoding="sync" fetchpriority="high"`. The homepage hero, the artwork page hero, and the About portrait use it instead of `loading="eager"`. `loading` no longer defaults to `'lazy'` in the component, because Astro only applies `priority`'s eager loading when `loading` is unset; Astro still defaults everything else to lazy. Two tests guard it: the homepage, About, and every artwork page have a high-priority image, and no page has more than one, or a lazy one. CLAUDE.md documents the rule.
-
-**Tradeoff.** None in practice, provided it stays on one image per page. `/artwork/` has none; issue 3 covers it.
+Before the audit's fixes, `/artwork/` with every card loaded was 5.0 MB on that laptop and 12.0 MB on that phone, and Riptide's hero alone was 978 KB. Caching was never the problem: the deployed site serves `/_astro/*` as immutable for a year, so a returning visitor's images come from the cache. Judge speed with `npx wrangler dev` after a build, which serves the build the way Cloudflare does; `astro dev` generates every image on request (about 2 seconds each), and `astro preview` sends `no-cache`.
 
 ## 5. The lightbox opens a 1 to 2 MB file with nothing to show first
 
-**Problem.** Every lightbox image is a 2200 px WebP at quality 92 (1.1 MB on average, up to 1.9 MB), and phones get the same file. It is requested only on click, the dialog is empty until it arrives, and previous/next starts each image from nothing.
+**Problem.** Every lightbox image of a compressed work is a 2200 px WebP at quality 92: 24 files averaging 1.04 MB, up to 1.87 MB. Phones get the same file. It is requested only on click, the dialog is empty until it arrives, and previous/next starts each image from nothing. Full-resolution works are the exception: their lightbox shows the same original file as the page, so it opens from the cache.
 
 **Fix.**
 
@@ -124,21 +37,21 @@ High-density screens still get 1600w because they show the photograph at about 1
 - After opening, preload the previous and next full-size images.
 - Give the lightbox `<img>` a srcset (1200 / 1600 / 2200, possibly AVIF) so phones get about 1200 px.
 
-**Tradeoffs.** Preloading spends data on images that may never be viewed; one on each side is a reasonable limit. The srcset adds generated files and build time. The swap shows a slightly soft image for a moment before it sharpens.
+**Tradeoffs.** Preloading spends data on images that may never be viewed; one on each side is a reasonable limit. The srcset adds generated files and build time. The swap shows a slightly soft image for a moment before it sharpens. A lower lightbox quality would also save bytes, but the lightbox is where visitors look closely, so check any change with `npm run compare` first.
 
-## 6. Clicking a card starts a fresh download
+## 6. Clicking a card on a high-density laptop or tablet starts a fresh download
 
-**Problem.** The artwork page hero is a different, larger file than the card thumbnail, so nothing is in the cache when a visitor clicks through.
+**Problem.** A card and its artwork page hero use the same srcset files, so the hero comes from the cache whenever both pick the same width. Since the `sizes` fix that is the case on phones (both 1600w), on standard-density desktops (both 960w), and for full-resolution works (the same original). On a 2× laptop or tablet the card picks 960w and the hero needs 1600w, so the click starts a download of about 250 KB.
 
-Since issue 2, that is only true on high-density screens other than phones: both use the same srcset files, phones already pick 1600w for both, standard-density desktops now pick 960w for both, and full-resolution works use the original for both. On a 2× laptop or tablet the card is 960w and the hero needs 1600w. A cheaper option than prerendering for those: when a card is clicked, remember the file it showed (`currentSrc`, in `sessionStorage`), show it at once on the artwork page as a placeholder, and let the sharper file replace it when it arrives. About 20 lines of script, a brief soft-to-sharp change, and it only helps visitors arriving from a card.
+**Options.**
 
-**Fix.** Turn on `experimental.clientPrerender` (confirmed present in Astro 7.2.9) with hover-strategy prefetch in `astro.config.mjs`. In Chromium browsers, hovering a card prerenders the whole page in the background, hero included, so the click is near-instant.
-
-**Tradeoffs.** It is an experimental flag. It only works in Chromium; Safari and Firefox fall back to prefetching HTML only, which does not help with images. It spends bandwidth on hovers that never become clicks. Do not combine it with `prefetchAll`.
+- **Placeholder from the card.** When a card is clicked, remember the file it showed (`currentSrc`, in `sessionStorage`), show it at once on the artwork page, and let the sharper file replace it when it arrives. About 20 lines of script. It means a brief soft-to-sharp change, and it only helps visitors arriving from a card.
+- **Prerender on hover.** Turn on `experimental.clientPrerender` (present in Astro 7.2.9) with hover-strategy prefetch in `astro.config.mjs`. In Chromium, hovering a card prerenders the whole page, hero included, so the click is near-instant. It is an experimental flag, Safari and Firefox fall back to prefetching HTML only, and it spends bandwidth on hovers that never become clicks. Do not combine it with `prefetchAll`.
+- **Do nothing.** The download is small now, and only these screens pay it.
 
 ## 7. No placeholder while an image loads
 
-**Problem.** On a slow connection an image is a charcoal box until it appears all at once. Issues 1 to 4 shrink this window but do not remove it.
+**Problem.** On a slow connection an image is a charcoal box (the `img` background in `global.css`) until it appears all at once. The compression and priority fixes shrank this window, but it remains on phones over slow connections and for the full-resolution works, whose files are about 1 MB each.
 
 **Options.**
 
@@ -146,29 +59,26 @@ Since issue 2, that is only true on high-density screens other than phones: both
 - **Tiny blurred preview** (about 0.5 KB each, inlined). Adds about 10 KB of HTML to `/artwork/` and build time, and blurry previews can look cheap next to fine art.
 - **Fade in once loaded.** Needs a small script, and a fallback so images are not left hidden if the script fails.
 
-Revisit after issues 1 to 4; try the colour option first.
+Try the colour option first.
 
-## 8. Build output carries files nobody downloads
+## 8. Oversized source photographs slow the build
 
-Visitors are unaffected; this costs build and deploy time.
+**Problem.** Seven source photographs are above the 2000 to 3000 px CLAUDE.md asks for: the Jameson 1 and Jameson 2 heroes and SirDavis's hero and angled view (4284 × 5712), and Blue Label 1's hero and angled view and Don Julio 1942's hero (about 3000 × 4030). Every build resizes them, and `dist/` (97 MB) carries each original, since it is the `<img>` fallback.
 
-- `dist/` is 207 MB. 49 MB of it is the 32 original JPEGs, copied verbatim. Only the eight photographs of the two full-resolution works are referenced by a page.
-- 70 MB is JPEG fallback files, used only by browsers without WebP support. Each `<img>` also has a `src` (as opposed to its srcset) at the photograph's full resolution, up to 4.3 MB; no current browser requests it. Setting `fallbackFormat: 'webp'` would drop the JPEGs (fix B would change the fallback format instead), at the cost of very old browsers showing no image.
-- Four source photographs (Jameson 1, Jameson 2, SirDavis, Blue Label 1) are 4000 to 5700 px, above the 2000 to 3000 px CLAUDE.md asks for. Downsizing them only speeds up builds.
+**Fix.** Resize those seven to 3000 px on the long edge.
 
-## 9. The header logo is a 237 KB PNG shown at 52 px (done)
+**Tradeoffs.** Visitors are unaffected; it only speeds up builds and deploys. It re-encodes the source files once, so do it at a high quality and keep their colour profiles.
 
-**Problem.** `src/assets/endeavor-emblem.png` (512 × 512) is used as `emblem.src` directly in `Header.astro` (52 px), `Footer.astro` (112 px), and the favicon, so it is never optimized. It is the first image on every page, so it is part of the loading a visitor sees on their first page.
+## 10. Full-resolution works are now most of the image weight
 
-**Fix.** Render the header and footer marks with Astro's `<Image>` at 2× their display size. Measured: 104 px is 3.0 KB as AVIF and 4.5 KB as WebP; 224 px is 7.6 KB as AVIF. Generate a small PNG for the favicon, and keep the 512 px original for the Organization JSON-LD `logo`.
+**Problem.** `fullResolution: true` serves every photograph of Endeavor and Death Isn't Black and White as supplied, with no responsive widths. Death Isn't Black and White's card is a 1.2 MB, 2250 × 3000 file shown at about 400 px, the largest image on `/artwork/`, and the work's page is 6.4 MB. Endeavor is the homepage hero, so its 712 KB original is most of the homepage's 1.1 MB.
 
-**Tradeoff.** None worth noting.
+**Fix.** Keep the responsive widths for flagged works, but encode them at a much higher quality than the rest (for example AVIF 85 to 90) or losslessly, and keep the original in the lightbox. A narrower version keeps the originals on the work's own page and uses high-quality copies only in the grid and on the homepage, where the photographs are shown small.
 
-**Adopted, October 16, 2026.** The header and footer render the emblem with `<Picture>` at 52 and 64 px for 1×, 2×, and 3× screens, as AVIF and WebP at quality 80 with a PNG fallback (settings in `src/lib/emblem.ts`). The footer was sized 112 px in its markup, but CSS shows it at 64 px. A 2× screen now loads a 3.1 KB AVIF in the header and a 3.8 KB one in the footer, instead of the 237 KB PNG; the favicon is a 3.6 KB, 48 px PNG. The Organization JSON-LD `logo` keeps the 512 px original, which only crawlers fetch. Header and footer screenshots match the old ones apart from resampling. A test fails if the header, footer, or favicon references a file over 16 KB (the largest is the footer's 3× PNG fallback at 10.4 KB).
+**Tradeoffs.** It is still a re-encode, which is what the flag exists to avoid, so each flagged work needs a 1:1 check against its original (`npm run compare -- --only endeavor,death-isnt-black-and-white --avif 88`). `ArtworkImage` would need a second set of qualities, and the tests that require flagged works to be served byte for byte would change.
 
 ## Suggested order
 
-1. Issues 1 (once the comparison is signed off), 2, 3, and 9: small code changes that cut the first image on most pages by about 3 to 5 times and remove the pop-in on `/artwork/`.
-2. Issue 5, the lightbox.
-3. Issues 6 and 7, if pages still do not feel instant.
-4. Issue 8 whenever builds or deploys feel slow.
+1. Issues 5 and 10: the largest remaining downloads a visitor waits for.
+2. Issues 6 and 7, if pages still do not feel instant.
+3. Issue 8 whenever builds or deploys feel slow.

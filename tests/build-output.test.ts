@@ -6,6 +6,7 @@ import {
   builtSize,
   digest,
   distFile,
+  distPath,
   distFiles,
   existsInBuild,
   fullResolutionWorks,
@@ -138,11 +139,11 @@ describe('built site', () => {
     const fullResolutionRoutes = fullResolutionWorks().map((work) => `/artwork/${work.slug}/`);
     const heroes = pages
       .filter((page) => /^\/artwork\/[^/]+\/$/.test(page.route) && !fullResolutionRoutes.includes(page.route))
-      .map((page) => ({ route: page.route, image: page.html.querySelector('.artwork-hero img') }));
+      .map((page) => ({ route: page.route, image: page.html.querySelector('.artwork-hero img'), source: page.html.querySelector('.artwork-hero source') }));
 
     expect(heroes.length).toBeGreaterThan(0);
-    for (const { route, image } of heroes) {
-      const sizes = image?.getAttribute('sizes') ?? '';
+    for (const { route, image, source } of heroes) {
+      const sizes = source?.getAttribute('sizes') ?? '';
       const ratio = Number(image?.getAttribute('width')) / Number(image?.getAttribute('height'));
       const desktop = { width: 1920, height: 1080 };
       const phone = { width: 390, height: 844 };
@@ -201,9 +202,23 @@ describe('built site', () => {
     expect(unoptimized.map((page) => page.route)).toEqual([]);
   });
 
-  // Served as supplied, a photograph keeps its metadata, and a phone's records where it was taken.
-  it('serves no full-resolution photograph that records where it was taken', () => {
-    expect(fullResolutionWorks().flatMap((work) => work.photographs).filter(hasGpsMetadata)).toEqual([]);
+  // Every <img> falls back to its original file, which keeps its metadata, and a phone photograph records where it
+  // was taken. Re-encoded copies carry no metadata, so only the originals need checking.
+  it('serves no photograph that records where it was taken', () => {
+    const photographs = [...new Set(pages.flatMap((page) => references(page.html)))]
+      .filter((url) => /^\/_astro\/[^/]+\.[A-Za-z0-9_-]{8}\.(jpe?g|png)$/i.test(url)); // An original: name.hash.ext
+
+    expect(photographs.length).toBeGreaterThan(fullResolutionWorks().flatMap((work) => work.photographs).length);
+    expect(photographs.filter((url) => hasGpsMetadata(distPath(url)))).toEqual([]);
+  });
+
+  // Browsers with neither AVIF nor WebP get the original, so the build makes no JPEG copies of any photograph.
+  it('falls back to the original photograph rather than a re-encoded JPEG', () => {
+    const photographs = pages.flatMap((page) => page.html.querySelectorAll('main picture img'));
+    const generatedJpegs = distFiles('_astro').filter((file) => /\.[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]+\.jpe?g$/i.test(file));
+
+    expect(photographs.filter((image) => image.getAttribute('srcset') !== undefined).map((image) => image.toString())).toEqual([]);
+    expect(generatedJpegs).toEqual([]);
   });
 });
 
