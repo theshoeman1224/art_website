@@ -138,3 +138,28 @@ export function references(html: HTMLElement) {
   );
   return [...new Set([...single, ...srcsets])].filter((reference) => reference !== '');
 }
+
+// How wide a browser on this screen expects an image to show, read from its `sizes` the way the browser reads it
+// before layout. It understands only the media features and units the site writes, and throws on anything else.
+export function sizeOnScreen(sizes: string, screen: { width: number; height: number }) {
+  const units: Record<string, number> = { px: 1, vw: screen.width / 100, vh: screen.height / 100 };
+  const features: Record<string, (value: string) => boolean> = {
+    'min-width': (value) => screen.width >= Number.parseFloat(value),
+    'min-aspect-ratio': (value) => {
+      const [a, b] = value.split('/').map(Number);
+      return screen.width / screen.height >= a / b;
+    },
+  };
+
+  for (const entry of sizes.split(',').map((part) => part.trim())) {
+    const [, condition = '', number, unit] = entry.match(/^(.*?)\s*([\d.]+)(px|vw|vh)$/) ?? [];
+    if (!number) throw new Error(`Cannot read the sizes entry "${entry}".`);
+    const matches = condition === '' || condition.split(/\s+and\s+/).every((part) => {
+      const [, name, value] = part.match(/^\(([a-z-]+):\s*([^)]+)\)$/) ?? [];
+      if (!features[name]) throw new Error(`Cannot read the media condition "${part}".`);
+      return features[name](value);
+    });
+    if (matches) return Number(number) * units[unit];
+  }
+  throw new Error(`"${sizes}" has no entry for a ${screen.width} × ${screen.height} screen.`);
+}

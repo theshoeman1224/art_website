@@ -7,7 +7,7 @@ An audit of why images visibly load in on page load, from October 15, 2026. Each
 | # | Issue | Impact | Status |
 | --- | --- | --- | --- |
 | 1 | AVIF encoded at quality 88 | High | **Done** (October 15, 2026): fix B, AVIF 60 and WebP 80, with a per-work full-resolution override for deep blacks |
-| 2 | `sizes` overstate height-capped images | High | Open |
+| 2 | `sizes` overstate height-capped images | High | **Done** (October 16, 2026): `heightCap` on `ArtworkImage` |
 | 3 | First row on `/artwork/` is lazy-loaded | Medium | Open |
 | 4 | Main image not fetched with high priority | Medium | **Done** (October 15, 2026) |
 | 5 | Lightbox opens a 1 to 2 MB file with nothing to show first | Medium | Open |
@@ -70,7 +70,7 @@ An artwork record can set `fullResolution: true` (validated in `src/content.conf
 - **Tests.** Flagged works' pages serve files byte-identical to the source photographs; no page anywhere carries a resized or re-encoded copy of them, which would mean a call site forgot to pass the flag; and every other artwork page still serves AVIF.
 - **For agents.** CLAUDE.md tells an agent adding an artwork to ask the user about the flag when its photographs show deep black, dark gradients, metallic sheen, or similar.
 
-## 2. `sizes` overstate height-capped images
+## 2. `sizes` overstate height-capped images (done)
 
 **Problem.** `sizes` tells the browser how wide an image will be shown, before layout, so it can pick from the srcset. Three images promise far more width than they get:
 
@@ -81,6 +81,20 @@ An artwork record can set `fullResolution: true` (validated in `src/content.conf
 **Fix.** Give `ArtworkImage` a `maxHeight` prop (in `vh`) and have it build `sizes` from the photograph's aspect ratio, for example `(min-aspect-ratio: 3/4) 66vh, 100vw`. Both `vh` units and media conditions are valid in `sizes`. The third case only needs a correct value.
 
 **Tradeoffs.** A little more logic in the component, and the result is an approximation: `sizes` cannot use `svh`, so it uses `vh`. Erring slightly large costs little.
+
+**Adopted, October 16, 2026.** `ArtworkImage` takes `heightCap: { vh, slot?, media? }` and puts an entry in front of the page's `sizes` for screens wide enough that the cap binds. Riptide's hero, for example, gets `(min-aspect-ratio: 660/1000) 66vh, 100vw`. The artwork page hero passes `{ vh: 88 }`; the homepage hero passes `{ vh: 72, slot: 58, media: '(min-width: 768px)' }`, which does nothing while Endeavor (full resolution) is the hero. The first "Surface and views" image now says `100vw` only when it is a full-width `detail` image. `min()` in `sizes` would be shorter, but media conditions are supported everywhere.
+
+What headless Chromium picked for Riptide's hero, checked through the DevTools protocol:
+
+| Screen | Before | After | Card on `/artwork/` |
+| --- | --- | --- | --- |
+| Phone 390 × 844, 3× | 1600w | 1600w | 1600w |
+| Tablet 820 × 1180, 2× | 1600w | 1600w | 960w |
+| Laptop 1440 × 900, 2× | 1600w | 1600w | 960w |
+| Desktop 1920 × 1080, 1× | 1600w | **960w** | 960w |
+| Desktop 2560 × 1440, 1× | 1600w | **960w** | 960w |
+
+High-density screens still get 1600w because they show the photograph at about 1,200 device pixels or more. On standard-density desktops the hero is now the same file as the card, so clicking through from `/artwork/` loads it from the cache (see issue 6). A test reads each artwork hero's `sizes` the way a browser does and checks it against the 88vh fit on a desktop and a phone.
 
 ## 3. The first row on `/artwork/` is lazy-loaded
 
@@ -113,6 +127,8 @@ An artwork record can set `fullResolution: true` (validated in `src/content.conf
 ## 6. Clicking a card starts a fresh download
 
 **Problem.** The artwork page hero is a different, larger file than the card thumbnail, so nothing is in the cache when a visitor clicks through.
+
+Since issue 2, that is only true on high-density screens other than phones: both use the same srcset files, phones already pick 1600w for both, standard-density desktops now pick 960w for both, and full-resolution works use the original for both. On a 2× laptop or tablet the card is 960w and the hero needs 1600w. A cheaper option than prerendering for those: when a card is clicked, remember the file it showed (`currentSrc`, in `sessionStorage`), show it at once on the artwork page as a placeholder, and let the sharper file replace it when it arrives. About 20 lines of script, a brief soft-to-sharp change, and it only helps visitors arriving from a card.
 
 **Fix.** Turn on `experimental.clientPrerender` (confirmed present in Astro 7.2.9) with hover-strategy prefetch in `astro.config.mjs`. In Chromium browsers, hovering a card prerenders the whole page in the background, hero included, so the click is near-instant.
 

@@ -14,6 +14,7 @@ import {
   loadPages,
   references,
   rootFile,
+  sizeOnScreen,
   type Page,
 } from './site';
 
@@ -128,6 +129,27 @@ describe('built site', () => {
     const withoutLead = pages.filter((page) => leadRoutes.includes(page.route) && !page.html.querySelector('img[fetchpriority="high"]'));
 
     expect(withoutLead.map((page) => page.route)).toEqual([]);
+  });
+
+  // The artwork page fits its main photograph within 88svh. On a wide screen that leaves the photograph far narrower
+  // than the page, and a `sizes` of the page's width would fetch a file twice as wide as the one shown.
+  it('sizes the main photograph of every artwork page by the height it is fitted to', () => {
+    const fullResolutionRoutes = fullResolutionWorks().map((work) => `/artwork/${work.slug}/`);
+    const heroes = pages
+      .filter((page) => /^\/artwork\/[^/]+\/$/.test(page.route) && !fullResolutionRoutes.includes(page.route))
+      .map((page) => ({ route: page.route, image: page.html.querySelector('.artwork-hero img') }));
+
+    expect(heroes.length).toBeGreaterThan(0);
+    for (const { route, image } of heroes) {
+      const sizes = image?.getAttribute('sizes') ?? '';
+      const ratio = Number(image?.getAttribute('width')) / Number(image?.getAttribute('height'));
+      const desktop = { width: 1920, height: 1080 };
+      const phone = { width: 390, height: 844 };
+
+      expect(ratio, route).toBeGreaterThan(0);
+      expect(sizeOnScreen(sizes, desktop), route).toBeCloseTo(Math.min(desktop.width, 0.88 * desktop.height * ratio), -1);
+      expect(sizeOnScreen(sizes, phone), route).toBeCloseTo(Math.min(phone.width, 0.88 * phone.height * ratio), -1);
+    }
   });
 
   it('serves the photographs of full-resolution works exactly as supplied, wherever they appear', () => {

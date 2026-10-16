@@ -8,6 +8,12 @@ interface Props {
   alt: string;
   caption?: string;
   sizes?: string;
+  /**
+   * For a slot that fits the photograph inside a CSS `max-height`: the cap in `vh`, the slot's width in `vw` where
+   * the cap applies (default 100), and the media condition under which it applies, if not always. On a screen wide
+   * enough for the cap to bind, `sizes` then gives the photograph's real width rather than the slot's.
+   */
+  heightCap?: { vh: number; slot?: number; media?: string };
   loading?: 'eager' | 'lazy';
   /** The page's main image: loads eagerly, decodes synchronously, and is fetched with high priority. */
   priority?: boolean;
@@ -22,7 +28,8 @@ const {
   src,
   alt,
   caption,
-  sizes = '100vw',
+  sizes: slotSizes = '100vw',
+  heightCap,
   // Left undefined so `priority` can choose it; Astro then defaults to lazy.
   loading,
   priority = false,
@@ -37,6 +44,16 @@ const {
 // The fallback is for browsers with neither AVIF nor WebP, in the source's own format, as <Picture> chose it.
 // Works whose deep blacks suffer at these settings use `fullResolution` instead of a higher number here.
 const quality = { avif: 60, webp: 80, fallback: 80 };
+// The browser picks a srcset width before layout, from `sizes` alone. A height-capped photograph on a wide screen is
+// narrower than its slot: it shows `vh × aspect ratio` wide once the screen's aspect ratio exceeds that over the slot
+// width. `sizes` cannot use `svh` or read CSS, so this uses `vh`, which is never smaller than `svh` and so errs large.
+const sizes = heightCap ? cappedSizes(heightCap) : slotSizes;
+
+function cappedSizes({ vh, slot = 100, media }: NonNullable<Props['heightCap']>) {
+  const shown = (vh * src.width) / src.height;
+  const condition = [media, `(min-aspect-ratio: ${Math.round((shown / slot) * 1000)}/1000)`].filter(Boolean).join(' and ');
+  return `${condition} ${Math.ceil(shown * 10) / 10}vh, ${slotSizes}`;
+}
 const responsiveWidths = [...new Set([480, 960, Math.min(src.width, 1600)])].sort((a, b) => a - b);
 
 let sources: { type: string; srcset: string }[] = [];
