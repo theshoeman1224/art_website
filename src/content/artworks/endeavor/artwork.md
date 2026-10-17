@@ -2,7 +2,7 @@
 schemaVersion: 1
 title: Endeavor
 slug: endeavor
-year: 2024
+year: 2023
 dimensions:
   height: 36
   width: 24

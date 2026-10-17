@@ -4,8 +4,7 @@ schemaVersion: 1
 placeholder: true
 title: Knob Creek 1
 slug: knob-creek-1
-# TODO: placeholder year. The schema needs an integer; the photograph carries no date, so this matches the other bottle stubs.
-year: 2024
+year: 2025
 dimensions:
   height: 16
   width: 12

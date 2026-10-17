@@ -4,7 +4,6 @@ schemaVersion: 1
 placeholder: true
 title: Tanqueray 1
 slug: tanqueray-1
-# TODO: placeholder year. The schema needs an integer; the photographs are dated 2023-12-25.
 year: 2023
 dimensions:
   height: 16

@@ -4,8 +4,7 @@ schemaVersion: 1
 placeholder: true
 title: This Seemed Easier in My Head
 slug: this-seemed-easier-in-my-head
-# TODO: placeholder year. The schema needs an integer; the photographs are dated 2024-02-20.
-year: 2024
+year: 2023
 dimensions:
   height: 14
   width: 11

@@ -2,7 +2,6 @@
 schemaVersion: 1
 title: "Death Isn’t Black and White"
 slug: death-isnt-black-and-white
-# TODO: placeholder year. The schema needs an integer; the photographs are dated 2024-09-11 and 2024-10-08.
 year: 2024
 dimensions:
   height: 16

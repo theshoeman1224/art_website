@@ -4,7 +4,6 @@ schemaVersion: 1
 placeholder: true
 title: Riptide
 slug: riptide
-# TODO: placeholder year. The schema needs an integer; the photographs are dated 2024-01-01.
 year: 2024
 dimensions:
   height: 10
