@@ -20,6 +20,7 @@ images:
     role: angled
     alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
 featured: true
+selected: true
 # Compression visibly flattened the deep blacks, so its photographs are served as supplied.
 fullResolution: true
 sortOrder: 0

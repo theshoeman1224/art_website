@@ -17,6 +17,8 @@ const artworks = defineCollection({
       featured: z.boolean().default(false),
       // Marks a record whose details are still TODO, so the homepage showcase can leave it out.
       placeholder: z.boolean().default(false),
+      // Lists the work in the homepage's Selected work (the first six by sort order).
+      selected: z.boolean().default(false),
       instagramUrl: z.url().optional(),
       // Serves every photograph of the work exactly as supplied, with no resizing or re-encoding, for a work whose deep
       // blacks or fine tonal detail compression visibly damages. Costs about 1 MB per photograph wherever it appears.
@@ -51,6 +53,13 @@ const artworks = defineCollection({
           code: 'custom',
           message: 'Artwork packages must contain exactly one hero image.',
           path: ['images'],
+        });
+      }
+      if (artwork.selected && artwork.placeholder) {
+        context.addIssue({
+          code: 'custom',
+          message: 'A placeholder record still has TODO details, so it cannot be in Selected work.',
+          path: ['selected'],
         });
       }
       if (new Set(artwork.sections).size !== artwork.sections.length) {
