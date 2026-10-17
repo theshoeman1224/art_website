@@ -223,50 +223,6 @@ h3 {
   transform: translate(0.15rem, -0.15rem);
 }
 
-/* Even artwork grid: every tile gets the same frame and the photograph is fitted inside it, never cropped. */
-.artwork-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(3rem, 6vw, 6rem) clamp(1rem, 3vw, 3rem);
-  align-items: start;
-  padding-bottom: var(--section-space);
-}
-
-.artwork-grid .artwork-frame {
-  aspect-ratio: 4 / 5;
-  background: var(--charcoal);
-}
-
-.artwork-grid .artwork-frame picture {
-  display: block;
-  height: 100%;
-}
-
-.artwork-grid .artwork-frame img {
-  height: 100%;
-  object-fit: contain;
-  background: transparent;
-}
-
-/* /artwork and the homepage's Selected work fill each frame instead: the photograph is scaled up to cover it and the overflow is cropped. */
-.artwork-grid--fill .artwork-frame img {
-  object-fit: cover;
-  /* A hero image's `focusY` moves the crop up or down. */
-  object-position: 50% var(--focus-y, 50%);
-}
-
-@media (max-width: 63.99rem) {
-  .artwork-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 47.99rem) {
-  .artwork-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .draft-note {
   display: inline-block;
   margin-bottom: 1.25rem;

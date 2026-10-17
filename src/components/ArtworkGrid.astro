@@ -1,0 +1,69 @@
+---
+import type { Artwork } from '../lib/artworks';
+import ArtworkCard from './ArtworkCard.astro';
+
+/**
+ * The one way to show a list of artworks: the homepage's Selected work and /artwork both render this, so their cards
+ * always look the same. Pages choose only what cannot be shared: the heading level that fits their outline, how many
+ * cards load eagerly, and the /artwork filter tags.
+ */
+interface Props {
+  artworks: Artwork[];
+  headingLevel?: 'h2' | 'h3';
+  /** How many cards from the start load eagerly, for a grid that is on screen when the page opens. */
+  eager?: number;
+  /** Tags each card for the /artwork filters. */
+  filters?: (artwork: Artwork) => string[];
+}
+
+const { artworks, headingLevel = 'h2', eager = 0, filters } = Astro.props;
+// Matches the columns below: three from 64rem, two from 48rem, one under that.
+const sizes = '(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw';
+---
+
+<div class="artwork-grid">
+  {artworks.map((artwork, index) => (
+    <div data-artwork data-filters={filters?.(artwork).join(' ')}>
+      <ArtworkCard artwork={artwork} headingLevel={headingLevel} eager={index < eager} sizes={sizes} />
+    </div>
+  ))}
+</div>
+
+<style>
+  .artwork-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(3rem, 6vw, 6rem) clamp(1rem, 3vw, 3rem);
+    align-items: start;
+  }
+
+  /* Every card is the same 4:5 box, and the photograph is scaled to cover it. */
+  .artwork-grid :global(.artwork-frame) {
+    aspect-ratio: 4 / 5;
+    background: var(--charcoal);
+  }
+
+  .artwork-grid :global(.artwork-frame picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .artwork-grid :global(.artwork-frame img) {
+    height: 100%;
+    object-fit: cover;
+    /* A hero image's `focusY` moves the crop up or down. */
+    object-position: 50% var(--focus-y, 50%);
+  }
+
+  @media (max-width: 63.99rem) {
+    .artwork-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .artwork-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
