@@ -6,7 +6,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getSortedArtworks } from '../lib/artworks';
 
 const artworks = await getSortedArtworks();
-const selectedArtworks = artworks.filter((artwork) => !artwork.data.placeholder).slice(0, 6);
+const selectedArtworks = artworks.filter((artwork) => artwork.data.selected).slice(0, 6);
 const featuredArtworks = artworks.filter((artwork) => artwork.data.featured);
 const hero = featuredArtworks[0] ?? artworks[0];
 const feature = featuredArtworks.find((artwork) => artwork.id !== hero.id && artwork.data.images.some((image) => image.type === 'detail') && artwork.data.images.some((image) => image.type === 'angled')) ?? featuredArtworks[1] ?? hero;

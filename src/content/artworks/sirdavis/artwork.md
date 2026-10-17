@@ -19,5 +19,6 @@ images:
     role: angled
     alt: "The framed work seen from the left, where the ribbed bottle sections and the horse emblem stand out from the white ground and the depth of the black frame is visible"
 featured: false
+selected: true
 sortOrder: 2
 ---
