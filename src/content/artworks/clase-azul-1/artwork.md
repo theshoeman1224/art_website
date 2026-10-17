@@ -4,7 +4,6 @@ schemaVersion: 1
 placeholder: true
 title: Clase Azul 1
 slug: clase-azul-1
-# TODO: placeholder year. The schema needs an integer; the photograph is dated 2024-03-28.
 year: 2024
 dimensions:
   height: 18

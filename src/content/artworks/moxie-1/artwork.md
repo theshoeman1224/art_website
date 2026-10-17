@@ -4,7 +4,6 @@ schemaVersion: 1
 placeholder: true
 title: Moxie 1
 slug: moxie-1
-# TODO: placeholder year. The schema needs an integer; the photograph is dated 2024-05-24.
 year: 2024
 dimensions:
   height: 18

@@ -4,7 +4,6 @@ schemaVersion: 1
 placeholder: true
 title: Don Julio 1
 slug: don-julio-1
-# TODO: placeholder year. The schema needs an integer; the photograph is dated 2024-02-29.
 year: 2024
 dimensions:
   height: 16

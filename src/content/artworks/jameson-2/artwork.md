@@ -4,7 +4,6 @@ schemaVersion: 1
 placeholder: true
 title: Jameson 2
 slug: jameson-2
-# TODO: placeholder year. The schema needs an integer; the photograph is dated 2025-10-07.
 year: 2025
 dimensions:
   height: 18
