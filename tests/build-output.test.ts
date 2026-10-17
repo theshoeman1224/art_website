@@ -54,6 +54,24 @@ describe('built site', () => {
     expect(offered).toEqual(expect.arrayContaining([...new Set(tags)]));
   });
 
+  it('renders each Selected work card on the homepage exactly like its card on /artwork', () => {
+    // Only the heading level, the loading hint, and the /artwork filter tags may differ.
+    const cards = (route: string) => new Map(
+      (pages.find((page) => page.route === route)?.html.querySelectorAll('[data-artwork]') ?? []).map((item) => [
+        item.querySelector('a')?.getAttribute('href'),
+        item.outerHTML
+          .replace(/ data-filters="[^"]*"/, '')
+          .replace(/ loading="(eager|lazy)"/g, '')
+          .replace(/<(\/?)h3/g, '<$1h2'),
+      ]),
+    );
+    const selected = cards('/');
+    const listed = cards('/artwork/');
+
+    expect(selected.size).toBeGreaterThan(0);
+    for (const [href, html] of selected) expect(listed.get(href)).toBe(html);
+  });
+
   it('gives every artwork card an overlay with its size, and a status label unless it is available or has no status', () => {
     const artwork = pages.find((page) => page.route === '/artwork/');
     const overlays = artwork?.html.querySelectorAll('[data-artwork] .artwork-overlay') ?? [];
