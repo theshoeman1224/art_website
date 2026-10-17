@@ -44,7 +44,7 @@ const featureAngle = feature.data.images.find((image) => image.type === 'angled'
 
   <section class="selected section page-shell" aria-labelledby="selected-title">
     <h2 id="selected-title" class="section-label">Selected work</h2>
-    <div class="selected-grid artwork-grid">
+    <div class="selected-grid artwork-grid artwork-grid--fill">
       {selectedArtworks.map((artwork) => (
         <ArtworkCard artwork={artwork} headingLevel="h3" sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
       ))}

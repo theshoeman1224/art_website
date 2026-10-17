@@ -16,5 +16,7 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
+    # The frame sits above the photo's center; this keeps its top edge in the /artwork card.
+    focusY: 27
     alt: "Green Jameson Irish whiskey bottle broken into a capped neck, a labelled body, and a shattered base, set apart on a copper-coloured ground with green shards scattered across it under a glossy coating, in a dark grey frame"
 ---

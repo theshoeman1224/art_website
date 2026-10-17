@@ -13,6 +13,8 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
+    # The painting sits above the photo's center; this keeps its whole frame in the /artwork card.
+    focusY: 44.5
     alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
   - src: ./angled.jpeg
     role: angled

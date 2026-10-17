@@ -16,6 +16,8 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
+    # The work sits above the photo's center; keeping the top of the photo centers it in the /artwork card.
+    focusY: 0
     alt: TODO
   - src: ./angled.jpeg
     role: angled

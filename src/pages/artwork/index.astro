@@ -44,7 +44,7 @@ const allWorks = `Showing all ${artworks.length} ${artworks.length === 1 ? 'work
     <p class="filter-status" data-filter-status aria-live="polite">{allWorks}</p>
   </div>
 
-  <section class="artwork-grid page-shell" aria-label="All artwork">
+  <section class="artwork-grid artwork-grid--fill page-shell" aria-label="All artwork">
     {artworks.map((artwork, index) => (
       <div data-artwork data-filters={filterIds(artwork).join(' ')}>
         {/* The first row is on screen when the page opens, so it is fetched without waiting for layout. */}
