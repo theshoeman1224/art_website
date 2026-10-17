@@ -16,5 +16,7 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
+    # The frame sits below the photo's center; this centers it in the /artwork card.
+    focusY: 61
     alt: "Broken clear Knob Creek bourbon bottle with its label and black wax-sealed neck intact, laid out in its original shape on a white ground with glass shards scattered around it, in a dark red frame against a red wall"
 ---

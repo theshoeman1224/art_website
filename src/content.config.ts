@@ -40,6 +40,9 @@ const artworks = defineCollection({
         src: image(),
         alt: z.string().min(1),
         role: z.enum(['hero', ...secondaryImageRole.options]),
+        // Where to crop vertically when the photograph is scaled to fill a frame (the cards on /artwork and the homepage): 0 keeps the top,
+        // 100 keeps the bottom. Without it the crop is centered.
+        focusY: z.number().min(0).max(100).optional(),
       })).min(1),
     }).superRefine((artwork, context) => {
       const heroCount = artwork.images.filter((item) => item.role === 'hero').length;
@@ -74,7 +77,7 @@ const artworks = defineCollection({
         ...artwork,
         description: artwork.description || undefined,
         dimensions: `${measurements} ${unit}${each ? ' each' : ''}`,
-        hero: { src: heroImage.src, alt: heroImage.alt },
+        hero: { src: heroImage.src, alt: heroImage.alt, focusY: heroImage.focusY },
         images,
       };
     });

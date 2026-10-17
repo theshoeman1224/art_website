@@ -24,7 +24,12 @@ const statusLabel = !status || status === 'available' ? undefined : statusLabels
 
 <article class="artwork-card">
   <div class="artwork-media">
-    <a href={`/artwork/${slug}/`} class="artwork-image-link artwork-frame" aria-label={`View ${title}`}>
+    <a
+      href={`/artwork/${slug}/`}
+      class="artwork-image-link artwork-frame"
+      aria-label={`View ${title}`}
+      style={hero.focusY === undefined ? undefined : `--focus-y: ${hero.focusY}%`}
+    >
       <ArtworkImage
         src={hero.src}
         alt={hero.alt}

@@ -248,6 +248,13 @@ h3 {
   background: transparent;
 }
 
+/* /artwork and the homepage's Selected work fill each frame instead: the photograph is scaled up to cover it and the overflow is cropped. */
+.artwork-grid--fill .artwork-frame img {
+  object-fit: cover;
+  /* A hero image's `focusY` moves the crop up or down. */
+  object-position: 50% var(--focus-y, 50%);
+}
+
 @media (max-width: 63.99rem) {
   .artwork-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
