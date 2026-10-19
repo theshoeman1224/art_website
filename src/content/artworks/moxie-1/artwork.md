@@ -1,7 +1,5 @@
 ---
 schemaVersion: 1
-# TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
-placeholder: true
 title: Moxie 1
 slug: moxie-1
 year: 2024
@@ -15,5 +13,5 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
-    alt: TODO
+    alt: "Three brown glass Moxie soda bottles broken apart on a white ground, their red labels and capped necks set among scattered amber shards, in a navy blue frame on a white wall"
 ---

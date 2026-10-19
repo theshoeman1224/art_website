@@ -1,7 +1,5 @@
 ---
 schemaVersion: 1
-# TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
-placeholder: true
 title: Riptide
 slug: riptide
 year: 2024
@@ -15,8 +13,8 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
-    alt: TODO
+    alt: "Small canvas with a pale turquoise ground crossed by a thick S-shaped band of green, white, and blue paint, its curves capped with heavy, sculpted strokes that break like cresting waves"
   - src: ./angled.jpeg
     role: angled
-    alt: TODO
+    alt: "The canvas seen from the left, where the thick paint along the curling crests stands up from the flat turquoise ground and the stretcher edge is visible"
 ---

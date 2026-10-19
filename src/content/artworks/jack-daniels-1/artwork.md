@@ -1,7 +1,5 @@
 ---
 schemaVersion: 1
-# TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
-placeholder: true
 title: "Jack Daniel's 1"
 slug: jack-daniels-1
 year: 2024
@@ -15,8 +13,8 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
-    alt: TODO
+    alt: "Black-framed horizontal assemblage of a broken Jack Daniel's Old No. 7 bottle on a white ground: the black label at the centre, the capped neck above it, and two back-label pieces either side, surrounded by clear glass shards under a glossy coating"
   - src: ./angled.jpeg
     role: angled
-    alt: TODO
+    alt: "The framed work seen from the left, where the label pieces and clear shards rise from the white ground and the depth of the black frame is visible"
 ---

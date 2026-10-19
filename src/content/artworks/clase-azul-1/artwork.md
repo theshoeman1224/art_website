@@ -1,7 +1,5 @@
 ---
 schemaVersion: 1
-# TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
-placeholder: true
 title: Clase Azul 1
 slug: clase-azul-1
 year: 2024
@@ -15,5 +13,5 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
-    alt: TODO
+    alt: "Broken white ceramic bottle hand-painted with blue leaf patterns, its pieces spread across a glossy dark navy ground with the silver stopper in the top-left corner and a small silver agave emblem near the centre, in a white frame leaning against a wall"
 ---
