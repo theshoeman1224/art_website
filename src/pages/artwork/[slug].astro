@@ -40,7 +40,7 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
         src={data.hero.src}
         alt={data.hero.alt}
         fullResolution={data.fullResolution}
-        caption={`${data.title} · Full view`}
+        caption={data.title}
         sizes="100vw"
         heightCap={{ vh: 88 }}
         priority
@@ -75,12 +75,11 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
             src={besideDetails.src}
             alt={besideDetails.alt}
             fullResolution={data.fullResolution}
-            caption={`${data.title} · ${besideDetails.type} view`}
+            caption={data.title}
             sizes="(min-width: 768px) 55vw, 100vw"
             lightbox
             gallery={data.slug}
           />
-          <figcaption>{besideDetails.type} view</figcaption>
         </figure>
       )}
     </section>
@@ -94,12 +93,11 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
               src={image.src}
               alt={image.alt}
               fullResolution={data.fullResolution}
-              caption={`${data.title} · ${image.type} view`}
+              caption={data.title}
               sizes={index === 0 && image.type === 'detail' ? '100vw' : '(min-width: 768px) 65vw, 100vw'}
               lightbox
               gallery={data.slug}
             />
-            <figcaption>{image.type} view</figcaption>
           </figure>
         ))}
       </section>
@@ -220,15 +218,6 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
     grid-column: 1 / -1;
   }
 
-  .beside-details figcaption,
-  .image-sequence figcaption {
-    padding-top: 0.5rem;
-    color: var(--paper-muted);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
   .work-footer-nav {
     display: flex;
     justify-content: space-between;
@@ -263,10 +252,6 @@ const metaDescription = data.description ?? `${data.title}, ${data.year}. ${data
     .image-sequence .image-detail.first {
       width: calc(100% + var(--page-pad) * 2);
       margin-left: calc(var(--page-pad) * -1);
-    }
-
-    .image-sequence .image-detail.first figcaption {
-      padding-left: var(--page-pad);
     }
 
     .work-footer-nav {
