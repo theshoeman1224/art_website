@@ -18,7 +18,7 @@ images:
     alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
   - src: ./angled.jpeg
     role: angled
-    alt: "Vertical black textured artwork crossed diagonally by an irregular path of reflective gold leaf"
+    alt: "The framed painting leaning against a wall and seen from the left, where the overlapping black strokes and the raised flakes of gold leaf catch the light and the depth of the black frame is visible"
 featured: true
 selected: true
 # Compression visibly flattened the deep blacks, so its photographs are served as supplied.

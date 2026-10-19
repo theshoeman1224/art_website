@@ -13,5 +13,5 @@ sections:
 images:
   - src: ./hero.jpeg
     role: hero
-    alt: TODO
+    alt: "Clear Don Julio Blanco tequila bottle broken into its wooden-stoppered neck and a round labelled body, set on a white ground with clear glass shards scattered around it, in a natural wood frame on dark stone tiles"
 ---

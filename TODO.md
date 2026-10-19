@@ -5,9 +5,7 @@ Open questions that need an answer from the artist or a decision from us. Remove
 ## For the artist
 
 - [ ] **Is "Paintings" the right name for the third section?** It was "Other work" until the filter list named it. Undertow and Riptide are the pieces in it.
-- [ ] **Alt text still reads `TODO` on 11 photographs.** Both photographs of Undertow, Riptide, This Seemed Easier in My Head, and Jack Daniel's 1, and the single photograph of Don Julio 1, Clase Azul 1, and Moxie 1. A description is optional for every piece; add one if she wants it.
-- [ ] **Alt text for Death Isn’t Black and White.** It was written from the photographs and needs a read-through.
-- [ ] **Details for Hole in One.** `hole-in-one` still needs a description if she wants one. It is round and listed as 24 × 24 in; confirm that should not read as a diameter. Its alt text was written from the photographs and needs a read-through. The three photographs are about 1200 px wide, under the 2000 to 3000 px target, and the lawn photograph shows a person; confirm it should be published.
+- [ ] **Details for Hole in One.** `hole-in-one` still needs a description if she wants one. It is round and listed as 24 × 24 in; confirm that should not read as a diameter. The three photographs are about 1200 px wide, under the 2000 to 3000 px target, and the lawn photograph shows a person; confirm it should be published.
 - [ ] **Is there work that is neither a bottle, a painting, nor a statement piece?** If so it needs its own section; every piece must list at least one.
 - [ ] **Which pieces are statement pieces?** The Statement filter replaced Commissions. It currently lists Endeavor, Hole in One, and This Seemed Easier in My Head, and none of them is under Paintings. Confirm the list as more pieces are added. The site no longer records which pieces were commissioned.
 - [ ] **"Black" or "Blank"?** The artist's size list calls the piece "Death Isn’t Blank and White"; the site says "Death Isn’t Black and White". Its two framed parts are shown as "12 × 16 in each".
@@ -42,5 +40,4 @@ Found by reading the source and measuring the built pages in headless Chromium. 
 - [ ] **The ↗ arrow is on every `.text-link`, including internal ones,** while the real external links (Instagram, footer) have none.
 - [ ] **Lightbox polish.** The page behind still scrolls while it is open, single-image galleries show "1 / 1", and the caption appears both in the top counter and under the image.
 - [ ] **Navigation at 320px.** The four links do not fit, so the row scrolls sideways and "Contact" starts out cut off at the screen edge.
-- [ ] **Endeavor alt text.** The hero and the angled photograph share one alt text; the angled one should describe depth or projection.
 - [ ] **Homepage repetition.** Endeavor is the hero and the first Selected card. (Don Julio 1942, the Featured block, was taken out of Selected work in October 2026.)
