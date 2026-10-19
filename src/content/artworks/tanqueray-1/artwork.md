@@ -1,7 +1,5 @@
 ---
 schemaVersion: 1
-# TODO: remove this flag once the details below are filled in. It keeps the piece out of the homepage's Selected work.
-placeholder: true
 title: Tanqueray 1
 slug: tanqueray-1
 year: 2023

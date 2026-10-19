@@ -57,8 +57,6 @@ The URL comes from the frontmatter `slug` field (`getStaticPaths` in `src/pages/
 
 `selected: true` lists the work in the homepage's "Selected work" (currently Endeavor, Death Isn't Black and White, and Sir Davis). It is opt-in, so a new work does not appear there until it is flagged.
 
-`placeholder: true` marks a stub record whose details are still `TODO`. The work is still listed everywhere else and still gets its page, but the schema refuses `selected` on it. Remove the flag when the record is filled in. A test fails if `TODO` text reaches the homepage, so do not set `featured` on a placeholder.
-
 `fullResolution: true` serves every photograph of the work exactly as supplied, byte for byte: no resizing, no re-encoding, no srcset, and the lightbox shows the same file. It exists because AVIF and WebP compression visibly flattens deep blacks; Endeavor and Death Isn't Black and White use it. It costs about 1 MB per photograph wherever the work appears (its card, the homepage, its page), so it is opt-in per work, not a default. Every `ArtworkImage` that shows an artwork's photograph must pass `fullResolution={<artwork>.data.fullResolution}`; a test fails if any page carries a resized or re-encoded copy of a flagged work's photograph.
 
 **When adding an artwork, ask the user whether to set `fullResolution: true`** whenever its photographs show large areas of deep black, dark gradients, subtle tonal detail in shadows, gold leaf or other metallic sheen, or anything else compression could visibly change. Look at the photographs before asking, say what in them prompted the question, and mention the cost. If the user is unsure, run `npm run compare -- --only <slug>` and have them look at the work at 1:1 against its original photograph. 
@@ -90,7 +88,7 @@ Several sections are driven by image roles and flags rather than hardcoded slugs
 - Homepage hero: first `featured` artwork. "Selected work": the first six `selected` artworks by sort order.
 - Homepage "Surface / detail" and the featured block's extra images: need a featured artwork with `detail` / `angled` images.
 - About page process image: first artwork with a `process` image.
-- Contact form artwork list: every artwork, placeholders included, alphabetically by title.
+- Contact form artwork list: every artwork, alphabetically by title.
 
 No artwork has a `detail` or `process` image yet, and the artwork in the homepage featured block (Don Julio 1942) has no `angled` image, so the detail, angled, and process slots do not render yet. That is expected, not a bug.
 

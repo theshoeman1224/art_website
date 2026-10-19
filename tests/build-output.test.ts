@@ -133,7 +133,7 @@ describe('built site', () => {
     expect(unhashed).toEqual([]);
   });
 
-  it('keeps placeholder artwork copy off the homepage', () => {
+  it('keeps TODO text off the homepage', () => {
     const body = pages.find((page) => page.route === '/')?.html.querySelector('body');
     const descriptions = (body?.querySelectorAll('[alt], [aria-label], [data-lightbox-caption]') ?? []).flatMap(
       (element) => ['alt', 'aria-label', 'data-lightbox-caption'].map((name) => element.getAttribute(name) ?? ''),
