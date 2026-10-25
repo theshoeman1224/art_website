@@ -20,7 +20,7 @@ src/
   sections.ts              Portfolio sections: ids and labels
   content.config.ts        Artwork schema and validation
 public/
-  _headers                 Temporary noindex header, and long-lived caching for /_astro/
+  _headers                 Security headers, temporary noindex header, long-lived caching for /_astro/
   _redirects               /commissions to the commission inquiry on /contact
   robots.txt               Temporary crawler block
 astro.config.mjs           Canonical site URL and image settings
@@ -221,13 +221,15 @@ While the deployment is temporary, two files in `public/` keep it out of search 
 - `robots.txt` disallows all crawlers.
 - `_headers` adds `X-Robots-Tag: noindex, nofollow, noarchive` to every response.
 
+`_headers` also sends three security headers with every response, which stay at launch: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `X-Frame-Options: DENY` (no other site may show these pages in a frame). They share the `/*` block with `X-Robots-Tag`, because Cloudflare keeps only the last block for a repeated path pattern.
+
 `_headers` also tells browsers to cache everything under `/_astro/` for a year without checking back (`Cache-Control: public, max-age=31536000, immutable`). This is safe because Astro puts a hash of each file's contents in its name, so a changed image, stylesheet, or script always gets a new URL. Pages are not cached this way, so a new deploy is visible immediately. Keep this rule at launch.
 
 These only discourage indexing. The `workers.dev` address is still reachable by anyone who has the link.
 
 Before the public launch:
 
-1. Delete `public/robots.txt`, and remove the `X-Robots-Tag` rule from `public/_headers` (keep the `/_astro/*` caching rule).
+1. Delete `public/robots.txt`, and remove the `X-Robots-Tag` line from `public/_headers` (keep the security headers and the `/_astro/*` caching rule).
 2. Set `site` in `astro.config.mjs` to the final canonical domain.
 3. Change the `/commissions` rules in `public/_redirects` from 302 to 301.
 

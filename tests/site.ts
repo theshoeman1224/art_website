@@ -111,13 +111,15 @@ export function rootFile(path: string) {
   return readFileSync(join(rootDir, path), 'utf8');
 }
 
-// public/_headers as a map from each path pattern to its header lines.
+// public/_headers as a map from each path pattern to its header lines. Cloudflare keeps only the last block
+// for a repeated pattern and drops the others without warning, so a repeat is an error here.
 export function headerRules() {
   const rules = new Map<string, string[]>();
   let current: string[] = [];
   for (const line of distFile('_headers').split('\n')) {
     if (!line.trim() || line.trim().startsWith('#')) continue;
     if (/^\s/.test(line)) current.push(line.trim());
+    else if (rules.has(line.trim())) throw new Error(`_headers lists ${line.trim()} twice; merge the blocks`);
     else rules.set(line.trim(), (current = []));
   }
   return rules;
