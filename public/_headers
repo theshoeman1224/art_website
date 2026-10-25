@@ -1,5 +1,11 @@
-# Temporary: keeps the test deployment out of search results. Remove this rule at the public launch.
+# Every response. Cloudflare keeps only the last block for a repeated path pattern, so all /* headers stay here.
+# Permanent: basic browser protections. Nothing on this site is meant to be framed by another site, and
+# Cloudflare sends the correct content type for every file, so these change nothing visible.
+# Temporary: X-Robots-Tag keeps the test deployment out of search results. Remove that line at the public launch.
 /*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
   X-Robots-Tag: noindex, nofollow, noarchive
 
 # Permanent: every file Astro writes to /_astro/ has a hash of its contents in its name, so changed content

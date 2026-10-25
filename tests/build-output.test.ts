@@ -133,6 +133,16 @@ describe('built site', () => {
     expect(unhashed).toEqual([]);
   });
 
+  it('sends basic security headers with every response', () => {
+    expect(headerRules().get('/*')).toEqual(
+      expect.arrayContaining([
+        'X-Content-Type-Options: nosniff',
+        'Referrer-Policy: strict-origin-when-cross-origin',
+        'X-Frame-Options: DENY',
+      ]),
+    );
+  });
+
   it('keeps TODO text off the homepage', () => {
     const body = pages.find((page) => page.route === '/')?.html.querySelector('body');
     const descriptions = (body?.querySelectorAll('[alt], [aria-label], [data-lightbox-caption]') ?? []).flatMap(
