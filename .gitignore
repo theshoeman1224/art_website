@@ -5,3 +5,12 @@ dist/
 .DS_Store
 *.log
 .image-compare/
+
+# Secrets: none are used yet, but keep any future ones out of this public repository.
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
